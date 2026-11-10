@@ -317,10 +317,11 @@ function lesson(i){
     <div class="card"><h3>1 · Key ideas</h3>
       <ul class="ideas">${L.ideas.map((x,k)=>`<li><b>${k+1}</b><span>${esc(x)}</span></li>`).join("")}</ul></div>
     <div class="card"><h3>2 · Articulation drill</h3>
-      <p class="tip">${esc(L.dtip)} Tap a line to practise it, or play the guide to read along at a steady pace.</p>
+      <p class="tip">${esc(L.dtip)} Tap a line to hear it, then repeat it out loud. Or play all lines and read along.</p>
       <div class="lines" id="lines">${L.drill.map((x,k)=>`<button class="line" data-k="${k}">${words(x)}</button>`).join("")}</div>
       <div class="speed"><label for="dwpm" class="tip">Guide speed</label><input type="range" id="dwpm" min="80" max="200" step="10" value="110"><output id="dwpmo">110 wpm</output></div>
-      <div class="row"><button class="btn ghost small" id="dplay">▶ Play guide</button></div>
+      <div class="row"><button class="btn ghost small" id="dplay">▶ Listen & read along</button></div>
+      <p class="note" id="dnote" hidden>This browser can't read text aloud, so the guide only highlights the words. Open the app in Chrome or Safari to hear it.</p>
     </div>
     <div class="card"><h3>3 · Speak it</h3>
       <p class="prompt">${esc(L.prompt)}</p>
@@ -338,14 +339,39 @@ function lesson(i){
   window.scrollTo(0,0);
 
   // drill
-  const lines=[...app.querySelectorAll(".line")]; let dTimer=null;
+  const lines=[...app.querySelectorAll(".line")]; let dTimer=null, playing=false;
   const dw=$("#dwpm"), dwo=$("#dwpmo");
   dw.oninput=()=>dwo.textContent=dw.value+" wpm";
-  lines.forEach(b=>b.onclick=()=>{lines.forEach(x=>x.classList.remove("active"));b.classList.add("active");markPractice();});
-  function stopDrill(){clearTimeout(dTimer);dTimer=null;app.querySelectorAll(".line .w").forEach(w=>w.classList.remove("on"));$("#dplay").textContent="▶ Play guide";}
+  const TTS=("speechSynthesis" in window)&&("SpeechSynthesisUtterance" in window);
+  const clearHL=()=>app.querySelectorAll(".line .w").forEach(w=>w.classList.remove("on"));
+  const setActive=li=>lines.forEach((x,j)=>x.classList.toggle("active",j===li));
+  function pickVoice(){const v=speechSynthesis.getVoices();
+    return v.find(x=>/^en[-_]US/i.test(x.lang)&&x.localService)||v.find(x=>/^en[-_](US|GB)/i.test(x.lang))||v.find(x=>/^en/i.test(x.lang))||null;}
+  function speakLine(li,onDone){
+    const text=L.drill[li], spans=[...lines[li].querySelectorAll(".w")], starts=[];
+    text.replace(/\S+/g,(m,o)=>{starts.push(o);return m;});
+    // same-length substitutions keep character positions aligned with the word highlights
+    const u=new SpeechSynthesisUtterance(text.replace(/\(pause\)/g,"  ...  ").replace(/____/g,"name"));
+    u.lang="en-US"; const v=pickVoice(); if(v) u.voice=v;
+    u.rate=Math.min(1.4,Math.max(0.5,dw.value/150));
+    u.onboundary=e=>{if(e.name&&e.name!=="word")return;let idx=0;starts.forEach((s,j)=>{if(s<=e.charIndex)idx=j;});spans.forEach((s,j)=>s.classList.toggle("on",j===idx));};
+    let ended=false; u.onend=u.onerror=()=>{if(ended)return;ended=true;spans.forEach(s=>s.classList.remove("on"));onDone&&onDone();};
+    setActive(li); try{speechSynthesis.resume();}catch(e){} speechSynthesis.speak(u);
+  }
+  function stopDrill(){playing=false;clearTimeout(dTimer);dTimer=null;if(TTS){try{speechSynthesis.cancel();}catch(e){}}clearHL();$("#dplay").textContent="▶ Listen & read along";}
+  if(TTS){try{speechSynthesis.getVoices();}catch(e){}}
+  else $("#dnote").hidden=false;
+  lines.forEach((b,li)=>b.onclick=()=>{stopDrill();setActive(li);markPractice();if(TTS)speakLine(li);});
   $("#dplay").onclick=()=>{
-    if(dTimer){stopDrill();return;}
+    if(playing||dTimer){stopDrill();return;}
     markPractice(); $("#dplay").textContent="■ Stop";
+    if(TTS){
+      playing=true; try{speechSynthesis.cancel();}catch(e){}
+      let li=0;
+      const next=()=>{if(!playing)return; if(li>=lines.length){stopDrill();setActive(-1);return;}
+        speakLine(li++,()=>{if(playing) dTimer=setTimeout(next,700);});};
+      next(); return;
+    }
     const seq=[];lines.forEach((l,li)=>l.querySelectorAll(".w").forEach(w=>seq.push([li,w])));
     let k=0;
     const step=()=>{app.querySelectorAll(".line .w").forEach(w=>w.classList.remove("on"));

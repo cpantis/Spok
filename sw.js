@@ -1,4 +1,4 @@
-const CACHE = 'spok-v1';
+const CACHE = 'spok-v2';
 const ASSETS = ['./', './index.html', './manifest.json', './icon-192.png', './icon-512.png'];
 
 self.addEventListener('install', e => {
