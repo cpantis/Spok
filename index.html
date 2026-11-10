@@ -1,0 +1,501 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Spok</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="theme-color" content="#1B2230">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+/* Layout: single-column phone app — sticky top bar, stacked lesson rows, bottom tab bar. */
+:root{
+  --bg:#F1F3F6; --surface:#FFFFFF; --ink:#18202C; --muted:#5D6778; --line:#DCE1E8;
+  --accent:#E2552A; --accent-ink:#FFFFFF; --accent-soft:#FCE7DF; --good:#1F8A5B; --good-soft:#DDF2E8;
+  --bar:#1B2230; --bar-ink:#F3F5F8; --hl:#FFE3A3;
+  --display:"Bricolage Grotesque", "Avenir Next", system-ui, sans-serif;
+  --body:"Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono:"JetBrains Mono", ui-monospace, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#11161F; --surface:#1A212D; --ink:#E8ECF2; --muted:#98A2B3; --line:#2A3342;
+  --accent:#F2683C; --accent-ink:#1A0D07; --accent-soft:#3A2219; --good:#4CC28B; --good-soft:#173329;
+  --bar:#0B0F15; --bar-ink:#E8ECF2; --hl:#5A4415; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#11161F; --surface:#1A212D; --ink:#E8ECF2; --muted:#98A2B3; --line:#2A3342;
+  --accent:#F2683C; --accent-ink:#1A0D07; --accent-soft:#3A2219; --good:#4CC28B; --good-soft:#173329;
+  --bar:#0B0F15; --bar-ink:#E8ECF2; --hl:#5A4415; color-scheme:dark }
+
+*{box-sizing:border-box}
+html,body{height:100%}
+body{background:var(--bg);color:var(--ink);font:15px/1.55 var(--body);-webkit-font-smoothing:antialiased}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bar)}
+button{font:inherit;color:inherit;cursor:pointer}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px;border-radius:6px}
+.wrap{max-width:640px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+
+header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bar);color:var(--bar-ink)}
+header.top .wrap{display:flex;align-items:center;gap:12px;padding-block:12px}
+.logo{display:flex;align-items:flex-end;gap:3px;height:22px}
+.logo i{display:block;width:4px;border-radius:2px;background:var(--accent)}
+.brand{font:700 20px/1 var(--display);letter-spacing:-.01em}
+.top .back{background:none;border:0;color:var(--bar-ink);padding:6px 4px;font-weight:600;display:flex;gap:6px;align-items:center}
+.top .spacer{flex:1}
+.streak{font:500 12px var(--mono);opacity:.85}
+
+main{padding-bottom:calc(84px + env(safe-area-inset-bottom,0px))}
+section.view{padding-block:20px;display:flex;flex-direction:column;gap:22px}
+
+h1{font:800 clamp(28px,7vw,40px)/1.05 var(--display);letter-spacing:-.02em;margin:0;text-wrap:balance}
+h2{font:700 20px/1.2 var(--display);margin:0;text-wrap:balance}
+h3{font:600 12px/1 var(--body);letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin:0}
+p{margin:0}
+.muted{color:var(--muted)}
+
+/* hero */
+.hero{display:grid;grid-template-columns:1fr auto;gap:16px;align-items:center}
+.ring{width:92px;height:92px;position:relative}
+.ring svg{width:100%;height:100%;transform:rotate(-90deg)}
+.ring .num{position:absolute;inset:0;display:grid;place-items:center;text-align:center;font:700 22px/1 var(--display)}
+.ring .num small{display:block;font:500 10px var(--mono);color:var(--muted);margin-top:4px}
+
+.next{background:var(--bar);color:var(--bar-ink);border-radius:18px;padding:18px;display:flex;flex-direction:column;gap:12px}
+.next h3{color:#A9B3C3}
+.next .t{font:700 22px/1.15 var(--display)}
+.btn{border:0;border-radius:12px;padding:12px 16px;font-weight:600;display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px}
+.btn.primary{background:var(--accent);color:var(--accent-ink)}
+.btn.ghost{background:transparent;border:1.5px solid var(--line)}
+.btn.small{padding:8px 12px;min-height:36px;font-size:14px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+
+/* lesson list */
+.list{display:flex;flex-direction:column;border-top:1px solid var(--line)}
+.item{display:grid;grid-template-columns:34px 1fr auto;gap:12px;align-items:center;padding:14px 2px;border:0;border-bottom:1px solid var(--line);background:none;text-align:left;width:100%}
+.item .n{font:500 13px var(--mono);color:var(--muted)}
+.item .ti{font-weight:600;min-width:0}
+.item .mi{font:500 12px var(--mono);color:var(--muted);white-space:nowrap}
+.item.done .n{color:var(--good)}
+.item.done .ti{color:var(--muted)}
+.chk{display:inline-grid;place-items:center;width:22px;height:22px;border-radius:50%;background:var(--good);color:var(--surface);font-size:12px}
+
+/* lesson view */
+.meta{display:flex;gap:12px;font:500 12px var(--mono);color:var(--muted);flex-wrap:wrap}
+.goal{font-size:17px;line-height:1.5;max-width:60ch}
+.steps{display:flex;gap:6px}
+.steps span{flex:1;height:4px;border-radius:2px;background:var(--line)}
+.steps span.on{background:var(--accent)}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:18px;display:flex;flex-direction:column;gap:14px}
+.ideas{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:12px}
+.ideas li{display:grid;grid-template-columns:22px 1fr;gap:10px}
+.ideas li b{font:700 15px var(--display);color:var(--accent)}
+.lines{display:flex;flex-direction:column;gap:10px}
+.line{font:600 18px/1.4 var(--display);padding:12px 14px;border-radius:12px;background:var(--bg);border:0;text-align:left;width:100%}
+.line.active{background:var(--accent-soft);box-shadow:inset 3px 0 0 var(--accent)}
+.line .w.on{background:var(--hl);border-radius:4px}
+.tip{font-size:13px;color:var(--muted)}
+.speed{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.speed input{flex:1;min-width:140px;accent-color:var(--accent)}
+.speed output{font:500 13px var(--mono);min-width:64px}
+
+.timer{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.clock{font:700 44px/1 var(--display);font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.clock.over{color:var(--accent)}
+.tally{display:flex;align-items:center;gap:10px}
+.tally .count{font:700 22px var(--mono);min-width:2ch;text-align:center}
+.prompt{font:600 18px/1.4 var(--display)}
+.rec{display:flex;flex-direction:column;gap:10px}
+.rec audio{width:100%}
+.note{font-size:13px;color:var(--muted);background:var(--bg);border-radius:10px;padding:10px 12px}
+.checks{display:flex;flex-direction:column;gap:6px}
+.checks label{display:flex;gap:10px;align-items:flex-start;padding:8px 0;cursor:pointer}
+.checks input{width:20px;height:20px;accent-color:var(--good);margin-top:2px;flex:none}
+.complete{background:var(--good-soft);color:var(--good);border-radius:12px;padding:12px 14px;font-weight:600}
+.dot{width:10px;height:10px;border-radius:50%;background:var(--accent);display:inline-block}
+.dot.live{animation:pulse 1s infinite}
+@keyframes pulse{50%{opacity:.25}}
+
+/* tabbar */
+nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:6;background:var(--surface);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px)}
+nav.tabs .wrap{display:grid;grid-template-columns:repeat(3,1fr)}
+nav.tabs button{background:none;border:0;padding:10px 4px 12px;display:flex;flex-direction:column;align-items:center;gap:4px;font-size:12px;font-weight:600;color:var(--muted)}
+nav.tabs button svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+nav.tabs button[aria-current="page"]{color:var(--accent)}
+textarea{width:100%;min-height:120px;border:1.5px solid var(--line);border-radius:12px;padding:12px;background:var(--surface);color:var(--ink);font:16px/1.5 var(--body);resize:vertical}
+.pacer-text{font:600 20px/1.6 var(--display)}
+.pacer-text .w{padding:1px 2px;border-radius:4px;transition:background .08s}
+.pacer-text .w.on{background:var(--hl)}
+.pacer-text .w.past{color:var(--muted)}
+@media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+</style>
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}[hidden]{display:none!important}</style>
+</head>
+<body>
+
+
+<header class="top"><div class="wrap" id="topbar"></div></header>
+<main><div class="wrap" id="app"></div></main>
+<nav class="tabs" aria-label="Sections"><div class="wrap">
+  <button data-tab="home"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h10"/></svg>Lessons</button>
+  <button data-tab="warmup"><svg viewBox="0 0 24 24"><path d="M3 12h3l3-7 4 14 3-7h5"/></svg>Warm-up</button>
+  <button data-tab="pacer"><svg viewBox="0 0 24 24"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l3 2M10 2h4"/></svg>Pacer</button>
+</div></nav>
+
+<script>
+const LESSONS = [
+ {t:"First impression hacks",m:15,goal:"Make your first sentence land: a clear name, a warm tone, and a confident finish.",
+  ideas:["Say your name slower than feels natural. It's the word listeners miss most often.","Pause for a beat after your name so it can register.","End statements with a falling pitch. A rising end sounds like a question and reads as unsure."],
+  drill:["Hi, I'm ____. Good to meet you.","Big black bug bit a big black bear.","Red leather, yellow leather, red leather, yellow leather."],
+  dtip:"Hit every final consonant: biG, blaCK, buG. Crisp endings make you sound awake and sure.",
+  prompt:"Introduce yourself: who you are, what you do, and one curious detail about you.",secs:30,
+  checks:["My name was clear and unhurried","I paused after my name","My sentences ended on a falling pitch"]},
+ {t:"Build Trust with Your Voice",m:11,goal:"Find your natural low pitch and speak from steady breath, so people hear calm certainty.",
+  ideas:["Hum \"mm-hmm\" as if agreeing. Where it settles is close to your natural pitch.","Breathe low into your belly before you start; shallow breath raises pitch and speeds you up.","Short sentences sound more certain than long ones stitched with \"and\"."],
+  drill:["Mm-hmm. Mm-hmm. This is what I recommend.","Here's the plan. Here's why it works.","Lovely lemon liniment, lovely lemon liniment."],
+  dtip:"Keep the pitch of the last word of each sentence at or below the first word.",
+  prompt:"Explain a decision you made recently and why it was the right call.",secs:45,
+  checks:["I stayed near my natural pitch","I took a breath before starting","I used short, complete sentences"]},
+ {t:"Confidence Wins",m:10,goal:"Replace filler words with clean pauses. Silence sounds deliberate; \"um\" sounds unsure.",
+  ideas:["When you feel an \"um\" coming, close your lips. The pause replaces it.","A pause before a key word makes the word land harder.","Finish thoughts with a full stop instead of trailing off with \"so…\"."],
+  drill:["One. (pause) Two. (pause) Three. (pause) Four.","The most important thing is (pause) focus.","Toy boat, toy boat, toy boat."],
+  dtip:"Use the filler counter during the speaking task. Aim to beat your score next time.",
+  prompt:"Describe your favorite place without a single filler word.",secs:60,tally:true,
+  checks:["I paused instead of filling","I finished sentences firmly","Fillers were fewer than last time"]},
+ {t:"Speak Up in Any Room",m:10,goal:"Project from the body, not the throat, so you're heard without shouting.",
+  ideas:["Aim your voice at the back wall, not at the person nearest you.","Open your mouth wider. Volume comes from open vowels.","Support from the belly: feel it tighten slightly on stressed words."],
+  drill:["Ah, Eh, Ee, Oh, Oo. Ah, Eh, Ee, Oh, Oo.","Unique New York, unique New York, you know you need unique New York.","I'd like to add something here."],
+  dtip:"Read each line at three volumes: to a friend, to the table, to the back of the room.",
+  prompt:"Make your point in a busy meeting. Open with \"I'd like to add something\".",secs:30,
+  checks:["My voice reached the back wall","My jaw and vowels were open","My throat stayed relaxed"]},
+ {t:"Storytelling Secrets",m:13,goal:"Shape a short story with tension and a turn, using pace and pauses to carry it.",
+  ideas:["Use four beats: situation, tension, turn, takeaway.","Slow down at the tension; speed up through the setup.","Pause right before the turn. That silence is where the listener leans in."],
+  drill:["It was Tuesday. Nothing unusual. (pause) Then the phone rang.","Six sleek swans swam swiftly southwards.","And that's when I learned (pause) to always ask."],
+  dtip:"Exaggerate the speed changes while drilling; in real life they'll shrink to just right.",
+  prompt:"Tell a short story about a time something didn't go to plan.",secs:90,
+  checks:["The story had a clear turn","I changed pace on purpose","I paused before the key moment"]},
+ {t:"Body language",m:15,goal:"Use posture and gesture to free your breath and make your words clearer.",
+  ideas:["Stand tall with soft knees; a collapsed chest squeezes your voice.","Keep gestures in the box between shoulders and waist.","Release the jaw: a tight jaw blurs consonants."],
+  drill:["Lip trill (brrrr) for 10 seconds, up and down in pitch.","The lips, the teeth, the tip of the tongue.","Peter Piper picked a peck of pickled peppers."],
+  dtip:"Do this drill standing. Let one hand mark the stressed word in each line.",
+  prompt:"Pitch an idea you care about, standing, using open hand gestures.",secs:45,
+  checks:["I stood tall and grounded","My gestures matched my stresses","My jaw felt loose"]},
+ {t:"Read People Like a Pro",m:15,goal:"Notice someone's pace and energy, match it briefly, then lead to where you want to go.",
+  ideas:["Fast talkers trust fast replies; slow talkers trust slow ones.","Match first, then shift your pace gradually; they'll often follow.","Listen for what gets emphasis: that's what they care about."],
+  drill:["Read this fast: I've got two minutes, what's the update?","Read this slow: Take your time. Walk me through it.","Fresh fried fish, fresh fried fish."],
+  dtip:"Read each line at its intended speed, then flip it and notice how the meaning changes.",
+  prompt:"Retell a recent conversation and describe the other person's tone and pace.",secs:60,
+  checks:["I described pace and energy","I varied my own speed","I named what they emphasised"]},
+ {t:"Give Tough Feedback Fast",m:17,goal:"Deliver clear feedback in a calm, direct voice without hedging.",
+  ideas:["Use Situation, Behavior, Impact: when, what you saw, what it caused.","Cut hedges like \"just\", \"kind of\" and \"maybe\".","Keep pitch flat and pace steady. Feedback is information, not drama."],
+  drill:["In Monday's meeting, you interrupted Dana three times.","The impact was that her proposal never got heard.","Can you walk me through what happened?"],
+  dtip:"Say each line once with hedges added, then once clean. Hear the difference.",
+  prompt:"Give feedback to a colleague who missed a deadline. Use Situation, Behavior, Impact.",secs:60,
+  checks:["I used Situation, Behavior, Impact","I left out hedging words","My tone stayed even"]},
+ {t:"Handle Difficult People Smartly",m:13,goal:"Stay steady when someone escalates: lower, slower, and specific.",
+  ideas:["When their volume goes up, bring yours down slightly.","Slow your pace. It calms the room and your own nerves.","Move to action: \"Here's what I can do.\""],
+  drill:["I hear you. Let's sort this out.","Here's what I can do today.","Three free throws, three free throws."],
+  dtip:"Read the lines with a lower volume than feels comfortable, and keep consonants crisp so quiet still sounds firm.",
+  prompt:"A customer is angry about a late order. Respond calmly and offer a next step.",secs:45,
+  checks:["I kept a lower, slower voice","I acknowledged their frustration","I ended with a clear action"]},
+ {t:"Say \"No\" and be likable",m:10,goal:"Say no early, warmly and briefly, with an alternative where you can.",
+  ideas:["Put the \"no\" in the first sentence. Burying it creates confusion.","Give one short reason, not a list of excuses.","Offer what you can do instead."],
+  drill:["Thanks for thinking of me. I can't take this on.","I'm at capacity this week.","What I can do is review it on Friday."],
+  dtip:"Smile slightly as you say the first line. It's audible, and it warms the no.",
+  prompt:"Decline a request to join a new project, kindly and clearly.",secs:30,
+  checks:["The no came early","I gave one short reason","I offered an alternative"]},
+ {t:"Interrupt Smoothly",m:10,goal:"Break in politely with a name, a bridge, and a crisp first word.",
+  ideas:["Use their name first. It gets attention without force.","Bridge with their point: \"Building on that…\"","Start on a strong consonant; mumbling an interruption makes it worse."],
+  drill:["Alex, can I jump in on that point?","Building on what you said, there's one risk.","Quick question before we move on."],
+  dtip:"Start each line slightly louder than your normal level, then settle back.",
+  prompt:"Practice three interruptions in a row for an imagined meeting.",secs:20,
+  checks:["I used a name or bridge","My first word was crisp","I settled back to a normal volume"]},
+ {t:"Defuse Any Conflict",m:15,goal:"Lower the temperature by acknowledging, slowing down, and asking questions.",
+  ideas:["Acknowledge the feeling before the facts.","Ask a genuine question; it shifts both people from defending to thinking.","Use \"we\" language to make it a shared problem."],
+  drill:["That sounds really frustrating.","What would a good outcome look like for you?","How can we fix this together?"],
+  dtip:"Let the pitch drop gently at the end of each line. Rising pitch sounds defensive here.",
+  prompt:"Two teammates disagree about priorities. Talk them toward a shared next step.",secs:60,
+  checks:["I acknowledged feelings first","I asked a real question","I used we-language"]},
+ {t:"Listen Like a Leader",m:11,goal:"Show you heard people by summarising accurately and asking the next good question.",
+  ideas:["Summarise in one sentence before replying.","Check: \"Did I get that right?\"","Ask about what they emphasised, not what you want to talk about."],
+  drill:["So what you're saying is the timeline is the real problem.","Did I get that right?","Which part worries you most?"],
+  dtip:"Speak these lines at a slightly slower pace than normal; it signals attention.",
+  prompt:"Summarise something someone told you today, then ask one follow-up question.",secs:45,
+  checks:["My summary was one sentence","I checked my understanding","My question followed their emphasis"]},
+ {t:"Small Talk Magic",m:12,goal:"Open easily, follow the thread, and share small details that keep it going.",
+  ideas:["Ask open questions: \"What brought you here?\"","Follow up on one detail they mention.","Give a small detail back so it's an exchange, not an interview."],
+  drill:["What brought you here tonight?","Oh, really? How did you get into that?","I tried that once and completely failed."],
+  dtip:"Raise your energy a notch for the opener, then match theirs.",
+  prompt:"Strike up a conversation with someone new at a work event.",secs:60,
+  checks:["I opened with an open question","I followed up on a detail","I shared something about myself"]}
+];
+
+const WARMUP = [
+ {t:"Breath",d:"Breathe in for 4 through the nose, out for 6 on a soft \"sss\". Repeat 5 times.",secs:50},
+ {t:"Jaw & face",d:"Yawn widely, massage the jaw hinge, then chew big imaginary gum.",secs:30},
+ {t:"Lip trills",d:"Blow through relaxed lips (brrrr), sliding pitch up and down.",secs:30},
+ {t:"Tongue stretches",d:"Tongue out and down, then side to side, then circle the lips.",secs:30},
+ {t:"Consonant ladder",d:"Say clearly: pa-ta-ka, ba-da-ga, ma-na-nga. Speed up each round.",secs:45},
+ {t:"Tongue twisters",d:"Red leather, yellow leather. Unique New York. Toy boat. Each three times, crisp then fast.",secs:60},
+ {t:"Vowel siren",d:"Glide \"Ah, Eh, Ee, Oh, Oo\" from low to high and back.",secs:30}
+];
+
+const PACER_SAMPLE = "Good speakers are not the ones who talk the fastest. They choose their words, give each one its full shape, and leave space for the listener to catch up. When you slow down a little, your consonants sharpen, your breath steadies, and people lean in to hear what comes next.";
+
+/* ---- storage ---- */
+const KEY="articulate-v1";
+let state={done:{},checks:{},fillers:{},days:[],pacerText:"",wpm:140};
+try{const s=JSON.parse(localStorage.getItem(KEY)||"null"); if(s) state=Object.assign(state,s);}catch(e){}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(state));}catch(e){}}
+function today(){const d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
+function markPractice(){const t=today(); if(!state.days.includes(t)){state.days.push(t); save();}}
+function streak(){let n=0;const d=new Date();const set=new Set(state.days);
+  if(!set.has(today())) d.setDate(d.getDate()-1);
+  while(true){const k=d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); if(set.has(k)){n++;d.setDate(d.getDate()-1);}else break;}
+  return n;}
+
+/* ---- helpers ---- */
+const $=s=>document.querySelector(s);
+const app=$("#app"), topEl=$("#topbar");
+const esc=s=>s.replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const fmt=s=>{const m=Math.floor(Math.abs(s)/60),x=Math.abs(s)%60;return (s<0?"+":"")+m+":"+String(x).padStart(2,"0")};
+const words=s=>s.split(/(\s+)/).map(p=>/\s+/.test(p)?p:`<span class="w">${esc(p)}</span>`).join("");
+let cleanup=[];
+function stopAll(){cleanup.forEach(f=>{try{f()}catch(e){}});cleanup=[];}
+
+function topbar(back){
+  const n=streak();
+  topEl.innerHTML=(back?`<button class="back" id="back" aria-label="Back to lessons">&#8592; Lessons</button>`:
+   `<div class="logo" aria-hidden="true"><i style="height:8px"></i><i style="height:15px"></i><i style="height:22px"></i><i style="height:15px"></i><i style="height:8px"></i></div><div class="brand">Spok</div>`)+
+   `<div class="spacer"></div><div class="streak">${n} day streak</div>`;
+  if(back) $("#back").onclick=()=>go("home");
+}
+function setTab(name){document.querySelectorAll("nav.tabs button").forEach(b=>b.setAttribute("aria-current",b.dataset.tab===name?"page":"false"));}
+
+/* ---- views ---- */
+function home(){
+  topbar(false); setTab("home");
+  const doneCount=LESSONS.filter((_,i)=>state.done[i]).length;
+  const nextI=LESSONS.findIndex((_,i)=>!state.done[i]);
+  const C=2*Math.PI*40, pct=doneCount/LESSONS.length;
+  const totalMin=LESSONS.reduce((a,l)=>a+l.m,0);
+  app.innerHTML=`<section class="view">
+    <div class="hero">
+      <div style="display:flex;flex-direction:column;gap:8px;min-width:0">
+        <h1>Speak clearly. Sound sure.</h1>
+        <p class="muted">${LESSONS.length} lessons · ${totalMin} min of practice · drills, timed speaking and self-recording.</p>
+      </div>
+      <div class="ring" role="img" aria-label="${doneCount} of ${LESSONS.length} lessons complete">
+        <svg viewBox="0 0 92 92"><circle cx="46" cy="46" r="40" stroke="var(--line)" stroke-width="8" fill="none"/>
+        <circle cx="46" cy="46" r="40" stroke="var(--accent)" stroke-width="8" fill="none" stroke-linecap="round" stroke-dasharray="${C}" stroke-dashoffset="${C*(1-pct)}"/></svg>
+        <div class="num"><div>${doneCount}/${LESSONS.length}<small>DONE</small></div></div>
+      </div>
+    </div>
+    ${nextI>=0?`<div class="next"><h3>Up next · Lesson ${nextI+1}</h3><div class="t">${esc(LESSONS[nextI].t)}</div>
+      <div class="row"><button class="btn primary" id="startNext">Start lesson · ${LESSONS[nextI].m} min</button><button class="btn small" style="background:transparent;color:inherit;border:1.5px solid #3A4456" id="wu">Warm up first</button></div></div>`
+     :`<div class="complete">All 14 lessons complete. Revisit any lesson to keep your skills sharp.</div>`}
+    <div style="display:flex;flex-direction:column;gap:10px"><h3>Unlock your charisma</h3>
+    <div class="list">${LESSONS.map((l,i)=>`<button class="item ${state.done[i]?"done":""}" data-i="${i}">
+      <span class="n">${state.done[i]?'<span class="chk" aria-label="Done">✓</span>':String(i+1).padStart(2,"0")}</span>
+      <span class="ti">${esc(l.t)}</span><span class="mi">${l.m} min</span></button>`).join("")}</div></div>
+  </section>`;
+  app.querySelectorAll(".item").forEach(b=>b.onclick=()=>go("lesson-"+(+b.dataset.i+1)));
+  if(nextI>=0){$("#startNext").onclick=()=>go("lesson-"+(nextI+1)); $("#wu").onclick=()=>go("warmup");}
+}
+
+function lesson(i){
+  const L=LESSONS[i]; topbar(true); setTab("home");
+  const ch=state.checks[i]||[];
+  app.innerHTML=`<section class="view">
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <div class="meta"><span>LESSON ${String(i+1).padStart(2,"0")} / ${LESSONS.length}</span><span>${L.m} MIN</span></div>
+      <h1>${esc(L.t)}</h1>
+      <p class="goal">${esc(L.goal)}</p>
+    </div>
+    <div class="card"><h3>1 · Key ideas</h3>
+      <ul class="ideas">${L.ideas.map((x,k)=>`<li><b>${k+1}</b><span>${esc(x)}</span></li>`).join("")}</ul></div>
+    <div class="card"><h3>2 · Articulation drill</h3>
+      <p class="tip">${esc(L.dtip)} Tap a line to practise it, or play the guide to read along at a steady pace.</p>
+      <div class="lines" id="lines">${L.drill.map((x,k)=>`<button class="line" data-k="${k}">${words(x)}</button>`).join("")}</div>
+      <div class="speed"><label for="dwpm" class="tip">Guide speed</label><input type="range" id="dwpm" min="80" max="200" step="10" value="110"><output id="dwpmo">110 wpm</output></div>
+      <div class="row"><button class="btn ghost small" id="dplay">▶ Play guide</button></div>
+    </div>
+    <div class="card"><h3>3 · Speak it</h3>
+      <p class="prompt">${esc(L.prompt)}</p>
+      <div class="timer"><div class="clock" id="clock">${fmt(L.secs)}</div>
+        <div class="row"><button class="btn primary small" id="tgo">Start ${L.secs}s timer</button><button class="btn ghost small" id="treset">Reset</button></div></div>
+      ${L.tally?`<div class="tally"><span class="tip">Filler words</span><button class="btn ghost small" id="fminus" aria-label="Remove one">−</button><span class="count" id="fcount">0</span><button class="btn primary small" id="fplus">+ um / uh / like</button><span class="tip" id="fbest"></span></div>`:""}
+      ${recorderHTML()}
+    </div>
+    <div class="card"><h3>4 · Check yourself</h3>
+      <div class="checks">${L.checks.map((c,k)=>`<label><input type="checkbox" id="c${i}-${k}" data-k="${k}" ${ch[k]?"checked":""}><span>${esc(c)}</span></label>`).join("")}</div>
+      <div class="row"><button class="btn ${state.done[i]?"ghost":"primary"}" id="done">${state.done[i]?"Completed · mark as not done":"Mark lesson complete"}</button>
+      ${i<LESSONS.length-1?`<button class="btn ghost" id="nextL">Next lesson →</button>`:""}</div>
+    </div>
+  </section>`;
+  window.scrollTo(0,0);
+
+  // drill
+  const lines=[...app.querySelectorAll(".line")]; let dTimer=null;
+  const dw=$("#dwpm"), dwo=$("#dwpmo");
+  dw.oninput=()=>dwo.textContent=dw.value+" wpm";
+  lines.forEach(b=>b.onclick=()=>{lines.forEach(x=>x.classList.remove("active"));b.classList.add("active");markPractice();});
+  function stopDrill(){clearTimeout(dTimer);dTimer=null;app.querySelectorAll(".line .w").forEach(w=>w.classList.remove("on"));$("#dplay").textContent="▶ Play guide";}
+  $("#dplay").onclick=()=>{
+    if(dTimer){stopDrill();return;}
+    markPractice(); $("#dplay").textContent="■ Stop";
+    const seq=[];lines.forEach((l,li)=>l.querySelectorAll(".w").forEach(w=>seq.push([li,w])));
+    let k=0;
+    const step=()=>{app.querySelectorAll(".line .w").forEach(w=>w.classList.remove("on"));
+      if(k>=seq.length){stopDrill();lines.forEach(x=>x.classList.remove("active"));return;}
+      const [li,w]=seq[k];lines.forEach((x,j)=>x.classList.toggle("active",j===li));w.classList.add("on");
+      const pause=/[.,?!)]$/.test(w.textContent)?1.8:1; const gap=(k+1<seq.length&&seq[k+1][0]!==li)?2.2:1;
+      k++; dTimer=setTimeout(step,60000/dw.value*Math.max(pause,gap));};
+    step();
+  };
+  cleanup.push(stopDrill);
+
+  // timer
+  let left=L.secs, tInt=null; const clock=$("#clock");
+  const draw=()=>{clock.textContent=fmt(left);clock.classList.toggle("over",left<0);};
+  $("#tgo").onclick=()=>{
+    if(tInt){clearInterval(tInt);tInt=null;$("#tgo").textContent="Resume";return;}
+    markPractice(); $("#tgo").textContent="Pause";
+    tInt=setInterval(()=>{left--;draw();if(left===0)beep();},1000);
+  };
+  $("#treset").onclick=()=>{clearInterval(tInt);tInt=null;left=L.secs;draw();$("#tgo").textContent=`Start ${L.secs}s timer`;};
+  cleanup.push(()=>clearInterval(tInt));
+
+  // filler tally
+  if(L.tally){let f=0;const best=state.fillers[i];
+    const show=()=>{$("#fcount").textContent=f;$("#fbest").textContent=best!=null?`Best: ${best}`:"";};
+    $("#fplus").onclick=()=>{f++;show();}; $("#fminus").onclick=()=>{f=Math.max(0,f-1);show();};
+    $("#treset").addEventListener("click",()=>{if(f>0||left!==L.secs){state.fillers[i]=best==null?f:Math.min(best,f);save();}f=0;show();});
+    show();}
+
+  bindRecorder();
+
+  // checks & complete
+  app.querySelectorAll(".checks input").forEach(c=>c.onchange=()=>{const a=state.checks[i]||[];a[+c.dataset.k]=c.checked;state.checks[i]=a;save();});
+  $("#done").onclick=()=>{state.done[i]=!state.done[i]; if(state.done[i]) markPractice(); save(); lesson(i);};
+  if($("#nextL")) $("#nextL").onclick=()=>go("lesson-"+(i+2));
+}
+
+function recorderHTML(){return `<div class="rec">
+  <div class="row"><button class="btn ghost small" id="rec"><span class="dot" id="rdot"></span> Record yourself</button><span class="tip" id="rstat">Listen back to hear what others hear.</span></div>
+  <audio id="play" controls hidden></audio>
+  <p class="note" id="rnote" hidden></p></div>`;}
+let mediaRec=null, stream=null;
+function bindRecorder(){
+  const btn=$("#rec"); if(!btn) return;
+  const stat=$("#rstat"), audio=$("#play"), note=$("#rnote"), dot=$("#rdot");
+  btn.onclick=async()=>{
+    if(mediaRec&&mediaRec.state==="recording"){mediaRec.stop();return;}
+    try{
+      if(!navigator.mediaDevices||!window.MediaRecorder) throw new Error("unsupported");
+      stream=await navigator.mediaDevices.getUserMedia({audio:true});
+      const chunks=[]; mediaRec=new MediaRecorder(stream);
+      mediaRec.ondataavailable=e=>e.data.size&&chunks.push(e.data);
+      mediaRec.onstop=()=>{stream.getTracks().forEach(t=>t.stop());
+        audio.src=URL.createObjectURL(new Blob(chunks,{type:mediaRec.mimeType||"audio/webm"}));audio.hidden=false;
+        btn.innerHTML='<span class="dot" id="rdot"></span> Record again';stat.textContent="Play it back. Are the word endings crisp?";};
+      mediaRec.start(); markPractice();
+      btn.innerHTML='<span class="dot live"></span> Stop recording'; stat.textContent="Recording…";
+    }catch(e){
+      note.hidden=false;
+      note.textContent="The microphone isn't available on this page. Install the app on your phone (see the setup notes) to record yourself, or use your phone's voice memo app alongside the timer.";
+    }
+  };
+  cleanup.push(()=>{try{if(mediaRec&&mediaRec.state==="recording")mediaRec.stop();}catch(e){} if(stream)stream.getTracks().forEach(t=>t.stop());});
+}
+
+let actx=null;
+function beep(){try{actx=actx||new (window.AudioContext||window.webkitAudioContext)();const o=actx.createOscillator(),g=actx.createGain();
+  o.frequency.value=880;g.gain.setValueAtTime(.15,actx.currentTime);g.gain.exponentialRampToValueAtTime(.001,actx.currentTime+.4);
+  o.connect(g).connect(actx.destination);o.start();o.stop(actx.currentTime+.4);}catch(e){}
+  try{navigator.vibrate&&navigator.vibrate(200)}catch(e){}}
+
+function warmup(){
+  topbar(false); setTab("warmup");
+  const total=WARMUP.reduce((a,w)=>a+w.secs,0);
+  app.innerHTML=`<section class="view">
+    <div style="display:flex;flex-direction:column;gap:8px"><h1>Daily warm-up</h1>
+    <p class="muted">${WARMUP.length} exercises · about ${Math.round(total/60)} minutes. Do it before any lesson or important call.</p></div>
+    <div class="card" id="wcard">
+      <div class="steps" id="wsteps">${WARMUP.map(()=>"<span></span>").join("")}</div>
+      <div class="meta" id="wmeta"></div>
+      <h2 id="wt"></h2><p id="wd" style="font-size:17px"></p>
+      <div class="timer"><div class="clock" id="wclock"></div>
+      <div class="row"><button class="btn primary" id="wgo">Start</button><button class="btn ghost small" id="wskip">Skip →</button></div></div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:10px"><h3>The routine</h3>
+    <div class="list">${WARMUP.map((w,k)=>`<div class="item" style="cursor:default"><span class="n">${String(k+1).padStart(2,"0")}</span><span class="ti">${esc(w.t)}</span><span class="mi">${w.secs}s</span></div>`).join("")}</div></div>
+  </section>`;
+  let k=0,left=WARMUP[0].secs,int=null;
+  const show=()=>{const w=WARMUP[k];$("#wt").textContent=w.t;$("#wd").textContent=w.d;$("#wclock").textContent=fmt(left);
+    $("#wmeta").textContent=`STEP ${k+1} OF ${WARMUP.length}`;
+    document.querySelectorAll("#wsteps span").forEach((s,j)=>s.classList.toggle("on",j<=k));};
+  const next=()=>{if(k<WARMUP.length-1){k++;left=WARMUP[k].secs;show();}else{clearInterval(int);int=null;
+    $("#wt").textContent="Warm-up done";$("#wd").textContent="Your voice is ready. Pick a lesson and keep going.";$("#wclock").textContent="0:00";$("#wgo").textContent="Go to lessons";$("#wgo").onclick=()=>go("home");}};
+  $("#wgo").onclick=()=>{if(int){clearInterval(int);int=null;$("#wgo").textContent="Resume";return;}
+    markPractice();$("#wgo").textContent="Pause";
+    int=setInterval(()=>{left--;if(left<=0){beep();next();}else $("#wclock").textContent=fmt(left);},1000);};
+  $("#wskip").onclick=next;
+  cleanup.push(()=>clearInterval(int)); show();
+}
+
+function pacer(){
+  topbar(false); setTab("pacer");
+  const txt=state.pacerText||PACER_SAMPLE;
+  app.innerHTML=`<section class="view">
+    <div style="display:flex;flex-direction:column;gap:8px"><h1>Reading pacer</h1>
+    <p class="muted">Read aloud and keep up with the highlight. Conversation sits around 130–150 words per minute; presentations land best near 120–140.</p></div>
+    <div class="card">
+      <div class="pacer-text" id="ptext" aria-live="off"></div>
+      <div class="speed"><label for="pwpm" class="tip">Speed</label><input type="range" id="pwpm" min="80" max="220" step="5" value="${state.wpm}"><output id="pwpmo">${state.wpm} wpm</output></div>
+      <div class="row"><button class="btn primary" id="pgo">▶ Start</button><button class="btn ghost small" id="preset">Restart</button><span class="tip" id="pstat"></span></div>
+    </div>
+    <div class="card"><h3>Your own text</h3>
+      <label for="pin" class="tip">Paste a speech, a work update or anything you'll read aloud.</label>
+      <textarea id="pin">${esc(txt)}</textarea>
+      <div class="row"><button class="btn ghost small" id="puse">Use this text</button><button class="btn ghost small" id="psample">Restore sample</button></div>
+    </div>
+  </section>`;
+  let spans=[],k=0,tm=null;
+  const load=t=>{$("#ptext").innerHTML=words(t);spans=[...$("#ptext").querySelectorAll(".w")];k=0;$("#pstat").textContent=`${spans.length} words · ${(spans.length/state.wpm).toFixed(1)} min`;};
+  const stop=()=>{clearTimeout(tm);tm=null;$("#pgo").textContent="▶ Start";};
+  const step=()=>{spans.forEach((s,j)=>{s.classList.toggle("on",j===k);s.classList.toggle("past",j<k);});
+    if(k>=spans.length){stop();k=0;$("#pstat").textContent="Done. Try it 10 wpm faster, or slower with fuller consonants.";return;}
+    const pause=/[.,;:?!]$/.test(spans[k].textContent)?(/[.?!]$/.test(spans[k].textContent)?2.2:1.6):1;
+    k++;tm=setTimeout(step,60000/state.wpm*pause);};
+  $("#pwpm").oninput=e=>{state.wpm=+e.target.value;$("#pwpmo").textContent=state.wpm+" wpm";save();};
+  $("#pgo").onclick=()=>{if(tm){stop();$("#pgo").textContent="▶ Resume";return;}markPractice();$("#pgo").textContent="Pause";step();};
+  $("#preset").onclick=()=>{stop();k=0;spans.forEach(s=>s.classList.remove("on","past"));};
+  $("#puse").onclick=()=>{stop();state.pacerText=$("#pin").value.trim()||PACER_SAMPLE;save();load(state.pacerText);};
+  $("#psample").onclick=()=>{stop();state.pacerText="";save();$("#pin").value=PACER_SAMPLE;load(PACER_SAMPLE);};
+  cleanup.push(stop); load(txt);
+}
+
+/* ---- router ---- */
+function go(name){ if(location.hash!=="#"+name) location.hash=name; else route(); }
+function route(){
+  stopAll();
+  const h=location.hash.slice(1);
+  const m=h.match(/^lesson-(\d+)$/);
+  if(m&&+m[1]>=1&&+m[1]<=LESSONS.length) lesson(+m[1]-1);
+  else if(h==="warmup") warmup();
+  else if(h==="pacer") pacer();
+  else home();
+  window.scrollTo(0,0);
+}
+document.querySelectorAll("nav.tabs button").forEach(b=>b.onclick=()=>go(b.dataset.tab));
+window.addEventListener("hashchange",route);
+route();
+
+if("serviceWorker" in navigator){try{navigator.serviceWorker.register("sw.js").catch(()=>{});}catch(e){}}
+</script>
+
+</body>
+</html>
