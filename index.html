@@ -759,6 +759,33 @@ function recorderHTML(){return `<div class="rec">
   <audio id="play" controls playsinline hidden></audio>
   <p class="note" id="rnote" hidden></p></div>`;}
 let mediaRec=null, stream=null, recUrl=null;
+/* ---- microphone help, tailored to the phone ---- */
+const UA=navigator.userAgent||"";
+const IS_IOS=/iPad|iPhone|iPod/.test(UA)||(/Macintosh/.test(UA)&&navigator.maxTouchPoints>1);
+const IS_ANDROID=/Android/i.test(UA);
+const IN_APP=/FBAN|FBAV|FB_IAB|Instagram|Messenger|LinkedInApp|Snapchat|TikTok|Line\/|; wv\)/.test(UA);
+const IN_FRAME=(()=>{try{return window.top!==window.self;}catch(e){return true;}})();
+const STANDALONE=(()=>{try{return matchMedia("(display-mode: standalone)").matches||navigator.standalone===true;}catch(e){return false;}})();
+function micHelp(kind){
+  if(kind==="frame") return "The microphone is blocked in this preview. Open Spok from its own website (for example tryspok.app) to record yourself.";
+  if(kind==="inapp") return IS_IOS
+    ? "This app's built-in browser blocks the microphone. Tap ⋯ or the share icon and choose \"Open in Safari\", then try again."
+    : "This app's built-in browser blocks the microphone. Tap ⋮ and choose \"Open in Chrome\", then try again.";
+  if(kind==="denied") return IS_IOS
+    ? (STANDALONE
+      ? "Microphone access is off. Open Settings → Safari → Microphone and choose Ask or Allow. Then close Spok completely and open it again."
+      : "Microphone access is off. In Safari, tap \"aA\" in the address bar → Website Settings → Microphone → Allow. Or open Settings → Safari → Microphone → Allow. Then reload the page.")
+    : IS_ANDROID
+      ? "Microphone access is off. Tap the icon to the left of the address → Permissions → Microphone → Allow. If that doesn't help, open Settings → Apps → Chrome → Permissions → Microphone → Allow. Then reload."
+      : "Microphone access is off. Click the icon to the left of the address, allow the microphone, then reload the page.";
+  if(kind==="busy") return "The microphone is busy in another app. End any call or voice recording, then try again.";
+  if(kind==="none") return "No microphone was found on this device.";
+  if(kind==="insecure") return "Recording needs a secure https address. Open Spok from its https website.";
+  if(kind==="unsupported") return IS_IOS
+    ? "This version of iOS can't record in the browser. Update iOS (14.5 or later), or use Voice Memos alongside the timer."
+    : "This browser can't record audio. Use the latest Chrome, or your phone's voice recorder alongside the timer.";
+  return "The microphone didn't start. Close other apps using it, reload Spok and try again.";
+}
 function recMime(){if(!window.MediaRecorder||!MediaRecorder.isTypeSupported)return "";
   for(const t of ["audio/mp4","audio/webm;codecs=opus","audio/webm","audio/ogg;codecs=opus"]) if(MediaRecorder.isTypeSupported(t)) return t; return "";}
 function bindRecorder(){
@@ -769,23 +796,27 @@ function bindRecorder(){
   const showErr=t=>{note.hidden=false;note.textContent=t;};
   $("#rplay").onclick=()=>{stopClip();try{speechSynthesis.cancel();}catch(e){}
     if(audio.paused){audio.currentTime=0;audio.play().catch(()=>showErr("Playback didn't start. Use the player controls below."));}else audio.pause();};
+  try{navigator.permissions&&navigator.permissions.query({name:"microphone"}).then(st=>{
+    const upd=()=>{if(!document.body.contains(note))return; if(st.state==="denied"){showErr(micHelp("denied"));} else if(note.textContent===micHelp("denied")) note.hidden=true;};
+    upd(); st.onchange=upd;}).catch(()=>{});}catch(e){}
   audio.onplay=()=>$("#rplay").textContent="❚❚ Pause";
   audio.onpause=audio.onended=()=>$("#rplay").textContent="▶ Play my recording";
   btn.onclick=async()=>{
     if(mediaRec&&mediaRec.state==="recording"){mediaRec.stop();return;}
     note.hidden=true;
-    if(!window.isSecureContext){showErr("Recording needs a secure (https) address. It works once the app is on its https website.");return;}
-    if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia||!window.MediaRecorder){showErr("This browser can't record audio. Try the latest Chrome or Safari, or use your phone's voice memo app alongside the timer.");return;}
+    if(!window.isSecureContext){showErr(micHelp("insecure"));return;}
+    if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia||!window.MediaRecorder){showErr(micHelp(IN_FRAME?"frame":IN_APP?"inapp":"unsupported"));return;}
     stopClip(); try{speechSynthesis.cancel();}catch(e){}
     audio.pause();
     try{
       stream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true}});
     }catch(e){
       const n=e&&e.name;
-      if(n==="NotAllowedError"||n==="SecurityError") showErr("Microphone access is blocked. iPhone: Settings → Safari (or the app you use) → Microphone → Allow. Android: tap the lock icon next to the address, then allow Microphone. Then try again.");
-      else if(n==="NotFoundError") showErr("No microphone was found on this device.");
-      else if(n==="NotReadableError") showErr("The microphone is busy in another app. Close calls or recorders and try again.");
-      else showErr("The microphone isn't available here. Open the app from its website or home screen icon and try again.");
+      if(n==="NotAllowedError"||n==="SecurityError") showErr(micHelp(IN_FRAME?"frame":IN_APP?"inapp":"denied"));
+      else if(n==="NotFoundError"||n==="OverconstrainedError") showErr(micHelp("none"));
+      else if(n==="NotReadableError"||n==="AbortError") showErr(micHelp("busy"));
+      else if(n==="NotSupportedError") showErr(micHelp(IN_FRAME?"frame":IN_APP?"inapp":"unsupported"));
+      else showErr(micHelp("other")+(n?" ("+n+")":""));
       return;
     }
     const chunks=[]; const mt=recMime();
