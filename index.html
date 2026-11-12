@@ -144,6 +144,17 @@ textarea{width:100%;min-height:120px;border:1.5px solid var(--line);border-radiu
 .ring .num small{letter-spacing:.06em}
 .next .mdot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--mc);margin-right:8px;vertical-align:1px}
 
+/* quick warm-up */
+.quick{display:grid;grid-template-columns:44px 1fr auto;gap:12px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:12px 14px}
+.qicon{display:grid;place-items:center;width:44px;height:44px;border-radius:12px;background:color-mix(in srgb,var(--m-voice) 14%,var(--surface));color:var(--m-voice)}
+.qicon svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.qtext{display:flex;flex-direction:column;gap:2px;min-width:0}
+.qtext b{font:700 16px var(--display)}.qtext span{font-size:13px;color:var(--muted)}
+.qbtns{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+@media (max-width:480px){.quick{grid-template-columns:44px 1fr}.qbtns{grid-column:1/-1;justify-content:stretch}.qbtns .btn{flex:1}}
+.seg{display:inline-flex;align-self:flex-start;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:3px;gap:3px}
+.seg button{border:0;background:none;border-radius:9px;padding:8px 14px;font-weight:600;font-size:14px;color:var(--muted)}
+.seg button[aria-selected="true"]{background:var(--ink);color:var(--bg)}
 /* modules: collapsible cards, each in its own colour */
 .modules{display:flex;flex-direction:column;gap:12px}
 .mod{background:var(--surface);border:1px solid var(--line);border-radius:18px;overflow:hidden}
@@ -558,7 +569,7 @@ function topbar(back,label){
    `<div class="spacer"></div><div class="streak">${n===0?"Practise today":n===1?"1 day streak":n+" day streak"}</div>`;
   if(back) $("#back").onclick=()=>go(back===true?"home":back);
 }
-function setTab(name){document.querySelectorAll("nav.tabs button").forEach(b=>b.setAttribute("aria-current",b.dataset.tab===name?"page":"false"));}
+function setTab(name){if(name==="warmup-express")name="warmup";document.querySelectorAll("nav.tabs button").forEach(b=>b.setAttribute("aria-current",b.dataset.tab===name?"page":"false"));}
 
 /* ---- views ---- */
 /* module colours and icons */
@@ -577,7 +588,7 @@ function home(){
   const totalMin=LESSONS.reduce((a,l)=>a+l.m,0);
   const hours=(Math.round(totalMin/30)/2).toString().replace(".5","½");
   const curMod=nextI>=0?LESSONS[nextI].mod:null;
-  if(!homeOpen) homeOpen=new Set(curMod?[curMod]:[]);
+  if(!homeOpen) homeOpen=new Set(curMod?[curMod]:[]); // the module you are in opens, with its next lesson marked
   // Ring: one arc per module, sized by its lesson count; the filled part shows lessons done.
   const R=40,C=2*Math.PI*R,GAP=5; let off=0;
   const arcs=MODULES.map(M=>{const idx=LESSONS.map((l,i)=>l.mod===M.id?i:-1).filter(i=>i>=0);const d=idx.filter(i=>state.done[i]).length;
@@ -596,9 +607,12 @@ function home(){
         <div class="num"><div>${doneCount}<small>OF ${LESSONS.length}</small></div></div>
       </div>
     </div>
-    ${nextI>=0?`<div class="next" style="--mc:${modColor(LESSONS[nextI].mod)}"><h3><span class="mdot"></span>Up next · Lesson ${nextI+1} · ${esc(MODULES.find(m=>m.id===LESSONS[nextI].mod).name)}</h3><div class="t">${esc(LESSONS[nextI].t)}</div>
-      <div class="row"><button class="btn primary" id="startNext">Start lesson · ${LESSONS[nextI].m} min</button><button class="btn small" style="background:transparent;color:inherit;border:1.5px solid #3A4456" id="wu">Warm up first</button></div></div>`
-     :`<div class="complete">All ${LESSONS.length} lessons complete. Revisit any lesson to keep your skills sharp.</div>`}
+    <div class="quick">
+      <span class="qicon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 12h3l3-7 4 14 3-7h5"/></svg></span>
+      <div class="qtext"><b>Quick warm-up</b><span>Just before a call, interview or presentation</span></div>
+      <div class="qbtns"><button class="btn dark small" id="qx">▶ 2 min</button><button class="btn ghost small" id="qf">Full · 4 min</button></div>
+    </div>
+    ${nextI<0?`<div class="complete">All ${LESSONS.length} lessons complete. Revisit any lesson to keep your skills sharp.</div>`:""}
     <div class="modules">${MODULES.map((M,mi)=>{const idx=LESSONS.map((l,i)=>l.mod===M.id?i:-1).filter(i=>i>=0);const d=idx.filter(i=>state.done[i]).length;
       const mins=idx.reduce((a,i)=>a+LESSONS[i].m,0), open=homeOpen.has(M.id);
       return `<div class="mod ${open?"expanded":""}" style="--mc:${modColor(M.id)}">
@@ -619,7 +633,8 @@ function home(){
   app.querySelectorAll(".mtop").forEach(b=>b.onclick=()=>{const id=b.dataset.m,box=b.parentElement,list=box.querySelector(".mlist");
     const open=!homeOpen.has(id); if(open)homeOpen.add(id);else homeOpen.delete(id);
     box.classList.toggle("expanded",open); list.hidden=!open; b.setAttribute("aria-expanded",open);});
-  if(nextI>=0){$("#startNext").onclick=()=>go("lesson-"+(nextI+1)); $("#wu").onclick=()=>go("warmup");}
+  $("#qx").onclick=()=>{autoWarm=true;go("warmup-express");};
+  $("#qf").onclick=()=>{autoWarm=true;go("warmup");};
 }
 
 function lesson(i){
@@ -835,35 +850,45 @@ function beep(){try{actx=actx||new (window.AudioContext||window.webkitAudioConte
   o.connect(g).connect(actx.destination);o.start();o.stop(actx.currentTime+.4);}catch(e){}
   try{navigator.vibrate&&navigator.vibrate(200)}catch(e){}}
 
-function warmup(){
+const EXPRESS=[0,2,5]; // breath, lip trills, tongue twisters: about 2 minutes
+let autoWarm=false;
+function warmup(express){
   topbar(false); setTab("warmup");
-  const total=WARMUP.reduce((a,w)=>a+w.secs,0);
+  const steps=(express?EXPRESS:WARMUP.map((_,i)=>i)).map(i=>({...WARMUP[i],n:i+1}));
+  const total=steps.reduce((a,w)=>a+w.secs,0);
+  const full=WARMUP.reduce((a,w)=>a+w.secs,0), ex=EXPRESS.reduce((a,i)=>a+WARMUP[i].secs,0);
   app.innerHTML=`<section class="view">
-    <div style="display:flex;flex-direction:column;gap:8px"><h1>Daily warm-up</h1>
-    <p class="muted">${WARMUP.length} exercises · about ${Math.round(total/60)} minutes. Do it before any lesson or important call.</p></div>
+    <div style="display:flex;flex-direction:column;gap:10px"><h1>${express?"Express warm-up":"Daily warm-up"}</h1>
+    <p class="muted">${express?"Three quick exercises for just before a call, interview or presentation.":"The full routine. Do it before a lesson or an important day."}</p>
+    <div class="seg" role="tablist" aria-label="Warm-up length">
+      <button role="tab" aria-selected="${!!express}" data-w="warmup-express">Express · ${Math.round(ex/60)} min</button>
+      <button role="tab" aria-selected="${!express}" data-w="warmup">Full · ${Math.round(full/60)} min</button>
+    </div></div>
     <div class="card" id="wcard">
-      <div class="steps" id="wsteps">${WARMUP.map(()=>"<span></span>").join("")}</div>
+      <div class="steps" id="wsteps">${steps.map(()=>"<span></span>").join("")}</div>
       <div class="meta" id="wmeta"></div>
       <h2 id="wt"></h2><p id="wd" style="font-size:17px"></p>
       <div class="timer"><div class="clock" id="wclock"></div>
       <div class="row"><button class="btn primary" id="wgo">Start</button><button class="btn ghost small" id="wskip">Skip →</button><button class="btn ghost small" id="wsay" aria-label="Hear the instructions">🔊 Hear it</button></div></div>
     </div>
-    <div style="display:flex;flex-direction:column;gap:10px"><h3>The routine</h3>
-    <div class="list">${WARMUP.map((w,k)=>`<div class="item" style="cursor:default"><span class="n">${String(k+1).padStart(2,"0")}</span><span class="ti">${esc(w.t)}</span><span class="mi">${w.secs}s</span></div>`).join("")}</div></div>
+    <div style="display:flex;flex-direction:column;gap:10px"><h3>The routine · about ${Math.max(1,Math.round(total/60))} min</h3>
+    <div class="list">${steps.map((w,k)=>`<div class="item" style="cursor:default"><span class="n">${String(k+1).padStart(2,"0")}</span><span class="ti">${esc(w.t)}</span><span class="mi">${w.secs}s</span></div>`).join("")}</div></div>
   </section>`;
-  let k=0,left=WARMUP[0].secs,int=null;
-  const show=()=>{const w=WARMUP[k];$("#wt").textContent=w.t;$("#wd").textContent=w.d;$("#wclock").textContent=fmt(left);
-    $("#wmeta").textContent=`STEP ${k+1} OF ${WARMUP.length}`;
+  app.querySelectorAll(".seg button").forEach(b=>b.onclick=()=>go(b.dataset.w));
+  let k=0,left=steps[0].secs,int=null;
+  const show=()=>{const w=steps[k];$("#wt").textContent=w.t;$("#wd").textContent=w.d;$("#wclock").textContent=fmt(left);
+    $("#wmeta").textContent=`STEP ${k+1} OF ${steps.length}`;
     document.querySelectorAll("#wsteps span").forEach((s,j)=>s.classList.toggle("on",j<=k));};
-  const say=()=>{const w=WARMUP[k];const tts=()=>{try{if(!("speechSynthesis" in window))return;speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(w.t+". "+w.d);u.lang="en-US";const v=englishVoices()[0];if(v)u.voice=v;u.rate=.95;speechSynthesis.speak(u);}catch(e){}};
-    if(!naturalFailed) playClip("w"+(k+1),null,1,null,null,tts); else tts();};
-  const next=()=>{stopClip();if(k<WARMUP.length-1){k++;left=WARMUP[k].secs;show();if(int)say();}else{clearInterval(int);int=null;
-    $("#wt").textContent="Warm-up done";$("#wd").textContent="Your voice is ready. Pick a lesson and keep going.";$("#wclock").textContent="0:00";$("#wgo").textContent="Go to lessons";$("#wgo").onclick=()=>go("home");}};
-  $("#wgo").onclick=()=>{if(int){clearInterval(int);int=null;$("#wgo").textContent="Resume";return;}
-    if(left===WARMUP[k].secs) say(); markPractice();$("#wgo").textContent="Pause";
+  const say=()=>{const w=steps[k];const tts=()=>{try{if(!("speechSynthesis" in window))return;speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(w.t+". "+w.d);u.lang="en-US";const v=englishVoices()[0];if(v)u.voice=v;u.rate=.95;speechSynthesis.speak(u);}catch(e){}};
+    if(!naturalFailed) playClip("w"+w.n,null,1,null,null,tts); else tts();};
+  const next=()=>{stopClip();if(k<steps.length-1){k++;left=steps[k].secs;show();if(int)say();}else{clearInterval(int);int=null;
+    $("#wt").textContent="Warm-up done";$("#wd").textContent="Your voice is ready. Go and speak with confidence.";$("#wclock").textContent="0:00";$("#wgo").textContent="Go to lessons";$("#wgo").onclick=()=>go("home");}};
+  const start=()=>{if(int){clearInterval(int);int=null;$("#wgo").textContent="Resume";return;}
+    if(left===steps[k].secs) say(); markPractice();$("#wgo").textContent="Pause";
     int=setInterval(()=>{left--;if(left<=0){beep();next();}else $("#wclock").textContent=fmt(left);},1000);};
-  $("#wskip").onclick=next; $("#wsay").onclick=say;
+  $("#wgo").onclick=start; $("#wskip").onclick=next; $("#wsay").onclick=say;
   cleanup.push(()=>{clearInterval(int);stopClip();try{speechSynthesis.cancel();}catch(e){}}); show();
+  if(autoWarm){autoWarm=false;start();}
 }
 
 /* ---- KIDS ---- */
@@ -1002,7 +1027,8 @@ function route(){
   const h=location.hash.slice(1);
   const m=h.match(/^lesson-(\d+)$/);
   if(m&&+m[1]>=1&&+m[1]<=LESSONS.length) lesson(+m[1]-1);
-  else if(h==="warmup") warmup();
+  else if(h==="warmup") warmup(false);
+  else if(h==="warmup-express") warmup(true);
   else if(/^kids-\d+$/.test(h)&&+h.slice(5)>=1&&+h.slice(5)<=KIDS.length) kidLesson(+h.slice(5)-1);
   else if(h==="kids") kids();
   else if(h==="about") about();
