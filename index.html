@@ -17,6 +17,7 @@
   --bg:#F1F3F6; --surface:#FFFFFF; --ink:#18202C; --muted:#5D6778; --line:#DCE1E8;
   --accent:#E2552A; --accent-ink:#FFFFFF; --accent-soft:#FCE7DF; --good:#1F8A5B; --good-soft:#DDF2E8;
   --bar:#1B2230; --bar-ink:#F3F5F8; --hl:#FFE3A3;
+  --m-voice:#E2552A; --m-interview:#2F6FD6; --m-meetings:#1F8F6A; --m-hard:#7A4FD0;
   --k-sky:#2F86D6; --k-sun:#E8A317; --k-grape:#8A5CD1; --k-leaf:#2E9E5B; --k-berry:#D9466F;
   --kid:"Baloo 2", "Bricolage Grotesque", system-ui, sans-serif;
   --display:"Bricolage Grotesque", "Avenir Next", system-ui, sans-serif;
@@ -26,11 +27,11 @@
 @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
   --bg:#11161F; --surface:#1A212D; --ink:#E8ECF2; --muted:#98A2B3; --line:#2A3342;
   --accent:#F2683C; --accent-ink:#1A0D07; --accent-soft:#3A2219; --good:#4CC28B; --good-soft:#173329;
-  --bar:#0B0F15; --bar-ink:#E8ECF2; --hl:#5A4415; --k-sky:#3E8FDB; --k-sun:#E3A21F; --k-grape:#9468D8; --k-leaf:#2F9A5A; --k-berry:#D9507A; color-scheme:dark }}
+  --bar:#0B0F15; --bar-ink:#E8ECF2; --hl:#5A4415; --m-voice:#F2683C; --m-interview:#6A9BF0; --m-meetings:#3FBF8F; --m-hard:#A787F0; --k-sky:#3E8FDB; --k-sun:#E3A21F; --k-grape:#9468D8; --k-leaf:#2F9A5A; --k-berry:#D9507A; color-scheme:dark }}
 :root[data-theme="dark"]{
   --bg:#11161F; --surface:#1A212D; --ink:#E8ECF2; --muted:#98A2B3; --line:#2A3342;
   --accent:#F2683C; --accent-ink:#1A0D07; --accent-soft:#3A2219; --good:#4CC28B; --good-soft:#173329;
-  --bar:#0B0F15; --bar-ink:#E8ECF2; --hl:#5A4415; --k-sky:#3E8FDB; --k-sun:#E3A21F; --k-grape:#9468D8; --k-leaf:#2F9A5A; --k-berry:#D9507A; color-scheme:dark }
+  --bar:#0B0F15; --bar-ink:#E8ECF2; --hl:#5A4415; --m-voice:#F2683C; --m-interview:#6A9BF0; --m-meetings:#3FBF8F; --m-hard:#A787F0; --k-sky:#3E8FDB; --k-sun:#E3A21F; --k-grape:#9468D8; --k-leaf:#2F9A5A; --k-berry:#D9507A; color-scheme:dark }
 
 *{box-sizing:border-box}
 html,body{height:100%}
@@ -134,11 +135,47 @@ nav.tabs button svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-
 nav.tabs button[aria-current="page"]{color:var(--accent)}
 textarea.mono{font:13px/1.4 var(--mono);min-height:90px;word-break:break-all}
 textarea{width:100%;min-height:120px;border:1.5px solid var(--line);border-radius:12px;padding:12px;background:var(--surface);color:var(--ink);font:16px/1.5 var(--body);resize:vertical}
-/* modules */
-.module{display:flex;flex-direction:column;gap:6px}
-.mhead{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
-.mcount{font:500 12px var(--mono);color:var(--muted)}
-.module .list{margin-top:6px}
+/* hero */
+.herotext{display:flex;flex-direction:column;gap:12px;min-width:0}
+.hero h1 .hl{color:var(--m-interview)}
+.stats{display:flex;flex-wrap:wrap;gap:6px}
+.stats span{font-size:13px;color:var(--muted);background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:4px 10px;white-space:nowrap}
+.stats b{color:var(--ink);font-weight:700}
+.ring .num small{letter-spacing:.06em}
+.next .mdot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--mc);margin-right:8px;vertical-align:1px}
+
+/* modules: collapsible cards, each in its own colour */
+.modules{display:flex;flex-direction:column;gap:12px}
+.mod{background:var(--surface);border:1px solid var(--line);border-radius:18px;overflow:hidden}
+.mod.expanded{border-color:color-mix(in srgb,var(--mc) 45%,var(--line))}
+.mtop{display:grid;grid-template-columns:44px 1fr 22px;gap:14px;align-items:start;width:100%;text-align:left;background:none;border:0;padding:16px}
+.micon{display:grid;place-items:center;width:44px;height:44px;border-radius:12px;background:color-mix(in srgb,var(--mc) 15%,var(--surface));color:var(--mc)}
+.micon svg,.mchip svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.mtext{display:flex;flex-direction:column;gap:6px;min-width:0}
+.mname{font:700 19px/1.2 var(--display)}
+.mblurb{font-size:13px;color:var(--muted)}
+.mbar{display:block;height:6px;border-radius:3px;background:color-mix(in srgb,var(--mc) 15%,var(--line));overflow:hidden;margin-top:4px}
+.mbar i{display:block;height:100%;background:var(--mc);border-radius:3px;min-width:0}
+.mmeta{font:500 12px var(--mono);color:var(--muted)}
+.chev{width:22px;height:22px;margin-top:12px;fill:none;stroke:var(--muted);stroke-width:2;transition:transform .2s}
+.mod.expanded .chev{transform:rotate(180deg)}
+.mlist{display:flex;flex-direction:column;border-top:1px solid var(--line)}
+.lrow{grid-template-columns:30px 1fr auto;padding:12px 16px;gap:12px}
+.lrow:last-child{border-bottom:0}
+.lnum{display:grid;place-items:center;width:30px;height:30px;border-radius:50%;font:600 13px var(--body);color:var(--mc);border:1.5px solid color-mix(in srgb,var(--mc) 40%,transparent)}
+.lnum svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+.lrow.done .lnum{background:var(--mc);color:var(--surface);border-color:var(--mc)}
+.lrow.isnext{background:color-mix(in srgb,var(--mc) 9%,var(--surface))}
+.lrow.isnext .lnum{background:var(--mc);color:var(--surface);border-color:var(--mc)}
+.lrow .ti{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.nextpill{font:700 10px/1 var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--mc);border:1.5px solid var(--mc);border-radius:999px;padding:3px 7px}
+
+/* lesson pages take their module colour */
+.modtint{--accent:var(--mc);--accent-soft:color-mix(in srgb,var(--mc) 15%,var(--surface))}
+.lhead{display:flex;flex-direction:column;gap:10px;padding:18px;border-radius:20px;background:color-mix(in srgb,var(--mc) 11%,var(--bg));border:1px solid color-mix(in srgb,var(--mc) 25%,transparent)}
+.mchip{display:inline-flex;align-items:center;gap:6px;color:var(--mc);font-weight:600;text-transform:uppercase}
+.mchip svg{width:15px;height:15px}
+.modtint .card h3{color:var(--mc)}
 
 /* kids */
 .kidsv h1{font-family:var(--kid)}
@@ -524,43 +561,73 @@ function topbar(back,label){
 function setTab(name){document.querySelectorAll("nav.tabs button").forEach(b=>b.setAttribute("aria-current",b.dataset.tab===name?"page":"false"));}
 
 /* ---- views ---- */
+/* module colours and icons */
+let homeOpen=null;
+const modColor=id=>`var(--m-${id})`;
+const MOD_ICON={
+  voice:'<svg viewBox="0 0 24 24"><path d="M4 10v4M8 7v10M12 4v16M16 7v10M20 10v4"/></svg>',
+  interview:'<svg viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M9 7V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2M3 13h18"/></svg>',
+  meetings:'<svg viewBox="0 0 24 24"><circle cx="8" cy="9" r="3"/><circle cx="16" cy="9" r="3"/><path d="M2.5 19c.8-3 3-4.5 5.5-4.5s4.7 1.5 5.5 4.5M10.5 19c.8-3 3-4.5 5.5-4.5s4.7 1.5 5.5 4.5"/></svg>',
+  hard:'<svg viewBox="0 0 24 24"><path d="M4 5h11a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H9l-4 3v-3H4a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2z"/><path d="M19 9h1a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-1v3l-4-3h-3"/></svg>'
+};
 function home(){
   topbar(false); setTab("home");
   const doneCount=LESSONS.filter((_,i)=>state.done[i]).length;
   const nextI=LESSONS.findIndex((_,i)=>!state.done[i]);
-  const C=2*Math.PI*40, pct=doneCount/LESSONS.length;
   const totalMin=LESSONS.reduce((a,l)=>a+l.m,0);
+  const hours=(Math.round(totalMin/30)/2).toString().replace(".5","½");
+  const curMod=nextI>=0?LESSONS[nextI].mod:null;
+  if(!homeOpen) homeOpen=new Set(curMod?[curMod]:[]);
+  // Ring: one arc per module, sized by its lesson count; the filled part shows lessons done.
+  const R=40,C=2*Math.PI*R,GAP=5; let off=0;
+  const arcs=MODULES.map(M=>{const idx=LESSONS.map((l,i)=>l.mod===M.id?i:-1).filter(i=>i>=0);const d=idx.filter(i=>state.done[i]).length;
+    const len=C*idx.length/LESSONS.length, seg=Math.max(0,len-GAP), fill=seg*d/idx.length;
+    const out=`<circle cx="46" cy="46" r="${R}" fill="none" stroke="${modColor(M.id)}" stroke-opacity=".22" stroke-width="9" stroke-dasharray="${seg} ${C}" stroke-dashoffset="${-off}"/>`+
+      (fill>0?`<circle cx="46" cy="46" r="${R}" fill="none" stroke="${modColor(M.id)}" stroke-width="9" stroke-dasharray="${fill} ${C}" stroke-dashoffset="${-off}"/>`:"");
+    off+=len; return out;}).join("");
   app.innerHTML=`<section class="view">
     <div class="hero">
-      <div style="display:flex;flex-direction:column;gap:8px;min-width:0">
-        <h1>Speak clearly. Interview with confidence.</h1>
-        <p class="muted">${LESSONS.length} lessons · ${totalMin} min of practice · drills, timed speaking and self-recording.</p>
+      <div class="herotext">
+        <h1>Speak clearly.<br><span class="hl">Interview</span> with confidence.</h1>
+        <div class="stats"><span><b>${LESSONS.length}</b> lessons</span><span><b>${hours} h</b> of practice</span><span><b>${MODULES.length}</b> skill areas</span></div>
       </div>
       <div class="ring" role="img" aria-label="${doneCount} of ${LESSONS.length} lessons complete">
-        <svg viewBox="0 0 92 92"><circle cx="46" cy="46" r="40" stroke="var(--line)" stroke-width="8" fill="none"/>
-        <circle cx="46" cy="46" r="40" stroke="var(--accent)" stroke-width="8" fill="none" stroke-linecap="round" stroke-dasharray="${C}" stroke-dashoffset="${C*(1-pct)}"/></svg>
-        <div class="num"><div>${doneCount}/${LESSONS.length}<small>DONE</small></div></div>
+        <svg viewBox="0 0 92 92">${arcs}</svg>
+        <div class="num"><div>${doneCount}<small>OF ${LESSONS.length}</small></div></div>
       </div>
     </div>
-    ${nextI>=0?`<div class="next"><h3>Up next · Lesson ${nextI+1} · ${esc(MODULES.find(m=>m.id===LESSONS[nextI].mod).name)}</h3><div class="t">${esc(LESSONS[nextI].t)}</div>
+    ${nextI>=0?`<div class="next" style="--mc:${modColor(LESSONS[nextI].mod)}"><h3><span class="mdot"></span>Up next · Lesson ${nextI+1} · ${esc(MODULES.find(m=>m.id===LESSONS[nextI].mod).name)}</h3><div class="t">${esc(LESSONS[nextI].t)}</div>
       <div class="row"><button class="btn primary" id="startNext">Start lesson · ${LESSONS[nextI].m} min</button><button class="btn small" style="background:transparent;color:inherit;border:1.5px solid #3A4456" id="wu">Warm up first</button></div></div>`
      :`<div class="complete">All ${LESSONS.length} lessons complete. Revisit any lesson to keep your skills sharp.</div>`}
-    ${MODULES.map(M=>{const idx=LESSONS.map((l,i)=>l.mod===M.id?i:-1).filter(i=>i>=0);const d=idx.filter(i=>state.done[i]).length;
-      return `<div class="module"><div class="mhead"><h2>${esc(M.name)}</h2><span class="mcount">${d}/${idx.length}</span></div><p class="tip">${esc(M.blurb)}</p>
-    <div class="list">${idx.map(i=>{const l=LESSONS[i];return `<button class="item ${state.done[i]?"done":""}" data-i="${i}">
-      <span class="n">${state.done[i]?'<span class="chk" aria-label="Done">✓</span>':String(i+1).padStart(2,"0")}</span>
-      <span class="ti">${esc(l.t)}</span><span class="mi">${l.m} min</span></button>`}).join("")}</div></div>`}).join("")}
+    <div class="modules">${MODULES.map((M,mi)=>{const idx=LESSONS.map((l,i)=>l.mod===M.id?i:-1).filter(i=>i>=0);const d=idx.filter(i=>state.done[i]).length;
+      const mins=idx.reduce((a,i)=>a+LESSONS[i].m,0), open=homeOpen.has(M.id);
+      return `<div class="mod ${open?"expanded":""}" style="--mc:${modColor(M.id)}">
+      <button class="mtop" data-m="${M.id}" aria-expanded="${open}">
+        <span class="micon">${MOD_ICON[M.id]}</span>
+        <span class="mtext"><span class="mname">${esc(M.name)}</span><span class="mblurb">${esc(M.blurb)}</span>
+          <span class="mbar"><i style="width:${100*d/idx.length}%"></i></span>
+          <span class="mmeta">${d} of ${idx.length} done · ${mins} min</span></span>
+        <svg class="chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+      </button>
+      <div class="mlist" ${open?"":"hidden"}>${idx.map(i=>{const l=LESSONS[i],dn=state.done[i],nx=i===nextI;
+        return `<button class="item lrow ${dn?"done":""} ${nx?"isnext":""}" data-i="${i}">
+        <span class="lnum">${dn?'<svg viewBox="0 0 24 24" aria-label="Done"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>':i+1}</span>
+        <span class="ti">${esc(l.t)}${nx?'<span class="nextpill">Next</span>':""}</span><span class="mi">${l.m} min</span></button>`}).join("")}</div>
+      </div>`}).join("")}</div>
   </section>`;
-  app.querySelectorAll(".item").forEach(b=>b.onclick=()=>go("lesson-"+(+b.dataset.i+1)));
+  app.querySelectorAll(".lrow").forEach(b=>b.onclick=()=>go("lesson-"+(+b.dataset.i+1)));
+  app.querySelectorAll(".mtop").forEach(b=>b.onclick=()=>{const id=b.dataset.m,box=b.parentElement,list=box.querySelector(".mlist");
+    const open=!homeOpen.has(id); if(open)homeOpen.add(id);else homeOpen.delete(id);
+    box.classList.toggle("expanded",open); list.hidden=!open; b.setAttribute("aria-expanded",open);});
   if(nextI>=0){$("#startNext").onclick=()=>go("lesson-"+(nextI+1)); $("#wu").onclick=()=>go("warmup");}
 }
 
 function lesson(i){
   const L=LESSONS[i]; topbar(true); setTab("home");
   const ch=state.checks[i]||[];
-  app.innerHTML=`<section class="view">
-    <div style="display:flex;flex-direction:column;gap:10px">
-      <div class="meta"><span>LESSON ${String(i+1).padStart(2,"0")} / ${LESSONS.length}</span><span>${esc(MODULES.find(m=>m.id===L.mod).name.toUpperCase())}</span><span>${L.m} MIN</span></div>
+  app.innerHTML=`<section class="view modtint" style="--mc:${modColor(L.mod)}">
+    <div class="lhead">
+      <div class="meta"><span class="mchip">${MOD_ICON[L.mod]}${esc(MODULES.find(m=>m.id===L.mod).name)}</span><span>LESSON ${i+1} OF ${LESSONS.length}</span><span>${L.m} MIN</span></div>
       <h1>${esc(L.t)}</h1>
       <p class="goal">${esc(L.goal)}</p>
     </div>
