@@ -71,6 +71,7 @@ p{margin:0}
 .btn{border:0;border-radius:12px;padding:12px 16px;font-weight:600;display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px}
 .btn.primary{background:var(--accent);color:var(--accent-ink)}
 .btn.ghost{background:transparent;border:1.5px solid var(--line)}
+.btn.dark{background:var(--ink);color:var(--bg)}
 .btn.small{padding:8px 12px;min-height:36px;font-size:14px}
 .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
 
@@ -98,6 +99,10 @@ p{margin:0}
 .line{font:600 18px/1.4 var(--display);padding:12px 14px;border-radius:12px;background:var(--bg);border:0;text-align:left;width:100%}
 .line.active{background:var(--accent-soft);box-shadow:inset 3px 0 0 var(--accent)}
 .line .w.on{background:var(--hl);border-radius:4px}
+.cue{display:inline-flex;align-items:center;gap:5px;vertical-align:.12em;font:italic 500 13px/1 var(--body);letter-spacing:.02em;color:var(--accent);background:var(--surface);border:1.5px dashed color-mix(in srgb,var(--accent) 55%,transparent);border-radius:999px;padding:4px 10px 4px 9px;white-space:nowrap}
+.cue svg{width:11px;height:11px;fill:currentColor}
+.cue .w.on{background:none;text-decoration:underline;text-underline-offset:3px}
+.cue:has(.w.on){background:var(--accent);color:var(--accent-ink);border-style:solid;border-color:var(--accent)}
 .tip{font-size:13px;color:var(--muted)}
 .speed{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
 .speed input{flex:1;min-width:140px;accent-color:var(--accent)}
@@ -203,7 +208,7 @@ const LESSONS = [
  /* ---------- Voice foundations ---------- */
  {mod:"voice",t:"Breath Before Words",m:10,goal:"Start every answer from a calm, low breath so your voice comes out steady instead of tight.",
   ideas:["Breathe in through the nose so your belly moves, not your shoulders.","Let the first word ride on the out-breath. Starting on empty lungs makes the voice thin.","One breath per sentence is a good rhythm for interviews."],
-  drill:["Breathe in. (pause) Thank you for having me today.","Breathe in. (pause) Let me walk you through it.","Breathe in. (pause) That's a great question."],
+  drill:["[Breathe in.] (pause) Thank you for having me today.","[Breathe in.] (pause) Let me walk you through it.","[Breathe in.] (pause) That's a great question."],
   dtip:"Take a real breath at each pause. Notice how the first word comes out fuller.",
   prompt:"Say why you applied for your last job, one breath per sentence.",secs:30,
   checks:["My shoulders stayed down","Each sentence started on fresh breath","My voice sounded steady, not tight"]},
@@ -483,17 +488,6 @@ function streak(){let n=0;const d=new Date();const set=new Set(state.days);
 /* ---- progress backup (no account needed) ---- */
 function progressSummary(){const a=LESSONS.filter((_,i)=>state.done[i]).length,k=KIDS.filter((_,i)=>state.kids[i]).length,d=state.days.length;
   return `Saved here: ${a} of ${LESSONS.length} lessons, ${k} of ${KIDS.length} kids' stars, ${d} practice day${d===1?"":"s"}.`;}
-function backupCode(){const data={v:2,done:state.done,checks:state.checks,fillers:state.fillers,days:state.days,kids:state.kids,voice:state.voice||null};
-  return "SPOK2-"+btoa(unescape(encodeURIComponent(JSON.stringify(data))));}
-function restoreCode(raw){const c=(raw||"").replace(/\s+/g,"");
-  if(!c) return {ok:false,msg:"Paste your backup code first."};
-  if(!c.startsWith("SPOK2-")) return {ok:false,msg:"That doesn't look like a Spok backup code. It should start with SPOK2-."};
-  let d; try{d=JSON.parse(decodeURIComponent(escape(atob(c.slice(6)))));}catch(e){return {ok:false,msg:"This code is incomplete or damaged. Copy the whole code and try again."};}
-  if(!d||typeof d!=="object"||!Array.isArray(d.days)) return {ok:false,msg:"This code is incomplete or damaged. Copy the whole code and try again."};
-  const days=new Set([...(state.days||[]),...d.days.filter(x=>/^\d{4}-\d{2}-\d{2}$/.test(x))]);
-  state={...state,done:{...state.done,...(d.done||{})},checks:{...state.checks,...(d.checks||{})},fillers:{...state.fillers,...(d.fillers||{})},kids:{...state.kids,...(d.kids||{})},days:[...days].sort()};
-  if(d.voice) state.voice=d.voice;
-  save(); return {ok:true};}
 try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist().catch(()=>{});}catch(e){}
 
 /* ---- helpers ---- */
@@ -501,7 +495,22 @@ const $=s=>document.querySelector(s);
 const app=$("#app"), topEl=$("#topbar");
 const esc=s=>s.replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const fmt=s=>{const m=Math.floor(Math.abs(s)/60),x=Math.abs(s)%60;return (s<0?"+":"")+m+":"+String(x).padStart(2,"0")};
-const words=s=>s.split(/(\s+)/).map(p=>/\s+/.test(p)?p:`<span class="w">${esc(p)}</span>`).join("");
+// Renders a line word by word. "(pause)" and [bracketed instructions] become cue chips, so they read as directions, not words to say.
+const PAUSE_ICON='<svg viewBox="0 0 12 12" aria-hidden="true"><rect x="2.5" y="2" width="2.4" height="8" rx="1"/><rect x="7.1" y="2" width="2.4" height="8" rx="1"/></svg>';
+const words=s=>{let out="",inCue=false;
+  s.split(/(\s+)/).forEach(p=>{
+    if(!p) return;
+    if(/^\s+$/.test(p)){out+=p;return;}
+    if(p==="(pause)"){out+=`<span class="cue pause" title="Pause for two seconds">${PAUSE_ICON}<span class="w">pause</span></span>`;return;}
+    let t=p,open=false,close=false;
+    if(t.startsWith("[")){open=true;t=t.slice(1);}
+    if(t.endsWith("]")){close=true;t=t.slice(0,-1);}
+    if(open){out+='<span class="cue">';inCue=true;}
+    out+=`<span class="w">${esc(t)}</span>`;
+    if(close&&inCue){out+='</span>';inCue=false;}
+  });
+  if(inCue) out+='</span>';
+  return out;};
 let cleanup=[];
 function stopAll(){cleanup.forEach(f=>{try{f()}catch(e){}});cleanup=[];}
 
@@ -606,7 +615,7 @@ function lesson(i){
     const text=L.drill[li], spans=[...lines[li].querySelectorAll(".w")], starts=[];
     text.replace(/\S+/g,(m,o)=>{starts.push(o);return m;});
     // same-length substitutions keep character positions aligned with the word highlights
-    const u=new SpeechSynthesisUtterance(text.replace(/\(pause\)/g,"  ...  ").replace(/____/g,"name"));
+    const u=new SpeechSynthesisUtterance(text.replace(/\(pause\)/g,"  ...  ").replace(/____/g,"name").replace(/[\[\]]/g," "));
     u.lang="en-US"; const v=pickVoice(); if(v) u.voice=v;
     u.rate=Math.min(1.4,Math.max(0.5,dw.value/150));
     u.onboundary=e=>{if(e.name&&e.name!=="word")return;let idx=0;starts.forEach((s,j)=>{if(s<=e.charIndex)idx=j;});spans.forEach((s,j)=>s.classList.toggle("on",j===idx));};
@@ -898,17 +907,8 @@ function about(){
         <label for="fmsg" class="tip">Message</label>
         <textarea id="fmsg" placeholder="What would make Spok better for you?"></textarea>
       </div>
-      <div class="row"><button class="btn primary" id="fsend">Send by email</button><button class="btn ghost small" id="fcopy">Copy message</button></div>
+      <div class="row"><button class="btn dark" id="fsend">Send by email</button><button class="btn ghost small" id="fcopy">Copy message</button></div>
       <p class="tip" id="fstat" aria-live="polite"></p>
-    </div>
-    <div class="card"><h3>Your progress</h3>
-      <p>Spok has no accounts. Your progress saves automatically on this phone, in the browser you use.</p>
-      <p class="tip" id="pstat">${progressSummary()}</p>
-      <p class="tip">To keep it safe, add Spok to your home screen. To move it to another phone or browser, copy your backup code and keep it in your notes or email it to yourself.</p>
-      <div class="row"><button class="btn primary small" id="bcopy">Copy backup code</button><button class="btn ghost small" id="bshow">Restore from code</button></div>
-      <textarea id="bcode" class="mono" hidden spellcheck="false" placeholder="Paste your backup code here"></textarea>
-      <div class="row" id="brow" hidden><button class="btn primary small" id="brestore">Restore progress</button><button class="btn ghost small" id="bcancel">Cancel</button></div>
-      <p class="tip" id="bmsg" aria-live="polite"></p>
     </div>
     <div class="card support"><h3>Support Spok</h3>
       <p>Spok is free, with no ads and no account. If it helped you before an interview or a big meeting, you can support my personal projects.</p>
@@ -925,15 +925,6 @@ function about(){
     if(!A.email){copy(x.body,"Message copied.");return;}
     location.href=`mailto:${A.email}?subject=${encodeURIComponent("Spok feedback: "+x.t)}&body=${encodeURIComponent(x.body)}`;
     stat(`Your email app should open with the message ready. If it doesn't, tap "Copy message" and send it to ${A.email}.`);};
-  const bmsg=t=>$("#bmsg").textContent=t;
-  $("#bcopy").onclick=async()=>{const code=backupCode();
-    try{await navigator.clipboard.writeText(code);bmsg("Backup code copied. Paste it into your notes or an email to yourself.");}
-    catch(e){$("#bcode").hidden=false;$("#bcode").value=code;$("#bcode").select();bmsg("Copy didn't work here. The code is selected above: copy it manually.");}};
-  const showR=on=>{$("#bcode").hidden=!on;$("#brow").hidden=!on;if(on){$("#bcode").value="";$("#bcode").focus();}};
-  $("#bshow").onclick=()=>{showR(true);bmsg("");};
-  $("#bcancel").onclick=()=>{showR(false);bmsg("");};
-  $("#brestore").onclick=()=>{const r=restoreCode($("#bcode").value);
-    if(!r.ok){bmsg(r.msg);return;} showR(false); $("#pstat").textContent=progressSummary(); bmsg("Progress restored.");};
   $("#fcopy").onclick=()=>{const x=msg(); if(!x.m){stat("Write a message first.");return;} copy(x.body,`Message copied. Paste it into an email to ${A.email}.`);};
 }
 
