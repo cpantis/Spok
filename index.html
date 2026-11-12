@@ -10,13 +10,15 @@
 <link rel="apple-touch-icon" href="icon-192.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&family=Baloo+2:wght@600;700&display=swap">
 <style>
 /* Layout: single-column phone app — sticky top bar, stacked lesson rows, bottom tab bar. */
 :root{
   --bg:#F1F3F6; --surface:#FFFFFF; --ink:#18202C; --muted:#5D6778; --line:#DCE1E8;
   --accent:#E2552A; --accent-ink:#FFFFFF; --accent-soft:#FCE7DF; --good:#1F8A5B; --good-soft:#DDF2E8;
   --bar:#1B2230; --bar-ink:#F3F5F8; --hl:#FFE3A3;
+  --k-sky:#2F86D6; --k-sun:#E8A317; --k-grape:#8A5CD1; --k-leaf:#2E9E5B; --k-berry:#D9466F;
+  --kid:"Baloo 2", "Bricolage Grotesque", system-ui, sans-serif;
   --display:"Bricolage Grotesque", "Avenir Next", system-ui, sans-serif;
   --body:"Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
   --mono:"JetBrains Mono", ui-monospace, Menlo, monospace;
@@ -24,11 +26,11 @@
 @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
   --bg:#11161F; --surface:#1A212D; --ink:#E8ECF2; --muted:#98A2B3; --line:#2A3342;
   --accent:#F2683C; --accent-ink:#1A0D07; --accent-soft:#3A2219; --good:#4CC28B; --good-soft:#173329;
-  --bar:#0B0F15; --bar-ink:#E8ECF2; --hl:#5A4415; color-scheme:dark }}
+  --bar:#0B0F15; --bar-ink:#E8ECF2; --hl:#5A4415; --k-sky:#3E8FDB; --k-sun:#E3A21F; --k-grape:#9468D8; --k-leaf:#2F9A5A; --k-berry:#D9507A; color-scheme:dark }}
 :root[data-theme="dark"]{
   --bg:#11161F; --surface:#1A212D; --ink:#E8ECF2; --muted:#98A2B3; --line:#2A3342;
   --accent:#F2683C; --accent-ink:#1A0D07; --accent-soft:#3A2219; --good:#4CC28B; --good-soft:#173329;
-  --bar:#0B0F15; --bar-ink:#E8ECF2; --hl:#5A4415; color-scheme:dark }
+  --bar:#0B0F15; --bar-ink:#E8ECF2; --hl:#5A4415; --k-sky:#3E8FDB; --k-sun:#E3A21F; --k-grape:#9468D8; --k-leaf:#2F9A5A; --k-berry:#D9507A; color-scheme:dark }
 
 *{box-sizing:border-box}
 html,body{height:100%}
@@ -121,15 +123,58 @@ p{margin:0}
 
 /* tabbar */
 nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:6;background:var(--surface);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px)}
-nav.tabs .wrap{display:grid;grid-template-columns:repeat(3,1fr)}
+nav.tabs .wrap{display:grid;grid-template-columns:repeat(4,1fr)}
 nav.tabs button{background:none;border:0;padding:10px 4px 12px;display:flex;flex-direction:column;align-items:center;gap:4px;font-size:12px;font-weight:600;color:var(--muted)}
 nav.tabs button svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 nav.tabs button[aria-current="page"]{color:var(--accent)}
+textarea.mono{font:13px/1.4 var(--mono);min-height:90px;word-break:break-all}
 textarea{width:100%;min-height:120px;border:1.5px solid var(--line);border-radius:12px;padding:12px;background:var(--surface);color:var(--ink);font:16px/1.5 var(--body);resize:vertical}
-.pacer-text{font:600 20px/1.6 var(--display)}
-.pacer-text .w{padding:1px 2px;border-radius:4px;transition:background .08s}
-.pacer-text .w.on{background:var(--hl)}
-.pacer-text .w.past{color:var(--muted)}
+/* modules */
+.module{display:flex;flex-direction:column;gap:6px}
+.mhead{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+.mcount{font:500 12px var(--mono);color:var(--muted)}
+.module .list{margin-top:6px}
+
+/* kids */
+.kidsv h1{font-family:var(--kid)}
+.kidhero{display:grid;grid-template-columns:1fr auto;gap:16px;align-items:center}
+.kidlead{font-size:18px;line-height:1.5;max-width:52ch}
+.starbox{display:flex;align-items:center;gap:6px;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:10px 14px}
+.starbox b{font:700 26px/1 var(--kid)}.starbox small{font-size:14px;color:var(--muted)}
+.star{width:26px;height:26px;fill:var(--line)}.star.on{fill:var(--k-sun)}
+.kgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.kcard{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:8px;text-align:left;border:0;border-radius:20px;padding:16px;min-height:132px;background:color-mix(in srgb,var(--kc) 22%,var(--surface));color:var(--ink)}
+.kcard .knum{display:grid;place-items:center;width:34px;height:34px;border-radius:50%;background:color-mix(in srgb,var(--kc) 85%,#000);color:#fff;font:700 17px var(--kid)}
+.kcard .kt{font:700 18px/1.2 var(--kid);min-width:0}
+.kcard .kbadge{margin-top:auto;display:flex;align-items:center;gap:4px;font-size:12px;font-weight:600;color:var(--muted)}
+.kcard .kbadge .star{width:16px;height:16px}
+.kidtop{display:flex;flex-direction:column;gap:12px;background:color-mix(in srgb,var(--kc) 20%,var(--surface));border-radius:22px;padding:20px}
+.kcardx{border-radius:20px}
+.kcardx h3{color:var(--kc)}
+.kgame{margin:0;padding-left:22px;display:flex;flex-direction:column;gap:10px;font-size:17px}
+.kgame li::marker{font:700 17px var(--kid);color:var(--kc)}
+.kline{font-family:var(--kid);font-size:20px}
+.kline .spk{font-size:15px;margin-right:4px}
+.kline.active{background:color-mix(in srgb,var(--kc) 22%,var(--surface));box-shadow:inset 3px 0 0 var(--kc)}
+.btn.kbtn{background:color-mix(in srgb,var(--kc) 78%,#000);color:#fff}
+.kwin{display:flex;gap:12px;align-items:center}.kwin .star{width:44px;height:44px;flex:none}
+.kwin b{font:700 20px var(--kid)}
+
+/* about */
+.author{display:flex;gap:16px;align-items:center}
+.avatar{flex:none;width:76px;height:76px;border-radius:50%;display:grid;place-items:center;background:var(--bar);color:var(--accent);font:800 28px var(--display);letter-spacing:-.02em}
+.aname{font-size:clamp(26px,6vw,34px)}
+.open{display:flex;flex-direction:column;gap:12px;align-items:flex-start;background:var(--good-soft);border-radius:16px;padding:16px}
+.open p{max-width:60ch}
+.pill{display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:600;color:var(--good);border:1.5px solid var(--good);border-radius:999px;padding:4px 10px;}
+.pdot{width:8px;height:8px;border-radius:50%;background:var(--good)}
+.contact{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.mail{font:500 14px var(--mono);user-select:all;word-break:break-all}
+a.btn{text-decoration:none;color:inherit}
+a.btn.primary{color:var(--accent-ink)}
+.fgrid{display:flex;flex-direction:column;gap:6px}
+.fgrid input{font-size:16px}
+.fgrid label{margin-top:6px}
 @media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
 </style>
 <style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}[hidden]{display:none!important}</style>
@@ -142,99 +187,204 @@ textarea{width:100%;min-height:120px;border:1.5px solid var(--line);border-radiu
 <nav class="tabs" aria-label="Sections"><div class="wrap">
   <button data-tab="home"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h10"/></svg>Lessons</button>
   <button data-tab="warmup"><svg viewBox="0 0 24 24"><path d="M3 12h3l3-7 4 14 3-7h5"/></svg>Warm-up</button>
-  <button data-tab="pacer"><svg viewBox="0 0 24 24"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l3 2M10 2h4"/></svg>Pacer</button>
+  <button data-tab="kids"><svg viewBox="0 0 24 24"><path d="M12 2.6l2.9 6 6.5.8-4.8 4.5 1.2 6.5L12 17.3l-5.8 3.1 1.2-6.5L2.6 9.4l6.5-.8z"/></svg>Kids</button>
+  <button data-tab="about"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg>About</button>
 </div></nav>
 
 <script>
+const MODULES = [
+ {id:"voice", name:"Voice foundations", blurb:"Breath, consonants, pace and tone. The base for everything else."},
+ {id:"interview", name:"Interview ready", blurb:"From \"tell me about yourself\" to the final handshake."},
+ {id:"meetings", name:"Speaking in meetings", blurb:"Get your turn, make your point, keep the room with you."},
+ {id:"hard", name:"Hard conversations", blurb:"Feedback, refusals and pushback, handled calmly."}
+];
+
 const LESSONS = [
- {t:"First impression hacks",m:15,goal:"Make your first sentence land: a clear name, a warm tone, and a confident finish.",
-  ideas:["Say your name slower than feels natural. It's the word listeners miss most often.","Pause for a beat after your name so it can register.","End statements with a falling pitch. A rising end sounds like a question and reads as unsure."],
-  drill:["Hi, I'm ____. Good to meet you.","Big black bug bit a big black bear.","Red leather, yellow leather, red leather, yellow leather."],
-  dtip:"Hit every final consonant: biG, blaCK, buG. Crisp endings make you sound awake and sure.",
-  prompt:"Introduce yourself: who you are, what you do, and one curious detail about you.",secs:30,
-  checks:["My name was clear and unhurried","I paused after my name","My sentences ended on a falling pitch"]},
- {t:"Build Trust with Your Voice",m:11,goal:"Find your natural low pitch and speak from steady breath, so people hear calm certainty.",
-  ideas:["Hum \"mm-hmm\" as if agreeing. Where it settles is close to your natural pitch.","Breathe low into your belly before you start; shallow breath raises pitch and speeds you up.","Short sentences sound more certain than long ones stitched with \"and\"."],
+ /* ---------- Voice foundations ---------- */
+ {mod:"voice",t:"Breath Before Words",m:10,goal:"Start every answer from a calm, low breath so your voice comes out steady instead of tight.",
+  ideas:["Breathe in through the nose so your belly moves, not your shoulders.","Let the first word ride on the out-breath. Starting on empty lungs makes the voice thin.","One breath per sentence is a good rhythm for interviews."],
+  drill:["Breathe in. (pause) Thank you for having me today.","Breathe in. (pause) Let me walk you through it.","Breathe in. (pause) That's a great question."],
+  dtip:"Take a real breath at each pause. Notice how the first word comes out fuller.",
+  prompt:"Say why you applied for your last job, one breath per sentence.",secs:30,
+  checks:["My shoulders stayed down","Each sentence started on fresh breath","My voice sounded steady, not tight"]},
+ {mod:"voice",t:"Crisp Consonants",m:12,goal:"Finish your words. Clear consonants make you easier to follow, especially on calls and with accents.",
+  ideas:["Final consonants carry meaning: tesT, buiLT, fixeD.","Use the tip of the tongue for T, D and N, just behind the top teeth.","Lazy endings sound unsure. Crisp endings sound prepared."],
+  drill:["Tested, tracked, fixed and shipped.","Big black bug bit a big black bear.","Red leather, yellow leather, red leather, yellow leather."],
+  dtip:"Over-pronounce the last sound of every word. In real speech it shrinks to just right.",
+  prompt:"Describe a bug or problem you solved, step by step.",secs:45,
+  checks:["I could hear every word ending","T and D sounds were sharp","I didn't rush the last word"]},
+ {mod:"voice",t:"Open Vowels Carry Further",m:10,goal:"Open your mouth wider so your voice reaches the whole room without strain.",
+  ideas:["Volume comes from open vowels, not from pushing the throat.","Drop the jaw a finger-width more than feels normal.","Aim your voice at the back wall, not at the nearest person."],
+  drill:["Ah, Eh, Ee, Oh, Oo. Ah, Eh, Ee, Oh, Oo.","Unique New York, unique New York, you know you need unique New York.","Our goal is a stable release by October."],
+  dtip:"Say each line at three volumes: to one person, to a table, to the back of a room.",
+  prompt:"Present the main goal of a project you worked on, as if to a room of twenty people.",secs:30,
+  checks:["My jaw was open and loose","My voice reached the back wall","My throat felt relaxed"]},
+ {mod:"voice",t:"Pace and the Power Pause",m:12,goal:"Slow down to a pace people can follow, and use pauses to make key points land.",
+  ideas:["Nervous speakers speed up. Aim for about 130 words a minute.","Pause before the important word, not after it.","A two-second pause feels long to you and normal to the listener."],
+  drill:["The result was (pause) a forty percent drop in defects.","What I learned (pause) was to test earlier.","Six sleek swans swam swiftly southwards."],
+  dtip:"Count \"one, two\" silently at each pause. Don't fill it.",
+  prompt:"Share one result you're proud of. Pause before the number.",secs:30,
+  checks:["My pace felt slower than usual","I paused before the key point","The pause didn't feel awkward on playback"]},
+ {mod:"voice",t:"Silence Instead of Fillers",m:10,goal:"Replace \"um\", \"like\" and \"you know\" with clean pauses. Silence sounds like thinking; fillers sound like doubt.",
+  ideas:["When an \"um\" is coming, close your lips. The pause replaces it.","Fillers appear most at the start of an answer, so begin with a breath instead.","Finish with a full stop rather than trailing off with \"so…\"."],
+  drill:["One. (pause) Two. (pause) Three. (pause) Four.","Good question. (pause) Here's how I'd approach it.","Toy boat, toy boat, toy boat."],
+  dtip:"Use the filler counter during the speaking task and try to beat your score.",
+  prompt:"Explain what you do at work to someone outside your field. No filler words.",secs:60,tally:true,
+  checks:["I paused instead of filling","I started with a breath, not an \"um\"","Fewer fillers than last time"]},
+ {mod:"voice",t:"A Steady, Trusted Tone",m:11,goal:"Speak near your natural pitch and end sentences going down, so you sound sure of what you say.",
+  ideas:["Hum \"mm-hmm\" as if agreeing. That's close to your natural pitch.","Statements end on a falling pitch. A rising end turns facts into questions.","Short sentences sound more certain than long chains of \"and\"."],
   drill:["Mm-hmm. Mm-hmm. This is what I recommend.","Here's the plan. Here's why it works.","Lovely lemon liniment, lovely lemon liniment."],
-  dtip:"Keep the pitch of the last word of each sentence at or below the first word.",
-  prompt:"Explain a decision you made recently and why it was the right call.",secs:45,
-  checks:["I stayed near my natural pitch","I took a breath before starting","I used short, complete sentences"]},
- {t:"Confidence Wins",m:10,goal:"Replace filler words with clean pauses. Silence sounds deliberate; \"um\" sounds unsure.",
-  ideas:["When you feel an \"um\" coming, close your lips. The pause replaces it.","A pause before a key word makes the word land harder.","Finish thoughts with a full stop instead of trailing off with \"so…\"."],
-  drill:["One. (pause) Two. (pause) Three. (pause) Four.","The most important thing is (pause) focus.","Toy boat, toy boat, toy boat."],
-  dtip:"Use the filler counter during the speaking task. Aim to beat your score next time.",
-  prompt:"Describe your favorite place without a single filler word.",secs:60,tally:true,
-  checks:["I paused instead of filling","I finished sentences firmly","Fillers were fewer than last time"]},
- {t:"Speak Up in Any Room",m:10,goal:"Project from the body, not the throat, so you're heard without shouting.",
-  ideas:["Aim your voice at the back wall, not at the person nearest you.","Open your mouth wider. Volume comes from open vowels.","Support from the belly: feel it tighten slightly on stressed words."],
-  drill:["Ah, Eh, Ee, Oh, Oo. Ah, Eh, Ee, Oh, Oo.","Unique New York, unique New York, you know you need unique New York.","I'd like to add something here."],
-  dtip:"Read each line at three volumes: to a friend, to the table, to the back of the room.",
-  prompt:"Make your point in a busy meeting. Open with \"I'd like to add something\".",secs:30,
-  checks:["My voice reached the back wall","My jaw and vowels were open","My throat stayed relaxed"]},
- {t:"Storytelling Secrets",m:13,goal:"Shape a short story with tension and a turn, using pace and pauses to carry it.",
-  ideas:["Use four beats: situation, tension, turn, takeaway.","Slow down at the tension; speed up through the setup.","Pause right before the turn. That silence is where the listener leans in."],
-  drill:["It was Tuesday. Nothing unusual. (pause) Then the phone rang.","Six sleek swans swam swiftly southwards.","And that's when I learned (pause) to always ask."],
-  dtip:"Exaggerate the speed changes while drilling; in real life they'll shrink to just right.",
-  prompt:"Tell a short story about a time something didn't go to plan.",secs:90,
-  checks:["The story had a clear turn","I changed pace on purpose","I paused before the key moment"]},
- {t:"Body language",m:15,goal:"Use posture and gesture to free your breath and make your words clearer.",
-  ideas:["Stand tall with soft knees; a collapsed chest squeezes your voice.","Keep gestures in the box between shoulders and waist.","Release the jaw: a tight jaw blurs consonants."],
-  drill:["Lip trill (brrrr) for 10 seconds, up and down in pitch.","The lips, the teeth, the tip of the tongue.","Peter Piper picked a peck of pickled peppers."],
-  dtip:"Do this drill standing. Let one hand mark the stressed word in each line.",
-  prompt:"Pitch an idea you care about, standing, using open hand gestures.",secs:45,
-  checks:["I stood tall and grounded","My gestures matched my stresses","My jaw felt loose"]},
- {t:"Read People Like a Pro",m:15,goal:"Notice someone's pace and energy, match it briefly, then lead to where you want to go.",
-  ideas:["Fast talkers trust fast replies; slow talkers trust slow ones.","Match first, then shift your pace gradually; they'll often follow.","Listen for what gets emphasis: that's what they care about."],
-  drill:["Read this fast: I've got two minutes, what's the update?","Read this slow: Take your time. Walk me through it.","Fresh fried fish, fresh fried fish."],
-  dtip:"Read each line at its intended speed, then flip it and notice how the meaning changes.",
-  prompt:"Retell a recent conversation and describe the other person's tone and pace.",secs:60,
-  checks:["I described pace and energy","I varied my own speed","I named what they emphasised"]},
- {t:"Give Tough Feedback Fast",m:17,goal:"Deliver clear feedback in a calm, direct voice without hedging.",
-  ideas:["Use Situation, Behavior, Impact: when, what you saw, what it caused.","Cut hedges like \"just\", \"kind of\" and \"maybe\".","Keep pitch flat and pace steady. Feedback is information, not drama."],
-  drill:["In Monday's meeting, you interrupted Dana three times.","The impact was that her proposal never got heard.","Can you walk me through what happened?"],
-  dtip:"Say each line once with hedges added, then once clean. Hear the difference.",
-  prompt:"Give feedback to a colleague who missed a deadline. Use Situation, Behavior, Impact.",secs:60,
-  checks:["I used Situation, Behavior, Impact","I left out hedging words","My tone stayed even"]},
- {t:"Handle Difficult People Smartly",m:13,goal:"Stay steady when someone escalates: lower, slower, and specific.",
-  ideas:["When their volume goes up, bring yours down slightly.","Slow your pace. It calms the room and your own nerves.","Move to action: \"Here's what I can do.\""],
-  drill:["I hear you. Let's sort this out.","Here's what I can do today.","Three free throws, three free throws."],
-  dtip:"Read the lines with a lower volume than feels comfortable, and keep consonants crisp so quiet still sounds firm.",
-  prompt:"A customer is angry about a late order. Respond calmly and offer a next step.",secs:45,
-  checks:["I kept a lower, slower voice","I acknowledged their frustration","I ended with a clear action"]},
- {t:"Say \"No\" and be likable",m:10,goal:"Say no early, warmly and briefly, with an alternative where you can.",
-  ideas:["Put the \"no\" in the first sentence. Burying it creates confusion.","Give one short reason, not a list of excuses.","Offer what you can do instead."],
-  drill:["Thanks for thinking of me. I can't take this on.","I'm at capacity this week.","What I can do is review it on Friday."],
-  dtip:"Smile slightly as you say the first line. It's audible, and it warms the no.",
-  prompt:"Decline a request to join a new project, kindly and clearly.",secs:30,
-  checks:["The no came early","I gave one short reason","I offered an alternative"]},
- {t:"Interrupt Smoothly",m:10,goal:"Break in politely with a name, a bridge, and a crisp first word.",
-  ideas:["Use their name first. It gets attention without force.","Bridge with their point: \"Building on that…\"","Start on a strong consonant; mumbling an interruption makes it worse."],
-  drill:["Alex, can I jump in on that point?","Building on what you said, there's one risk.","Quick question before we move on."],
-  dtip:"Start each line slightly louder than your normal level, then settle back.",
-  prompt:"Practice three interruptions in a row for an imagined meeting.",secs:20,
-  checks:["I used a name or bridge","My first word was crisp","I settled back to a normal volume"]},
- {t:"Defuse Any Conflict",m:15,goal:"Lower the temperature by acknowledging, slowing down, and asking questions.",
-  ideas:["Acknowledge the feeling before the facts.","Ask a genuine question; it shifts both people from defending to thinking.","Use \"we\" language to make it a shared problem."],
-  drill:["That sounds really frustrating.","What would a good outcome look like for you?","How can we fix this together?"],
-  dtip:"Let the pitch drop gently at the end of each line. Rising pitch sounds defensive here.",
-  prompt:"Two teammates disagree about priorities. Talk them toward a shared next step.",secs:60,
-  checks:["I acknowledged feelings first","I asked a real question","I used we-language"]},
- {t:"Listen Like a Leader",m:11,goal:"Show you heard people by summarising accurately and asking the next good question.",
-  ideas:["Summarise in one sentence before replying.","Check: \"Did I get that right?\"","Ask about what they emphasised, not what you want to talk about."],
+  dtip:"Keep the last word of each sentence at or below the pitch of the first word.",
+  prompt:"Recommend a tool or method you trust and say why.",secs:45,
+  checks:["I stayed near my natural pitch","My sentences ended going down","I used short, complete sentences"]},
+
+ /* ---------- Interview ready ---------- */
+ {mod:"interview",t:"Tell Me About Yourself",m:15,goal:"Give a 60-second answer with a clear shape: present, past, and why this role.",
+  ideas:["Present: who you are now and what you're good at.","Past: two highlights that prove it.","Future: why this role is the natural next step."],
+  drill:["I'm a test engineer with ten years in safety-critical software.","Most recently, I led a team of eight across two releases.","That's why this role is such a good fit for me."],
+  dtip:"Smile slightly on the first line. Warmth is audible.",
+  prompt:"Answer \"Tell me about yourself\" using present, past and future.",secs:60,
+  checks:["My answer had three clear parts","I stayed under about 60 seconds","I ended on why this role"]},
+ {mod:"interview",t:"Camera-Ready First Impressions",m:10,goal:"Look and sound confident in a video interview: eye line, light, and a clear first sentence.",
+  ideas:["Look at the camera when you make a key point, not at their face on screen.","Raise the laptop to eye level and put the light in front of you.","Say your first sentence a little slower than normal; audio often lags."],
+  drill:["Hi, I'm ____. Thanks for making the time.","Can you hear me clearly?","Great to meet you all."],
+  dtip:"Practise these looking straight into your phone's camera.",
+  prompt:"Open a video interview: greet them, say your name, and thank them.",secs:20,
+  checks:["I looked into the camera","My first sentence was unhurried","I sounded warm, not stiff"]},
+ {mod:"interview",t:"Stories with STAR",m:15,goal:"Answer behavioural questions with Situation, Task, Action, Result, and keep the story tight.",
+  ideas:["Situation and Task in two sentences. Most people spend too long here.","Action is the heart: say \"I\", not \"we\", for what you did.","End with a Result, ideally a number, and what you learned."],
+  drill:["The release was two weeks away and the test suite was failing.","I split the failures by root cause and fixed the top three first.","We shipped on time, with zero critical defects."],
+  dtip:"Slow down slightly on the Result line. It's the part they'll remember.",
+  prompt:"Tell me about a time you worked under a tight deadline. Use STAR.",secs:90,
+  checks:["Setup took two sentences or less","I said \"I\" for my actions","I ended with a clear result"]},
+ {mod:"interview",t:"Strengths Without Bragging",m:12,goal:"Name a strength and prove it with a short example, so it sounds like fact rather than boasting.",
+  ideas:["Pick one strength that matters for this job.","Back it with a quick example: claim, proof, impact.","Let others' words help: \"My manager often said…\""],
+  drill:["One of my strengths is finding problems early.","For example, I caught a timing issue before integration testing.","My team lead called it the cheapest bug we ever fixed."],
+  dtip:"Say these in a calm, matter-of-fact tone, as if reading a report.",
+  prompt:"What is your greatest strength? Give one example.",secs:45,
+  checks:["I named one clear strength","I backed it with a real example","My tone was calm, not salesy"]},
+ {mod:"interview",t:"The Weakness Question",m:12,goal:"Answer honestly with a real weakness and what you're doing about it.",
+  ideas:["Choose a real weakness that won't block this job.","Spend most of the answer on how you're improving.","Skip the fake ones like \"I work too hard\"."],
+  drill:["Earlier in my career, I said yes to too many requests.","Now I agree priorities with my manager every Monday.","It's made my work much more predictable."],
+  dtip:"Keep the pitch level. A weakness said calmly sounds like self-awareness.",
+  prompt:"What's one weakness you're working on?",secs:45,
+  checks:["The weakness was real","Most of my answer was the fix","I stayed calm and level"]},
+ {mod:"interview",t:"Gaps and Career Changes",m:12,goal:"Explain a gap or a change of direction briefly and positively, then move forward.",
+  ideas:["Keep it short: one or two sentences of explanation.","Mention what you did or learned during that time.","Bridge straight to why you're ready now."],
+  drill:["I took time off to care for a family member.","During that time, I completed a certification in test automation.","Now I'm fully ready, and excited to get back to it."],
+  dtip:"No apology in the voice. State it the way you'd state a date.",
+  prompt:"Explain a gap or change in your career and bridge to this role.",secs:30,
+  checks:["My explanation was brief","I mentioned something I learned","I ended looking forward"]},
+ {mod:"interview",t:"Technical Answers, Plain Words",m:13,goal:"Explain technical work so a non-specialist interviewer understands why it mattered.",
+  ideas:["Start with the problem in everyday words.","Use one comparison people already know.","Finish with the business result, not the tool name."],
+  drill:["We needed to know that trains would stop safely, every time.","Think of it like a seatbelt check, run thousands of times a day.","It cut our test cycle from three weeks to four days."],
+  dtip:"Say the comparison line slowly. It's what helps the listener picture it.",
+  prompt:"Explain a technical project to someone from HR.",secs:60,
+  checks:["I started with the problem","I used a comparison","I ended with the result"]},
+ {mod:"interview",t:"When You Don't Know the Answer",m:10,goal:"Stay calm when a question stumps you: think out loud and show how you'd find the answer.",
+  ideas:["Buy a moment honestly: \"Let me think about that.\"","Say what you do know, then how you'd find the rest.","Never bluff. Interviewers notice, and it costs trust."],
+  drill:["Let me think about that for a second.","I haven't used that tool directly, but I've used something similar.","Here's how I'd find out."],
+  dtip:"Breathe before the first line. A calm pause looks like thinking, not panic.",
+  prompt:"Answer a question you don't fully know, such as \"How would you test a self-driving car?\"",secs:60,
+  checks:["I paused calmly first","I shared what I do know","I explained how I'd find out"]},
+ {mod:"interview",t:"Talking Salary Calmly",m:10,goal:"Discuss pay and start dates in a steady voice, with a researched range.",
+  ideas:["Give a range based on research, with your target at the low end.","Say the number once, clearly, then stop talking.","Ask about the whole package, not only salary."],
+  drill:["Based on my research, I'm looking for a range of sixty to seventy thousand.","Could you tell me more about the full package?","I'm available to start in four weeks."],
+  dtip:"Don't let the pitch rise on the number. A rising number invites a counteroffer.",
+  prompt:"The interviewer asks: \"What are your salary expectations?\"",secs:30,
+  checks:["I said a clear range","I stopped after the number","My pitch stayed level"]},
+ {mod:"interview",t:"Questions That Impress",m:10,goal:"Ask two or three thoughtful questions that show you're already thinking about the job.",
+  ideas:["Ask about success: what does great look like after six months?","Ask about the team and how they work.","Avoid questions the website already answers."],
+  drill:["What would success look like in the first six months?","How does the team decide what to test first?","What's the biggest challenge the team is facing right now?"],
+  dtip:"Lean slightly forward and lower your pace. Questions sound more genuine slowly.",
+  prompt:"Ask the interviewer three questions about the role.",secs:45,
+  checks:["My questions were specific","I asked about success or challenges","I sounded curious, not scripted"]},
+ {mod:"interview",t:"A Strong Close",m:10,goal:"End the interview by restating your fit, showing interest, and asking about next steps.",
+  ideas:["Sum up your fit in one sentence.","Say plainly that you want the job.","Ask what happens next and when."],
+  drill:["Thank you, I've really enjoyed this conversation.","From what I've heard, my testing background is a strong match.","What are the next steps?"],
+  dtip:"Let the last line fall in pitch. It sounds confident rather than hopeful.",
+  prompt:"Close the interview in under 30 seconds.",secs:30,
+  checks:["I restated my fit","I showed real interest","I asked about next steps"]},
+
+ /* ---------- Speaking in meetings ---------- */
+ {mod:"meetings",t:"Small Talk Before It Starts",m:10,goal:"Use the first minutes before a meeting or interview to connect easily.",
+  ideas:["Ask an open question: \"How's your week going?\"","Follow up on one detail they mention.","Share a small detail back so it's a conversation, not an interview."],
+  drill:["How's your week going so far?","Oh really? How did that go?","I had a similar week, actually."],
+  dtip:"Raise your energy a little for the opener, then match theirs.",
+  prompt:"Make small talk with a colleague while waiting for a meeting to start.",secs:45,
+  checks:["I opened with a question","I followed up on a detail","I shared something back"]},
+ {mod:"meetings",t:"Your First Words in the Room",m:10,goal:"Speak once in the first five minutes of every meeting. It gets much easier after that.",
+  ideas:["Early speakers are seen as more engaged.","Your first words can be small: a question, an agreement, a fact.","Name the person you're building on."],
+  drill:["Good morning, everyone.","I agree with Maria's point about the timeline.","Can I add one thing here?"],
+  dtip:"Say the first line louder than feels natural. Meetings eat quiet openings.",
+  prompt:"Make your first contribution in a planning meeting.",secs:20,
+  checks:["I spoke clearly and early","I named who I was building on","My voice was loud enough"]},
+ {mod:"meetings",t:"The Two-Minute Update",m:12,goal:"Give a status update that is short and structured, and ends with what you need.",
+  ideas:["Use Done, Next, Blocked.","Lead with the headline: on track or not.","End with a clear request if you have one."],
+  drill:["Headline: we're on track for Friday.","Done: regression tests pass on all three platforms.","Blocked: I need access to the new test bench."],
+  dtip:"Pause after each label: Done, Next, Blocked. The structure becomes audible.",
+  prompt:"Give your status update for this week using Done, Next, Blocked.",secs:120,
+  checks:["I led with the headline","I used Done, Next, Blocked","I stated a clear request"]},
+ {mod:"meetings",t:"Interrupting Politely",m:10,goal:"Break in when it matters, using a name, a bridge and a crisp first word.",
+  ideas:["Use their name first. It gets attention without force.","Explain why you're interrupting in a few words.","Hand the floor back when you're done."],
+  drill:["Alex, sorry to jump in. This affects the deadline.","Before we move on, one quick risk.","Thanks, back to you."],
+  dtip:"Make the first consonant crisp. A mumbled interruption is worse than none.",
+  prompt:"Interrupt a colleague to flag a risk they've missed.",secs:20,
+  checks:["I used their name","I said why I interrupted","I handed the floor back"]},
+ {mod:"meetings",t:"Summarise and Check",m:11,goal:"Show you really listened by summarising in one sentence and checking you got it right.",
+  ideas:["Summarise before you reply.","Check: \"Did I get that right?\"","Ask about what they emphasised, not what you want to talk about."],
   drill:["So what you're saying is the timeline is the real problem.","Did I get that right?","Which part worries you most?"],
-  dtip:"Speak these lines at a slightly slower pace than normal; it signals attention.",
-  prompt:"Summarise something someone told you today, then ask one follow-up question.",secs:45,
-  checks:["My summary was one sentence","I checked my understanding","My question followed their emphasis"]},
- {t:"Small Talk Magic",m:12,goal:"Open easily, follow the thread, and share small details that keep it going.",
-  ideas:["Ask open questions: \"What brought you here?\"","Follow up on one detail they mention.","Give a small detail back so it's an exchange, not an interview."],
-  drill:["What brought you here tonight?","Oh, really? How did you get into that?","I tried that once and completely failed."],
-  dtip:"Raise your energy a notch for the opener, then match theirs.",
-  prompt:"Strike up a conversation with someone new at a work event.",secs:60,
-  checks:["I opened with an open question","I followed up on a detail","I shared something about myself"]}
+  dtip:"Speak these a little slower than normal. A slower pace signals attention.",
+  prompt:"Summarise what a colleague just told you, then ask one follow-up question.",secs:30,
+  checks:["My summary was one sentence","I checked my understanding","My question followed their point"]},
+ {mod:"meetings",t:"Disagree Without Drama",m:12,goal:"Disagree clearly and respectfully, keeping the focus on the problem, not the person.",
+  ideas:["Acknowledge what's right in their view first.","State your concern with evidence.","Propose a way to decide, such as a test or a pilot."],
+  drill:["I see why that approach is tempting.","My concern is that it skips integration testing.","Could we try it on one module first?"],
+  dtip:"Keep the pitch dropping at the end of each line. Rising pitch sounds defensive.",
+  prompt:"Disagree with a plan to cut testing time in half.",secs:45,
+  checks:["I acknowledged their view","I gave evidence","I proposed a way forward"]},
+ {mod:"meetings",t:"Numbers People Remember",m:12,goal:"Present results so the key number sticks: one number, one comparison, one meaning.",
+  ideas:["Pick the one number that matters most.","Compare it to something: last quarter, the target, a known size.","Say what it means for the listener."],
+  drill:["Defects fell from sixty to twelve.","That's an eighty percent drop in one quarter.","It means fewer hotfixes, and calmer weekends."],
+  dtip:"Pause before each number and stress it. Numbers vanish when rushed.",
+  prompt:"Present one result from your work using number, comparison, meaning.",secs:45,
+  checks:["I focused on one key number","I compared it to something","I said what it means"]},
+ {mod:"meetings",t:"Running a Short Meeting",m:13,goal:"Open, steer and close a meeting so it ends on time with clear actions.",
+  ideas:["Open with the goal and the time: \"In 20 minutes, we decide X.\"","Steer back politely when it drifts.","Close by reading out actions, owners and dates."],
+  drill:["In twenty minutes, we'll decide on the release date.","Let's park that and come back to it.","So, Ana owns the test plan, due Thursday."],
+  dtip:"Use a slightly lower, slower voice when steering. It sounds in charge without being harsh.",
+  prompt:"Open and close a 20-minute release meeting.",secs:60,
+  checks:["I stated goal and time","I steered back politely","I closed with owners and dates"]},
+ {mod:"meetings",t:"Clear on Calls",m:10,goal:"Be easy to hear and follow on remote calls, where audio lag and noise work against you.",
+  ideas:["Say who you are when you start speaking in big calls.","Slow down 10 percent. Compression blurs fast speech.","Stop clearly so others know you're done: \"That's it from me.\""],
+  drill:["It's Ana here, one quick point.","Can everyone see my screen?","That's it from me. Any questions?"],
+  dtip:"Over-articulate the consonants. Microphones lose them first.",
+  prompt:"Give a short update on a call with ten people.",secs:30,
+  checks:["I said my name first","I spoke slightly slower","I ended with a clear stop"]},
+
+ /* ---------- Hard conversations ---------- */
+ {mod:"hard",t:"Feedback That Helps",m:15,goal:"Give tough feedback in a calm, direct voice with Situation, Behaviour, Impact.",
+  ideas:["Situation: when and where.","Behaviour: what you saw, not what you assume.","Impact: what it caused, then ask for their view."],
+  drill:["In Monday's meeting, you interrupted Dana three times.","The impact was that her proposal never got heard.","How did it look from your side?"],
+  dtip:"Say each line once with hedges like \"just\" or \"kind of\", then once clean. Hear the difference.",
+  prompt:"Give feedback to a colleague who missed a deadline without warning.",secs:60,
+  checks:["I used Situation, Behaviour, Impact","I left out hedging words","I asked for their view"]},
+ {mod:"hard",t:"Saying No Kindly",m:10,goal:"Say no early, warmly and briefly, and offer an alternative where you can.",
+  ideas:["Put the \"no\" in the first sentence.","Give one short reason, not a list of excuses.","Offer what you can do instead."],
+  drill:["Thanks for thinking of me. I can't take this on right now.","I'm at capacity until the release.","What I can do is review it on Friday."],
+  dtip:"Smile slightly as you say the first line. It warms the no.",
+  prompt:"Decline a request to join an extra project, kindly and clearly.",secs:30,
+  checks:["The no came early","I gave one short reason","I offered an alternative"]},
+ {mod:"hard",t:"Calm Under Pushback",m:13,goal:"Stay steady when someone challenges you hard: lower, slower, and specific.",
+  ideas:["When their volume goes up, bring yours down slightly.","Acknowledge the concern before answering it.","Move to facts and a next step."],
+  drill:["I understand why that's frustrating.","Here's what the data shows.","Here's what I can do by tomorrow."],
+  dtip:"Read the lines more quietly than feels comfortable, with crisp consonants so quiet still sounds firm.",
+  prompt:"A manager says your testing is slowing the team down. Respond calmly.",secs:45,
+  checks:["My voice stayed low and slow","I acknowledged the concern","I ended with a next step"]}
 ];
 
 const WARMUP = [
- {t:"Breath",d:"Breathe in for 4 through the nose, out for 6 on a soft \"sss\". Repeat 5 times.",secs:50},
+ {t:"Breath",d:"Breathe in for 4 through the nose, out for 6 on a soft \"sss\". Repeat 2 times.",secs:20},
  {t:"Jaw & face",d:"Yawn widely, massage the jaw hinge, then chew big imaginary gum.",secs:30},
  {t:"Lip trills",d:"Blow through relaxed lips (brrrr), sliding pitch up and down.",secs:30},
  {t:"Tongue stretches",d:"Tongue out and down, then side to side, then circle the lips.",secs:30},
@@ -243,11 +393,84 @@ const WARMUP = [
  {t:"Vowel siren",d:"Glide \"Ah, Eh, Ee, Oh, Oo\" from low to high and back.",secs:30}
 ];
 
-const PACER_SAMPLE = "Good speakers are not the ones who talk the fastest. They choose their words, give each one its full shape, and leave space for the listener to catch up. When you slow down a little, your consonants sharpen, your breath steadies, and people lean in to hear what comes next.";
+const KIDS = [
+ {t:"Balloon Breathing",c:"sky",badge:"Calm Cloud",
+  why:"Feeling nervous is normal. Even teachers feel it! Slow breaths tell your body: I am safe.",
+  game:["Put your hand on your tummy.","Breathe in slowly and fill your tummy like a balloon.","Breathe out slowly, like the balloon is going down. Do it three times."],
+  say:["I breathe in.","I breathe out.","I am calm and ready."],
+  turn:"Do three balloon breaths, then say: I am calm and ready.",secs:30},
+ {t:"Hello, Class!",c:"sun",badge:"Hello Hero",
+  why:"Saying hello is the easiest way to start. When you know your first words, the rest feels easier.",
+  game:["Stand up and smile.","Say hello to the class.","Say your name, your age, and one thing you like."],
+  say:["Hello, everyone!","My name is Alex.","I am nine years old.","I like football and drawing."],
+  turn:"Say hello. Tell us your name, your age and one thing you like.",secs:30},
+ {t:"Superhero Stand",c:"grape",badge:"Super Stander",
+  why:"How you stand changes how you feel. Standing tall helps your voice come out strong.",
+  game:["Stand with your feet a little apart.","Put your hands on your hips like a superhero.","Count to five, then put your arms down and stay tall."],
+  say:["I stand tall.","I feel strong.","I can do this!"],
+  turn:"Do the superhero stand for five seconds, then say: I can do this!",secs:20},
+ {t:"Big Voice, Slow Voice",c:"leaf",badge:"Loud and Clear",
+  why:"When we are nervous, we talk fast and quiet. Talk slower and a little louder, so the kids at the back can hear you.",
+  game:["Pick a friend at the back of the room, or a toy far away.","Say a sentence so they can hear it.","Now say it again, slower, like a snail."],
+  say:["Good morning, everyone!","Today I will talk about my dog.","Can you hear me at the back?"],
+  turn:"Say: Good morning, everyone! First fast, then slow and loud. Which one is better?",secs:20},
+ {t:"Look and Smile",c:"sun",badge:"Friendly Eyes",
+  why:"Looking at people helps them listen. If eyes feel scary, look at their foreheads. They can't tell the difference!",
+  game:["Pick three friendly faces: one left, one middle, one right.","Say one sentence to each face.","Smile at the end."],
+  say:["This is my favourite book.","It has a funny dragon in it.","I hope you like it too."],
+  turn:"Look at three places in the room, and say one sentence to each one.",secs:30},
+ {t:"Tongue Twister Fun",c:"berry",badge:"Twister Champ",
+  why:"Tongue twisters wake up your mouth. They make English words come out clearer. And they are funny!",
+  game:["Say the twister slowly first.","Say it a little faster.","Try it super fast! It's okay to laugh when you mix it up."],
+  say:["Six silly snakes sing songs.","Big blue bubbles bounce.","Fresh fish, fresh fish, fresh fish."],
+  turn:"Pick one twister and say it three times, faster each time.",secs:30},
+ {t:"Oops, That's Okay!",c:"sky",badge:"Brave Bouncer",
+  why:"Everybody makes mistakes, even grown-ups. When you forget a word, you can stop, breathe and try again.",
+  game:["Pretend you forgot a word.","Use a magic sentence.","Then keep going like nothing happened!"],
+  say:["Let me try again.","Give me one second.","How do you say this in English?"],
+  turn:"Start a sentence, stop, say: Let me try again. Then finish it.",secs:30},
+ {t:"Show and Tell",c:"leaf",badge:"Show Star",
+  why:"Talking about something you love is easy, because you already know a lot about it.",
+  game:["Pick a toy or thing you love.","Say what it is.","Say why you like it, and one fun fact."],
+  say:["This is my teddy bear.","His name is Max.","I like him because he is very soft."],
+  turn:"Show something you love. What is it? Why do you like it?",secs:45},
+ {t:"A Tiny Story",c:"grape",badge:"Story Maker",
+  why:"Stories have a beginning, a middle and an end. Three little words help you: First, Then, Finally.",
+  game:["First: where were you?","Then: what happened?","Finally: how did it end?"],
+  say:["First, I went to the park.","Then, I saw a big brown dog.","Finally, we played ball together."],
+  turn:"Tell a tiny story with First, Then and Finally.",secs:45},
+ {t:"Answering the Teacher",c:"berry",badge:"Answer Ace",
+  why:"You don't need a perfect answer. You can share what you think, and that is brave!",
+  game:["Listen to the question.","Start with: I think…","Add because, and say why."],
+  say:["I think the answer is blue.","I think so because the sky is blue.","I'm not sure, but maybe it's ten."],
+  turn:"Answer this: What is your favourite animal, and why?",secs:30},
+ {t:"Asking for Help",c:"sun",badge:"Question Explorer",
+  why:"Asking questions is what smart people do. Teachers love good questions.",
+  game:["Raise your hand.","Wait until the teacher looks at you.","Ask your question with please."],
+  say:["Excuse me, can you help me, please?","Can you say that again, please?","What does this word mean?"],
+  turn:"Raise your hand and ask a question with please.",secs:20},
+ {t:"The Big Finish",c:"sky",badge:"Grand Finale",
+  why:"A good ending helps everyone know you are done. Then they clap, and you feel great!",
+  game:["Say your last sentence.","Say thank you.","Smile and take a little bow, or nod."],
+  say:["That's the end of my talk.","Thank you for listening!","Do you have any questions?"],
+  turn:"Do a whole mini talk: hello, one fact, and the big finish!",secs:60}
+];
+
+const APP_VERSION="2.0";
+const AUTHOR={
+  name:"Calin Pantis",
+  role:"Test Engineer · former Software Test Manager",
+  bio:"Test Engineer and former Software Test Manager with experience in manual and automated software testing across automotive and rail signalling software.",
+  pitch:"I'm looking for my next role in software testing and I'm open to collaborations. If you're hiring or have a project in mind, get in touch.",
+  email:"calin_pantis@yahoo.com",
+  linkedin:"",   // e.g. "https://www.linkedin.com/in/your-profile"
+  donate:"https://revolut.me/calintavw",
+  donateLabel:"Support via Revolut"
+};
 
 /* ---- storage ---- */
-const KEY="articulate-v1";
-let state={done:{},checks:{},fillers:{},days:[],pacerText:"",wpm:140};
+const KEY="spok-v2";
+let state={done:{},checks:{},fillers:{},days:[],kids:{}};
 try{const s=JSON.parse(localStorage.getItem(KEY)||"null"); if(s) state=Object.assign(state,s);}catch(e){}
 function save(){try{localStorage.setItem(KEY,JSON.stringify(state));}catch(e){}}
 function today(){const d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
@@ -256,6 +479,22 @@ function streak(){let n=0;const d=new Date();const set=new Set(state.days);
   if(!set.has(today())) d.setDate(d.getDate()-1);
   while(true){const k=d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); if(set.has(k)){n++;d.setDate(d.getDate()-1);}else break;}
   return n;}
+
+/* ---- progress backup (no account needed) ---- */
+function progressSummary(){const a=LESSONS.filter((_,i)=>state.done[i]).length,k=KIDS.filter((_,i)=>state.kids[i]).length,d=state.days.length;
+  return `Saved here: ${a} of ${LESSONS.length} lessons, ${k} of ${KIDS.length} kids' stars, ${d} practice day${d===1?"":"s"}.`;}
+function backupCode(){const data={v:2,done:state.done,checks:state.checks,fillers:state.fillers,days:state.days,kids:state.kids,voice:state.voice||null};
+  return "SPOK2-"+btoa(unescape(encodeURIComponent(JSON.stringify(data))));}
+function restoreCode(raw){const c=(raw||"").replace(/\s+/g,"");
+  if(!c) return {ok:false,msg:"Paste your backup code first."};
+  if(!c.startsWith("SPOK2-")) return {ok:false,msg:"That doesn't look like a Spok backup code. It should start with SPOK2-."};
+  let d; try{d=JSON.parse(decodeURIComponent(escape(atob(c.slice(6)))));}catch(e){return {ok:false,msg:"This code is incomplete or damaged. Copy the whole code and try again."};}
+  if(!d||typeof d!=="object"||!Array.isArray(d.days)) return {ok:false,msg:"This code is incomplete or damaged. Copy the whole code and try again."};
+  const days=new Set([...(state.days||[]),...d.days.filter(x=>/^\d{4}-\d{2}-\d{2}$/.test(x))]);
+  state={...state,done:{...state.done,...(d.done||{})},checks:{...state.checks,...(d.checks||{})},fillers:{...state.fillers,...(d.fillers||{})},kids:{...state.kids,...(d.kids||{})},days:[...days].sort()};
+  if(d.voice) state.voice=d.voice;
+  save(); return {ok:true};}
+try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist().catch(()=>{});}catch(e){}
 
 /* ---- helpers ---- */
 const $=s=>document.querySelector(s);
@@ -266,12 +505,12 @@ const words=s=>s.split(/(\s+)/).map(p=>/\s+/.test(p)?p:`<span class="w">${esc(p)
 let cleanup=[];
 function stopAll(){cleanup.forEach(f=>{try{f()}catch(e){}});cleanup=[];}
 
-function topbar(back){
+function topbar(back,label){
   const n=streak();
-  topEl.innerHTML=(back?`<button class="back" id="back" aria-label="Back to lessons">&#8592; Lessons</button>`:
+  topEl.innerHTML=(back?`<button class="back" id="back">&#8592; ${label||"Lessons"}</button>`:
    `<div class="logo" aria-hidden="true"><i style="height:8px"></i><i style="height:15px"></i><i style="height:22px"></i><i style="height:15px"></i><i style="height:8px"></i></div><div class="brand">Spok</div>`)+
-   `<div class="spacer"></div><div class="streak">${n} day streak</div>`;
-  if(back) $("#back").onclick=()=>go("home");
+   `<div class="spacer"></div><div class="streak">${n===0?"Practise today":n===1?"1 day streak":n+" day streak"}</div>`;
+  if(back) $("#back").onclick=()=>go(back===true?"home":back);
 }
 function setTab(name){document.querySelectorAll("nav.tabs button").forEach(b=>b.setAttribute("aria-current",b.dataset.tab===name?"page":"false"));}
 
@@ -285,7 +524,7 @@ function home(){
   app.innerHTML=`<section class="view">
     <div class="hero">
       <div style="display:flex;flex-direction:column;gap:8px;min-width:0">
-        <h1>Speak clearly. Sound sure.</h1>
+        <h1>Speak clearly. Interview with confidence.</h1>
         <p class="muted">${LESSONS.length} lessons · ${totalMin} min of practice · drills, timed speaking and self-recording.</p>
       </div>
       <div class="ring" role="img" aria-label="${doneCount} of ${LESSONS.length} lessons complete">
@@ -294,13 +533,14 @@ function home(){
         <div class="num"><div>${doneCount}/${LESSONS.length}<small>DONE</small></div></div>
       </div>
     </div>
-    ${nextI>=0?`<div class="next"><h3>Up next · Lesson ${nextI+1}</h3><div class="t">${esc(LESSONS[nextI].t)}</div>
+    ${nextI>=0?`<div class="next"><h3>Up next · Lesson ${nextI+1} · ${esc(MODULES.find(m=>m.id===LESSONS[nextI].mod).name)}</h3><div class="t">${esc(LESSONS[nextI].t)}</div>
       <div class="row"><button class="btn primary" id="startNext">Start lesson · ${LESSONS[nextI].m} min</button><button class="btn small" style="background:transparent;color:inherit;border:1.5px solid #3A4456" id="wu">Warm up first</button></div></div>`
-     :`<div class="complete">All 14 lessons complete. Revisit any lesson to keep your skills sharp.</div>`}
-    <div style="display:flex;flex-direction:column;gap:10px"><h3>Unlock your charisma</h3>
-    <div class="list">${LESSONS.map((l,i)=>`<button class="item ${state.done[i]?"done":""}" data-i="${i}">
+     :`<div class="complete">All ${LESSONS.length} lessons complete. Revisit any lesson to keep your skills sharp.</div>`}
+    ${MODULES.map(M=>{const idx=LESSONS.map((l,i)=>l.mod===M.id?i:-1).filter(i=>i>=0);const d=idx.filter(i=>state.done[i]).length;
+      return `<div class="module"><div class="mhead"><h2>${esc(M.name)}</h2><span class="mcount">${d}/${idx.length}</span></div><p class="tip">${esc(M.blurb)}</p>
+    <div class="list">${idx.map(i=>{const l=LESSONS[i];return `<button class="item ${state.done[i]?"done":""}" data-i="${i}">
       <span class="n">${state.done[i]?'<span class="chk" aria-label="Done">✓</span>':String(i+1).padStart(2,"0")}</span>
-      <span class="ti">${esc(l.t)}</span><span class="mi">${l.m} min</span></button>`).join("")}</div></div>
+      <span class="ti">${esc(l.t)}</span><span class="mi">${l.m} min</span></button>`}).join("")}</div></div>`}).join("")}
   </section>`;
   app.querySelectorAll(".item").forEach(b=>b.onclick=()=>go("lesson-"+(+b.dataset.i+1)));
   if(nextI>=0){$("#startNext").onclick=()=>go("lesson-"+(nextI+1)); $("#wu").onclick=()=>go("warmup");}
@@ -311,7 +551,7 @@ function lesson(i){
   const ch=state.checks[i]||[];
   app.innerHTML=`<section class="view">
     <div style="display:flex;flex-direction:column;gap:10px">
-      <div class="meta"><span>LESSON ${String(i+1).padStart(2,"0")} / ${LESSONS.length}</span><span>${L.m} MIN</span></div>
+      <div class="meta"><span>LESSON ${String(i+1).padStart(2,"0")} / ${LESSONS.length}</span><span>${esc(MODULES.find(m=>m.id===L.mod).name.toUpperCase())}</span><span>${L.m} MIN</span></div>
       <h1>${esc(L.t)}</h1>
       <p class="goal">${esc(L.goal)}</p>
     </div>
@@ -323,7 +563,6 @@ function lesson(i){
       <div class="speed"><label for="dwpm" class="tip">Guide speed</label><input type="range" id="dwpm" min="80" max="200" step="10" value="110"><output id="dwpmo">110 wpm</output></div>
       <div class="speed" id="vrow" hidden><label for="dvoice" class="tip">Teacher's voice</label><select id="dvoice" class="vsel"></select></div>
       <div class="row"><button class="btn ghost small" id="dplay">▶ Listen & read along</button></div>
-      <p class="note" id="dnote" hidden>This browser can't read text aloud, so the guide only highlights the words. Open the app in Chrome or Safari to hear it.</p>
     </div>
     <div class="card"><h3>3 · Speak it</h3>
       <p class="prompt">${esc(L.prompt)}</p>
@@ -343,40 +582,47 @@ function lesson(i){
   // drill
   const lines=[...app.querySelectorAll(".line")]; let dTimer=null, playing=false;
   const dw=$("#dwpm"), dwo=$("#dwpmo");
-  dw.oninput=()=>dwo.textContent=dw.value+" wpm";
+  dw.oninput=()=>{dwo.textContent=dw.value+" wpm"; if(curClip) curClip.playbackRate=clipRate();};
   const TTS=("speechSynthesis" in window)&&("SpeechSynthesisUtterance" in window);
   const clearHL=()=>app.querySelectorAll(".line .w").forEach(w=>w.classList.remove("on"));
   const setActive=li=>lines.forEach((x,j)=>x.classList.toggle("active",j===li));
+  const clipRate=()=>Math.min(1.6,Math.max(0.6,dw.value/110));
   function pickVoice(){const v=englishVoices(); return v.find(x=>x.name===state.voice)||v[0]||null;}
   const vsel=$("#dvoice");
-  function fillVoices(){if(!TTS)return;const v=englishVoices();if(!v.length)return;
-    vsel.innerHTML=v.map(x=>`<option value="${esc(x.name)}">${esc(voiceLabel(x))}</option>`).join("");
-    const cur=pickVoice(); if(cur) vsel.value=cur.name; $("#vrow").hidden=false;}
-  if(TTS){vsel.onchange=()=>{state.voice=vsel.value;save();stopDrill();speakLine(0);};
-    fillVoices(); try{speechSynthesis.addEventListener("voiceschanged",fillVoices);cleanup.push(()=>speechSynthesis.removeEventListener("voiceschanged",fillVoices));}catch(e){}}
+  function fillVoices(){
+    const v=TTS?englishVoices():[];
+    vsel.innerHTML=`<option value="${NATURAL}">Heart · natural, warm (recommended)</option>`+
+      (v.length?`<optgroup label="Voices on this device">${v.map(x=>`<option value="${esc(x.name)}">${esc(voiceLabel(x))}</option>`).join("")}</optgroup>`:"");
+    vsel.value=useNatural()?NATURAL:(pickVoice()?.name||NATURAL); $("#vrow").hidden=false;}
+  vsel.onchange=()=>{state.voice=vsel.value;naturalFailed=false;save();stopDrill();speakLine(0);};
+  fillVoices();
+  if(TTS){try{speechSynthesis.addEventListener("voiceschanged",fillVoices);cleanup.push(()=>speechSynthesis.removeEventListener("voiceschanged",fillVoices));}catch(e){}}
   function speakLine(li,onDone){
+    if(useNatural()) return playClip(`l${i+1}-${li+1}`,lines[li],clipRate(),()=>{setActive(li)},onDone,()=>{if(TTS)speakTTS(li,onDone);else onDone&&onDone();});
+    if(TTS) return speakTTS(li,onDone);
+    onDone&&onDone();
+  }
+  function speakTTS(li,onDone){
     const text=L.drill[li], spans=[...lines[li].querySelectorAll(".w")], starts=[];
     text.replace(/\S+/g,(m,o)=>{starts.push(o);return m;});
     // same-length substitutions keep character positions aligned with the word highlights
     const u=new SpeechSynthesisUtterance(text.replace(/\(pause\)/g,"  ...  ").replace(/____/g,"name"));
     u.lang="en-US"; const v=pickVoice(); if(v) u.voice=v;
-    u.rate=Math.min(1.4,Math.max(0.5,dw.value/150)); u.pitch=1.05;
+    u.rate=Math.min(1.4,Math.max(0.5,dw.value/150));
     u.onboundary=e=>{if(e.name&&e.name!=="word")return;let idx=0;starts.forEach((s,j)=>{if(s<=e.charIndex)idx=j;});spans.forEach((s,j)=>s.classList.toggle("on",j===idx));};
     let ended=false; u.onend=u.onerror=()=>{if(ended)return;ended=true;spans.forEach(s=>s.classList.remove("on"));onDone&&onDone();};
     setActive(li); try{speechSynthesis.resume();}catch(e){} speechSynthesis.speak(u);
   }
-  function stopDrill(){playing=false;clearTimeout(dTimer);dTimer=null;if(TTS){try{speechSynthesis.cancel();}catch(e){}}clearHL();$("#dplay").textContent="▶ Listen & read along";}
-  if(TTS){try{speechSynthesis.getVoices();}catch(e){}}
-  else $("#dnote").hidden=false;
-  lines.forEach((b,li)=>b.onclick=()=>{stopDrill();setActive(li);markPractice();if(TTS)speakLine(li);});
+  function stopDrill(){playing=false;clearTimeout(dTimer);dTimer=null;stopClip();if(TTS){try{speechSynthesis.cancel();}catch(e){}}clearHL();$("#dplay").textContent="▶ Listen & read along";}
+  lines.forEach((b,li)=>b.onclick=()=>{stopDrill();setActive(li);markPractice();speakLine(li);});
   $("#dplay").onclick=()=>{
     if(playing||dTimer){stopDrill();return;}
     markPractice(); $("#dplay").textContent="■ Stop";
-    if(TTS){
-      playing=true; try{speechSynthesis.cancel();}catch(e){}
+    if(useNatural()||TTS){
+      playing=true; if(TTS){try{speechSynthesis.cancel();}catch(e){}}
       let li=0;
       const next=()=>{if(!playing)return; if(li>=lines.length){stopDrill();setActive(-1);return;}
-        speakLine(li++,()=>{if(playing) dTimer=setTimeout(next,700);});};
+        speakLine(li++,()=>{if(playing) dTimer=setTimeout(next,800);});};
       next(); return;
     }
     const seq=[];lines.forEach((l,li)=>l.querySelectorAll(".w").forEach(w=>seq.push([li,w])));
@@ -417,31 +663,84 @@ function lesson(i){
 }
 
 function recorderHTML(){return `<div class="rec">
-  <div class="row"><button class="btn ghost small" id="rec"><span class="dot" id="rdot"></span> Record yourself</button><span class="tip" id="rstat">Listen back to hear what others hear.</span></div>
-  <audio id="play" controls hidden></audio>
+  <div class="row"><button class="btn ghost small" id="rec"><span class="dot"></span> Record yourself</button><span class="tip" id="rstat" aria-live="polite">Listen back to hear what others hear.</span></div>
+  <div class="row" id="rplayrow" hidden><button class="btn primary small" id="rplay">▶ Play my recording</button></div>
+  <audio id="play" controls playsinline hidden></audio>
   <p class="note" id="rnote" hidden></p></div>`;}
-let mediaRec=null, stream=null;
+let mediaRec=null, stream=null, recUrl=null;
+function recMime(){if(!window.MediaRecorder||!MediaRecorder.isTypeSupported)return "";
+  for(const t of ["audio/mp4","audio/webm;codecs=opus","audio/webm","audio/ogg;codecs=opus"]) if(MediaRecorder.isTypeSupported(t)) return t; return "";}
 function bindRecorder(){
   const btn=$("#rec"); if(!btn) return;
-  const stat=$("#rstat"), audio=$("#play"), note=$("#rnote"), dot=$("#rdot");
+  const stat=$("#rstat"), audio=$("#play"), note=$("#rnote"), prow=$("#rplayrow");
+  let tick=null, secs=0, stopTO=null;
+  const MAX=180;
+  const showErr=t=>{note.hidden=false;note.textContent=t;};
+  $("#rplay").onclick=()=>{stopClip();try{speechSynthesis.cancel();}catch(e){}
+    if(audio.paused){audio.currentTime=0;audio.play().catch(()=>showErr("Playback didn't start. Use the player controls below."));}else audio.pause();};
+  audio.onplay=()=>$("#rplay").textContent="❚❚ Pause";
+  audio.onpause=audio.onended=()=>$("#rplay").textContent="▶ Play my recording";
   btn.onclick=async()=>{
     if(mediaRec&&mediaRec.state==="recording"){mediaRec.stop();return;}
+    note.hidden=true;
+    if(!window.isSecureContext){showErr("Recording needs a secure (https) address. It works once the app is on its https website.");return;}
+    if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia||!window.MediaRecorder){showErr("This browser can't record audio. Try the latest Chrome or Safari, or use your phone's voice memo app alongside the timer.");return;}
+    stopClip(); try{speechSynthesis.cancel();}catch(e){}
+    audio.pause();
     try{
-      if(!navigator.mediaDevices||!window.MediaRecorder) throw new Error("unsupported");
-      stream=await navigator.mediaDevices.getUserMedia({audio:true});
-      const chunks=[]; mediaRec=new MediaRecorder(stream);
-      mediaRec.ondataavailable=e=>e.data.size&&chunks.push(e.data);
-      mediaRec.onstop=()=>{stream.getTracks().forEach(t=>t.stop());
-        audio.src=URL.createObjectURL(new Blob(chunks,{type:mediaRec.mimeType||"audio/webm"}));audio.hidden=false;
-        btn.innerHTML='<span class="dot" id="rdot"></span> Record again';stat.textContent="Play it back. Are the word endings crisp?";};
-      mediaRec.start(); markPractice();
-      btn.innerHTML='<span class="dot live"></span> Stop recording'; stat.textContent="Recording…";
+      stream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true}});
     }catch(e){
-      note.hidden=false;
-      note.textContent="The microphone isn't available on this page. Install the app on your phone (see the setup notes) to record yourself, or use your phone's voice memo app alongside the timer.";
+      const n=e&&e.name;
+      if(n==="NotAllowedError"||n==="SecurityError") showErr("Microphone access is blocked. iPhone: Settings → Safari (or the app you use) → Microphone → Allow. Android: tap the lock icon next to the address, then allow Microphone. Then try again.");
+      else if(n==="NotFoundError") showErr("No microphone was found on this device.");
+      else if(n==="NotReadableError") showErr("The microphone is busy in another app. Close calls or recorders and try again.");
+      else showErr("The microphone isn't available here. Open the app from its website or home screen icon and try again.");
+      return;
     }
+    const chunks=[]; const mt=recMime();
+    try{ mediaRec=mt?new MediaRecorder(stream,{mimeType:mt}):new MediaRecorder(stream); }catch(e){ mediaRec=new MediaRecorder(stream); }
+    const myRec=mediaRec;
+    myRec.ondataavailable=e=>{if(e.data&&e.data.size)chunks.push(e.data);};
+    myRec.onstop=()=>{clearInterval(tick);clearTimeout(stopTO);stream&&stream.getTracks().forEach(t=>t.stop());
+      if(!document.body.contains(btn)) return;
+      if(!chunks.length){showErr("Nothing was recorded. Check that the microphone isn't muted and try again.");btn.innerHTML='<span class="dot"></span> Record yourself';stat.textContent="";return;}
+      if(recUrl) try{URL.revokeObjectURL(recUrl);}catch(e){}
+      recUrl=URL.createObjectURL(new Blob(chunks,{type:myRec.mimeType||mt||"audio/webm"}));
+      audio.src=recUrl; audio.hidden=false; prow.hidden=false;
+      btn.innerHTML='<span class="dot"></span> Record again';
+      stat.textContent=`Recorded ${fmt(secs)}. Play it back: are the word endings crisp?`;};
+    myRec.start(); markPractice(); secs=0;
+    btn.innerHTML='<span class="dot live"></span> Stop recording'; stat.textContent="Recording… 0:00";
+    tick=setInterval(()=>{secs++;stat.textContent="Recording… "+fmt(secs);},1000);
+    stopTO=setTimeout(()=>{if(myRec.state==="recording")myRec.stop();},MAX*1000);
   };
-  cleanup.push(()=>{try{if(mediaRec&&mediaRec.state==="recording")mediaRec.stop();}catch(e){} if(stream)stream.getTracks().forEach(t=>t.stop());});
+  cleanup.push(()=>{clearInterval(tick);clearTimeout(stopTO);try{if(mediaRec&&mediaRec.state==="recording")mediaRec.stop();}catch(e){} if(stream)stream.getTracks().forEach(t=>t.stop()); try{audio.pause();}catch(e){}});
+}
+
+/* ---- natural recorded voice (Kokoro "Heart"), with word timings ---- */
+const NATURAL="__heart";
+const TIMING={"l1-1":[0.0,0.51,0.79,1.59,1.91,2.14,2.36,2.73,2.91],"l1-2":[0.0,0.51,0.79,1.59,1.79,1.95,2.18,2.37,2.72],"l1-3":[0.0,0.51,0.79,1.59,1.95,2.08,2.39],"l2-1":[0.0,0.43,0.91,1.25,1.49],"l2-2":[0.0,0.24,0.57,0.81,1.04,1.18,1.42,1.75],"l2-3":[0.0,0.22,0.67,1.03,1.47,1.7,2.14,2.5],"l3-1":[0.0,0.28,0.55,0.83,1.11,1.38,1.66,1.94,2.21,2.49],"l3-2":[0.0,0.39,0.63,0.97,1.36,1.6,1.94,2.19,2.48,2.72,3.01,3.4,3.64],"l3-3":[0.0,0.25,0.55,0.74,0.89,1.29,1.73,1.93],"l4-1":[0.0,0.28,0.73,1.02,1.82,1.97,2.31,2.76,3.06,3.25],"l4-2":[0.0,0.3,0.45,0.9,1.7,1.96,2.18,2.5],"l4-3":[0.0,0.27,0.65,1.03,1.35,1.84],"l5-1":[0.0,0.57,1.37,1.99,2.79,3.46,4.26],"l5-2":[0.0,0.35,1.0,1.8,2.16,2.39,2.62,3.07],"l5-3":[0.0,0.26,0.64,0.9,1.27,1.53],"l6-1":[0.0,0.54,1.09,1.45,1.69,2.06,2.24],"l6-2":[0.0,0.39,0.64,0.99,1.38,1.63,1.82],"l6-3":[0.0,0.42,0.78,1.36,1.78,2.14],"l7-1":[0.0,0.26,0.41,0.71,1.22,1.53,1.79,2.14,2.35,3.21],"l7-2":[0.0,0.32,0.89,1.05,1.31,1.47,1.79,2.0,2.36,2.78,3.05],"l7-3":[0.0,0.33,0.53,0.78,1.03,1.19,1.44,1.56,1.8,2.01,2.21],"l8-1":[0.0,0.27,0.54,0.92,1.36,1.63,2.06,2.33],"l8-2":[0.0,0.21,0.42,0.67,0.84],"l8-3":[0.0,0.31,0.49,0.76,0.99],"l9-1":[0.0,0.22,0.63,0.85,1.08,1.39,1.66,1.89,2.11,2.38,2.7,2.92],"l9-2":[0.0,0.15,0.49,0.74,1.24,1.43,1.73,2.08,2.32,2.67,2.92,3.16,3.51],"l9-3":[0.0,0.21,0.69,0.91,1.28,1.6,1.92,2.45],"l10-1":[0.0,0.24,0.44,0.63,1.17,1.37,1.81,2.29],"l10-2":[0.0,0.27,0.81,0.98,1.41,1.57,2.01,2.39,2.82,3.53],"l10-3":[0.0,0.19,0.47,0.75,1.13,1.32,1.55,2.02,2.26,2.45,2.73],"l11-1":[0.0,0.46,0.67,0.87,1.34,1.49,1.8,2.06,2.26,2.52,2.83],"l11-2":[0.0,0.28,0.45,0.84,1.51,1.84,2.07,2.57,2.96],"l11-3":[0.0,0.27,0.53,0.71,0.97,1.24,1.51],"l12-1":[0.0,0.13,0.39,0.65,0.86,1.03,1.29,1.51,1.64,1.98],"l12-2":[0.0,0.44,0.77,1.15,1.31,1.92,2.08,2.9,3.12,3.45],"l12-3":[0.0,0.25,0.49,0.84,1.23,1.48,1.92,2.12,2.37,2.66,2.86],"l13-1":[0.0,0.19,0.57,0.76,1.04,1.33,1.71,2.04,2.32,2.75,3.08],"l13-2":[0.0,0.32,0.5,0.69,0.96,1.1,1.56,1.92,2.15,2.66,2.84,3.16,3.3],"l13-3":[0.0,0.17,0.38,0.6,0.85,1.15,1.41,1.71,2.01,2.18,2.44],"l14-1":[0.0,0.2,0.35,0.63,0.9,1.14,1.33,1.45],"l14-2":[0.0,0.14,0.55,0.82,1.1,1.37,1.87,2.1,2.37,2.65,3.15],"l14-3":[0.0,0.39,0.64,0.88,1.18],"l15-1":[0.0,0.35,0.55,0.75,1.29,1.54,1.99,2.24,2.39,2.74,2.94,3.28,3.48,3.93],"l15-2":[0.0,0.28,0.48,0.71,0.87,1.11,1.39,1.59,1.82],"l15-3":[0.0,0.24,0.77,0.96,1.3,1.49,1.78],"l16-1":[0.0,0.24,0.51,0.87,1.11,1.34,1.5,1.7,1.98,2.17],"l16-2":[0.0,0.23,0.5,0.72,0.99,1.35,1.62,1.8,2.07],"l16-3":[0.0,0.35,0.56,0.95,1.43,1.65,1.9,2.08,2.42,2.73],"l17-1":[0.0,0.33,0.62,0.9,1.28,1.71,1.99],"l17-2":[0.0,0.29,0.58,0.87,1.25,1.44,1.88,2.46,2.65,2.79,3.18],"l17-3":[0.0,0.25,0.46,0.68,0.93],"l18-1":[0.0,0.35,0.65,0.95,1.3,1.49],"l18-2":[0.0,0.21,0.67,0.93,1.19,1.5],"l18-3":[0.0,0.14,0.37,0.51,0.93,1.26],"l19-1":[0.0,0.34,0.9],"l19-2":[0.0,0.14,0.46,0.74,1.16,1.48,1.81,2.04],"l19-3":[0.0,0.22,0.35,0.56,0.78,1.08],"l20-1":[0.0,0.52,0.84,1.03,1.36,1.6],"l20-2":[0.0,0.38,1.03,1.41,1.73,1.95,2.22,2.59],"l20-3":[0.0,0.45,0.59,0.86,1.22,1.4,1.63,1.85,2.12],"l21-1":[0.0,0.38,0.76,0.98,1.31,1.58,1.91,2.4,2.67],"l21-2":[0.0,0.41,0.61,0.92,1.17,1.43,1.79],"l21-3":[0.0,0.44,0.73,0.93],"l22-1":[0.0,0.2,0.49,0.89,1.28,1.48,1.73,2.22,2.42,2.67,2.96],"l22-2":[0.0,0.23,0.36,0.59,0.86],"l22-3":[0.0,0.33,0.61,1.04,1.27],"l23-1":[0.0,0.14,0.36,0.59,0.86,1.31,1.49],"l23-2":[0.0,0.21,0.67,0.87,1.18,1.38,1.74,2.41],"l23-3":[0.0,0.34,0.54,0.78,0.98,1.17,1.42,1.81],"l24-1":[0.0,0.46,0.77,1.08,1.44,1.65],"l24-2":[0.0,0.34,0.52,0.86,1.25,1.51,1.68,1.89],"l24-3":[0.0,0.21,0.59,0.96,1.55,1.82,2.25],"l25-1":[0.0,0.18,0.55,1.01,1.33,1.69,1.88,2.11,2.52],"l25-2":[0.0,0.3,0.56,0.82,1.04,1.3,1.56,1.74],"l25-3":[0.0,0.28,0.55,0.88,1.16,1.49,1.87,2.15],"l26-1":[0.0,0.3,0.56,0.91,1.16,1.52],"l26-2":[0.0,0.24,0.71,0.95,1.13],"l26-3":[0.0,0.4,0.6,0.9,1.15,1.41],"l27-1":[0.0,0.2,0.72,1.23,1.48,2.15,2.45,2.81],"l27-2":[0.0,0.24,0.62,0.86,1.14,1.38,1.86,2.19,2.43],"l27-3":[0.0,0.2,0.39,0.55,0.79,1.02,1.26],"l28-1":[0.0,0.38,0.62,1.1,1.3,1.54,1.68,2.01,2.3,2.59,2.78,3.12],"l28-2":[0.0,0.24,0.44,0.93,1.27,1.52],"l28-3":[0.0,0.31,0.46,0.71,0.92,1.12,1.53,1.73,1.94],"l29-1":[0.0,0.15,0.73,0.97,1.36],"l29-2":[0.0,0.36,0.64,0.86,1.14],"l29-3":[0.0,0.35,0.61,0.74,0.96,1.13,1.3],"k1-1":[0.0,0.18,0.72],"k1-2":[0.0,0.18,0.71],"k1-3":[0.0,0.16,0.38,0.71,0.99],"k2-1":[0.0,0.57],"k2-2":[0.0,0.27,0.67,0.94],"k2-3":[0.0,0.17,0.4,0.73,1.13],"k2-4":[0.0,0.14,0.43,0.92,1.16],"k3-1":[0.0,0.21,0.69],"k3-2":[0.0,0.18,0.53],"k3-3":[0.0,0.18,0.47,0.71],"k4-1":[0.0,0.36,0.97],"k4-2":[0.0,0.38,0.54,0.86,1.18,1.56,1.77],"k4-3":[0.0,0.19,0.39,0.62,0.78,0.94,1.13],"k5-1":[0.0,0.31,0.51,0.71,1.28],"k5-2":[0.0,0.19,0.44,0.58,0.92,1.31,1.51],"k5-3":[0.0,0.15,0.45,0.7,1.0,1.2],"k6-1":[0.0,0.28,0.67,1.12,1.46],"k6-2":[0.0,0.28,0.61,1.1],"k6-3":[0.0,0.39,0.78,1.17,1.57,1.96],"k7-1":[0.0,0.29,0.52,0.81],"k7-2":[0.0,0.33,0.56,0.84],"k7-3":[0.0,0.23,0.41,0.64,0.87,1.15,1.33],"k8-1":[0.0,0.32,0.53,0.74,1.11],"k8-2":[0.0,0.32,0.71,0.97],"k8-3":[0.0,0.16,0.48,0.75,1.23,1.45,1.66,1.98],"k9-1":[0.0,0.41,0.57,0.88,1.09,1.35],"k9-2":[0.0,0.39,0.56,0.83,1.0,1.28,1.67],"k9-3":[0.0,0.56,0.78,1.23,1.56],"k10-1":[0.0,0.15,0.49,0.74,1.14,1.34],"k10-2":[0.0,0.15,0.49,0.68,1.13,1.37,1.61,1.81],"k10-3":[0.0,0.24,0.49,0.83,1.07,1.41,1.71],"k11-1":[0.0,0.4,0.65,0.9,1.15,1.45,1.7],"k11-2":[0.0,0.24,0.48,0.72,1.01,1.4],"k11-3":[0.0,0.28,0.56,0.83,1.11],"k12-1":[0.0,0.41,0.66,0.91,1.11,1.32],"k12-2":[0.0,0.34,0.58,0.82],"k12-3":[0.0,0.19,0.42,0.7,0.93]};
+let naturalFailed=false, curClip=null, clipRaf=0;
+const useNatural=()=>!naturalFailed&&(!state.voice||state.voice===NATURAL);
+function stopClip(){cancelAnimationFrame(clipRaf);if(curClip){const c=curClip;curClip=null;c._tok=null;c.onended=c.onerror=c.onplaying=null;try{c.pause();}catch(e){}}}
+const clipEl=new Audio(); clipEl.preload="auto"; try{clipEl.preservesPitch=true;clipEl.setAttribute("playsinline","");}catch(e){}
+function playClip(name,container,rate,onStart,onDone,onFail){
+  stopClip();
+  const st=TIMING[name]||[], spans=container?[...container.querySelectorAll(".w")]:[];
+  const a=clipEl; const token={}; curClip=a; a._tok=token;
+  a.src="audio/"+name+".mp3"; a.defaultPlaybackRate=rate; a.playbackRate=rate;
+  let done=false;
+  const live=()=>a._tok===token;
+  const clear=()=>spans.forEach(s=>s.classList.remove("on"));
+  const tick=()=>{if(!live()||curClip!==a)return;const t=a.currentTime;let idx=-1;for(let j=0;j<st.length;j++){if(st[j]<=t)idx=j;else break;}
+    spans.forEach((s,j)=>s.classList.toggle("on",j===idx));clipRaf=requestAnimationFrame(tick);};
+  const fin=()=>{if(done||!live())return;done=true;cancelAnimationFrame(clipRaf);clear();curClip=null;onDone&&onDone();};
+  const fail=()=>{if(done||!live())return;done=true;cancelAnimationFrame(clipRaf);clear();curClip=null;naturalFailed=true;onFail&&onFail();};
+  a.onended=fin; a.onerror=fail;
+  a.onplaying=()=>{if(live()) a.playbackRate=rate;};
+  onStart&&onStart();
+  const p=a.play(); if(p&&p.then) p.then(()=>{if(live())clipRaf=requestAnimationFrame(tick);}).catch(e=>{if(!live())return;if(e&&e.name==="NotAllowedError"){fin();}else if(e&&e.name==="AbortError"){}else fail();});
+  else clipRaf=requestAnimationFrame(tick);
 }
 
 /* ---- teacher voice: female English voices first, natural/premium ones on top ---- */
@@ -471,7 +770,7 @@ function warmup(){
       <div class="meta" id="wmeta"></div>
       <h2 id="wt"></h2><p id="wd" style="font-size:17px"></p>
       <div class="timer"><div class="clock" id="wclock"></div>
-      <div class="row"><button class="btn primary" id="wgo">Start</button><button class="btn ghost small" id="wskip">Skip →</button></div></div>
+      <div class="row"><button class="btn primary" id="wgo">Start</button><button class="btn ghost small" id="wskip">Skip →</button><button class="btn ghost small" id="wsay" aria-label="Hear the instructions">🔊 Hear it</button></div></div>
     </div>
     <div style="display:flex;flex-direction:column;gap:10px"><h3>The routine</h3>
     <div class="list">${WARMUP.map((w,k)=>`<div class="item" style="cursor:default"><span class="n">${String(k+1).padStart(2,"0")}</span><span class="ti">${esc(w.t)}</span><span class="mi">${w.secs}s</span></div>`).join("")}</div></div>
@@ -480,45 +779,162 @@ function warmup(){
   const show=()=>{const w=WARMUP[k];$("#wt").textContent=w.t;$("#wd").textContent=w.d;$("#wclock").textContent=fmt(left);
     $("#wmeta").textContent=`STEP ${k+1} OF ${WARMUP.length}`;
     document.querySelectorAll("#wsteps span").forEach((s,j)=>s.classList.toggle("on",j<=k));};
-  const next=()=>{if(k<WARMUP.length-1){k++;left=WARMUP[k].secs;show();}else{clearInterval(int);int=null;
+  const say=()=>{const w=WARMUP[k];const tts=()=>{try{if(!("speechSynthesis" in window))return;speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(w.t+". "+w.d);u.lang="en-US";const v=englishVoices()[0];if(v)u.voice=v;u.rate=.95;speechSynthesis.speak(u);}catch(e){}};
+    if(!naturalFailed) playClip("w"+(k+1),null,1,null,null,tts); else tts();};
+  const next=()=>{stopClip();if(k<WARMUP.length-1){k++;left=WARMUP[k].secs;show();if(int)say();}else{clearInterval(int);int=null;
     $("#wt").textContent="Warm-up done";$("#wd").textContent="Your voice is ready. Pick a lesson and keep going.";$("#wclock").textContent="0:00";$("#wgo").textContent="Go to lessons";$("#wgo").onclick=()=>go("home");}};
   $("#wgo").onclick=()=>{if(int){clearInterval(int);int=null;$("#wgo").textContent="Resume";return;}
-    markPractice();$("#wgo").textContent="Pause";
+    if(left===WARMUP[k].secs) say(); markPractice();$("#wgo").textContent="Pause";
     int=setInterval(()=>{left--;if(left<=0){beep();next();}else $("#wclock").textContent=fmt(left);},1000);};
-  $("#wskip").onclick=next;
-  cleanup.push(()=>clearInterval(int)); show();
+  $("#wskip").onclick=next; $("#wsay").onclick=say;
+  cleanup.push(()=>{clearInterval(int);stopClip();try{speechSynthesis.cancel();}catch(e){}}); show();
 }
 
-function pacer(){
-  topbar(false); setTab("pacer");
-  const txt=state.pacerText||PACER_SAMPLE;
-  app.innerHTML=`<section class="view">
-    <div style="display:flex;flex-direction:column;gap:8px"><h1>Reading pacer</h1>
-    <p class="muted">Read aloud and keep up with the highlight. Conversation sits around 130–150 words per minute; presentations land best near 120–140.</p></div>
-    <div class="card">
-      <div class="pacer-text" id="ptext" aria-live="off"></div>
-      <div class="speed"><label for="pwpm" class="tip">Speed</label><input type="range" id="pwpm" min="80" max="220" step="5" value="${state.wpm}"><output id="pwpmo">${state.wpm} wpm</output></div>
-      <div class="row"><button class="btn primary" id="pgo">▶ Start</button><button class="btn ghost small" id="preset">Restart</button><span class="tip" id="pstat"></span></div>
+/* ---- KIDS ---- */
+const KCOL={sky:"--k-sky",sun:"--k-sun",grape:"--k-grape",leaf:"--k-leaf",berry:"--k-berry"};
+function starSVG(on){return `<svg viewBox="0 0 24 24" class="star ${on?"on":""}" aria-hidden="true"><path d="M12 2.6l2.9 6 6.5.8-4.8 4.5 1.2 6.5L12 17.3l-5.8 3.1 1.2-6.5L2.6 9.4l6.5-.8z"/></svg>`;}
+function kids(){
+  topbar(false); setTab("kids");
+  const got=KIDS.filter((_,i)=>state.kids[i]).length;
+  app.innerHTML=`<section class="view kidsv">
+    <div class="kidhero">
+      <div style="display:flex;flex-direction:column;gap:8px;min-width:0">
+        <h1>Brave Voices</h1>
+        <p class="kidlead">Little steps to speak English in front of your class, without butterflies.</p>
+      </div>
+      <div class="starbox" aria-label="${got} of ${KIDS.length} stars">${starSVG(true)}<b>${got}<small>/${KIDS.length}</small></b></div>
     </div>
-    <div class="card"><h3>Your own text</h3>
-      <label for="pin" class="tip">Paste a speech, a work update or anything you'll read aloud.</label>
-      <textarea id="pin">${esc(txt)}</textarea>
-      <div class="row"><button class="btn ghost small" id="puse">Use this text</button><button class="btn ghost small" id="psample">Restore sample</button></div>
+    <p class="note">For parents and teachers: each lesson takes about 5 minutes. Tap the speaker to hear every sentence, then let your child repeat it. Practise at home first, then in class.</p>
+    <div class="kgrid">${KIDS.map((k,i)=>`<button class="kcard" data-i="${i}" style="--kc:var(${KCOL[k.c]})">
+      <span class="knum">${i+1}</span><span class="kt">${esc(k.t)}</span>
+      <span class="kbadge">${state.kids[i]?starSVG(true)+" "+esc(k.badge):"Earn: "+esc(k.badge)}</span></button>`).join("")}</div>
+  </section>`;
+  app.querySelectorAll(".kcard").forEach(b=>b.onclick=()=>go("kids-"+(+b.dataset.i+1)));
+}
+function kidLesson(i){
+  const K=KIDS[i]; topbar("kids","Brave Voices"); setTab("kids");
+  app.innerHTML=`<section class="view kidsv" style="--kc:var(${KCOL[K.c]})">
+    <div class="kidtop">
+      <div class="meta"><span>LESSON ${i+1} OF ${KIDS.length}</span><span>ABOUT 5 MIN</span></div>
+      <h1>${esc(K.t)}</h1>
+      <p class="kidlead">${esc(K.why)}</p>
+      <div class="row"><button class="btn kbtn" id="kintro">🔊 Listen</button></div>
+    </div>
+    <div class="card kcardx"><h3>Let's play</h3>
+      <ol class="kgame">${K.game.map(g=>`<li>${esc(g)}</li>`).join("")}</ol></div>
+    <div class="card kcardx"><h3>Say it with me</h3>
+      <p class="tip">Tap a sentence to hear it. Then say it out loud!</p>
+      <div class="lines">${K.say.map((x,j)=>`<button class="line kline" data-j="${j}"><span class="spk" aria-hidden="true">🔊</span> ${words(x)}</button>`).join("")}</div>
+      <div class="row"><button class="btn ghost small" id="kall">▶ Play all</button></div>
+    </div>
+    <div class="card kcardx"><h3>My turn</h3>
+      <p class="prompt">${esc(K.turn)}</p>
+      <div class="row"><button class="btn ghost small" id="kturnsay">🔊 Hear it</button></div>
+      <div class="timer"><div class="clock" id="kclock">${fmt(K.secs)}</div>
+        <div class="row"><button class="btn kbtn small" id="kgo">Start</button><button class="btn ghost small" id="kreset">Reset</button></div></div>
+      ${recorderHTML()}
+    </div>
+    <div class="card kcardx kdone">
+      ${state.kids[i]?`<div class="kwin">${starSVG(true)}<div><b>You earned: ${esc(K.badge)}</b><p class="tip">Super job! You can practise again any time.</p></div></div>`
+        :`<p class="prompt">Did you try it?</p>`}
+      <div class="row"><button class="btn ${state.kids[i]?"ghost":"kbtn"}" id="kstar">${state.kids[i]?"Take back the star":"I did it! Give me a star"}</button>
+      ${i<KIDS.length-1?`<button class="btn ghost" id="knext">Next lesson →</button>`:""}</div>
     </div>
   </section>`;
-  let spans=[],k=0,tm=null;
-  const load=t=>{$("#ptext").innerHTML=words(t);spans=[...$("#ptext").querySelectorAll(".w")];k=0;$("#pstat").textContent=`${spans.length} words · ${(spans.length/state.wpm).toFixed(1)} min`;};
-  const stop=()=>{clearTimeout(tm);tm=null;$("#pgo").textContent="▶ Start";};
-  const step=()=>{spans.forEach((s,j)=>{s.classList.toggle("on",j===k);s.classList.toggle("past",j<k);});
-    if(k>=spans.length){stop();k=0;$("#pstat").textContent="Done. Try it 10 wpm faster, or slower with fuller consonants.";return;}
-    const pause=/[.,;:?!]$/.test(spans[k].textContent)?(/[.?!]$/.test(spans[k].textContent)?2.2:1.6):1;
-    k++;tm=setTimeout(step,60000/state.wpm*pause);};
-  $("#pwpm").oninput=e=>{state.wpm=+e.target.value;$("#pwpmo").textContent=state.wpm+" wpm";save();};
-  $("#pgo").onclick=()=>{if(tm){stop();$("#pgo").textContent="▶ Resume";return;}markPractice();$("#pgo").textContent="Pause";step();};
-  $("#preset").onclick=()=>{stop();k=0;spans.forEach(s=>s.classList.remove("on","past"));};
-  $("#puse").onclick=()=>{stop();state.pacerText=$("#pin").value.trim()||PACER_SAMPLE;save();load(state.pacerText);};
-  $("#psample").onclick=()=>{stop();state.pacerText="";save();$("#pin").value=PACER_SAMPLE;load(PACER_SAMPLE);};
-  cleanup.push(stop); load(txt);
+  window.scrollTo(0,0);
+  const lines=[...app.querySelectorAll(".kline")]; let playing=false, tmo=null;
+  const setActive=j=>lines.forEach((x,n)=>x.classList.toggle("active",n===j));
+  const ttsSay=(text,done)=>{try{if(!("speechSynthesis" in window)){done&&done();return;}speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.lang="en-US";const v=englishVoices()[0];if(v)u.voice=v;u.rate=.85;u.onend=u.onerror=()=>done&&done();speechSynthesis.speak(u);}catch(e){done&&done();}};
+  const stopK=()=>{playing=false;clearTimeout(tmo);stopClip();try{speechSynthesis.cancel();}catch(e){}setActive(-1);$("#kall").textContent="▶ Play all";};
+  const sayLine=(j,done)=>{setActive(j);
+    if(!naturalFailed) playClip(`k${i+1}-${j+1}`,lines[j],1,null,()=>{setActive(-1);done&&done();},()=>ttsSay(K.say[j],()=>{setActive(-1);done&&done();}));
+    else ttsSay(K.say[j],()=>{setActive(-1);done&&done();});};
+  const clip=(name,text)=>{stopK(); if(!naturalFailed) playClip(name,null,1,null,null,()=>ttsSay(text)); else ttsSay(text);};
+  lines.forEach((b,j)=>b.onclick=()=>{stopK();markPractice();sayLine(j);});
+  $("#kall").onclick=()=>{if(playing){stopK();return;}stopK();playing=true;markPractice();$("#kall").textContent="■ Stop";let j=0;
+    const next=()=>{if(!playing)return;if(j>=lines.length){stopK();return;}sayLine(j++,()=>{if(playing)tmo=setTimeout(next,1800);});};next();};
+  $("#kintro").onclick=()=>clip(`ki${i+1}`,K.t+". "+K.why+" "+K.game.join(" "));
+  $("#kturnsay").onclick=()=>clip(`kt${i+1}`,K.turn);
+  cleanup.push(stopK);
+  let left=K.secs,int=null;const ck=$("#kclock");
+  const draw=()=>{ck.textContent=fmt(Math.max(0,left));};
+  $("#kgo").onclick=()=>{if(int){clearInterval(int);int=null;$("#kgo").textContent="Go on";return;}
+    stopK();markPractice();$("#kgo").textContent="Pause";
+    int=setInterval(()=>{left--;draw();if(left<=0){clearInterval(int);int=null;beep();$("#kgo").textContent="Again";left=K.secs;}},1000);};
+  $("#kreset").onclick=()=>{clearInterval(int);int=null;left=K.secs;draw();$("#kgo").textContent="Start";};
+  cleanup.push(()=>clearInterval(int));
+  bindRecorder();
+  $("#kstar").onclick=()=>{state.kids[i]=!state.kids[i];if(state.kids[i])markPractice();save();kidLesson(i);if(state.kids[i])app.querySelector(".kdone").scrollIntoView({block:"center"});};
+  if($("#knext")) $("#knext").onclick=()=>go("kids-"+(i+2));
+}
+
+/* ---- ABOUT ---- */
+function about(){
+  topbar(false); setTab("about");
+  const A=AUTHOR;
+  app.innerHTML=`<section class="view">
+    <div class="author">
+      <div class="avatar" aria-hidden="true">${esc(A.name.split(" ").map(x=>x[0]).join(""))}</div>
+      <div style="min-width:0;display:flex;flex-direction:column;gap:4px">
+        <h3>Made by</h3><h1 class="aname">${esc(A.name)}</h1><p class="muted">${esc(A.role)}</p>
+      </div>
+    </div>
+    <p class="goal">${esc(A.bio)}</p>
+    <div class="open">
+      <div class="row"><span class="pill"><span class="pdot"></span>Open to work</span><span class="pill">Open to collaborations</span></div>
+      <p>${esc(A.pitch)}</p>
+      <div class="contact">
+        ${A.email?`<span class="mail" id="mail">${esc(A.email)}</span><button class="btn ghost small" id="cmail">Copy email</button>`:""}
+        ${A.linkedin?`<a class="btn ghost small" href="${esc(A.linkedin)}" target="_blank" rel="noopener">LinkedIn ↗</a>`:""}
+      </div>
+    </div>
+    <div class="card"><h3>Send feedback</h3>
+      <p class="tip">Found a bug, have an idea, or want a new lesson? I read every message.</p>
+      <div class="fgrid">
+        <label for="ftype" class="tip">Topic</label>
+        <select id="ftype" class="vsel"><option>Idea or suggestion</option><option>Something isn't working</option><option>New lesson request</option><option>Collaboration or job offer</option><option>Other</option></select>
+        <label for="fname" class="tip">Your name (optional)</label>
+        <input id="fname" class="vsel" autocomplete="name">
+        <label for="fmsg" class="tip">Message</label>
+        <textarea id="fmsg" placeholder="What would make Spok better for you?"></textarea>
+      </div>
+      <div class="row"><button class="btn primary" id="fsend">Send by email</button><button class="btn ghost small" id="fcopy">Copy message</button></div>
+      <p class="tip" id="fstat" aria-live="polite"></p>
+    </div>
+    <div class="card"><h3>Your progress</h3>
+      <p>Spok has no accounts. Your progress saves automatically on this phone, in the browser you use.</p>
+      <p class="tip" id="pstat">${progressSummary()}</p>
+      <p class="tip">To keep it safe, add Spok to your home screen. To move it to another phone or browser, copy your backup code and keep it in your notes or email it to yourself.</p>
+      <div class="row"><button class="btn primary small" id="bcopy">Copy backup code</button><button class="btn ghost small" id="bshow">Restore from code</button></div>
+      <textarea id="bcode" class="mono" hidden spellcheck="false" placeholder="Paste your backup code here"></textarea>
+      <div class="row" id="brow" hidden><button class="btn primary small" id="brestore">Restore progress</button><button class="btn ghost small" id="bcancel">Cancel</button></div>
+      <p class="tip" id="bmsg" aria-live="polite"></p>
+    </div>
+    <div class="card support"><h3>Support Spok</h3>
+      <p>Spok is free, with no ads and no account. If it helped you before an interview or a big meeting, you can support my personal projects.</p>
+      ${A.donate?`<div class="row"><a class="btn primary" href="${esc(A.donate)}" target="_blank" rel="noopener">${esc(A.donateLabel)} ↗</a></div>`
+        :`<p class="tip">A donation link is coming soon. Until then, sharing Spok with a friend helps a lot.</p>`}
+    </div>
+    <p class="tip">Spok ${APP_VERSION} · Works offline once installed · Progress stays on your device · Voice generated with Kokoro (Apache 2.0)</p>
+  </section>`;
+  const msg=()=>{const t=$("#ftype").value,n=$("#fname").value.trim(),m=$("#fmsg").value.trim();return {t,n,m,body:`Topic: ${t}\n${n?"From: "+n+"\n":""}\n${m}\n\n— sent from Spok ${APP_VERSION}`};};
+  const stat=t=>$("#fstat").textContent=t;
+  const copy=async(text,ok)=>{try{await navigator.clipboard.writeText(text);stat(ok);}catch(e){stat("Copy didn't work here. Select the text and copy it manually.");}};
+  if($("#cmail")) $("#cmail").onclick=()=>copy(A.email,"Email address copied.");
+  $("#fsend").onclick=()=>{const x=msg(); if(!x.m){stat("Write a message first.");$("#fmsg").focus();return;}
+    if(!A.email){copy(x.body,"Message copied.");return;}
+    location.href=`mailto:${A.email}?subject=${encodeURIComponent("Spok feedback: "+x.t)}&body=${encodeURIComponent(x.body)}`;
+    stat(`Your email app should open with the message ready. If it doesn't, tap "Copy message" and send it to ${A.email}.`);};
+  const bmsg=t=>$("#bmsg").textContent=t;
+  $("#bcopy").onclick=async()=>{const code=backupCode();
+    try{await navigator.clipboard.writeText(code);bmsg("Backup code copied. Paste it into your notes or an email to yourself.");}
+    catch(e){$("#bcode").hidden=false;$("#bcode").value=code;$("#bcode").select();bmsg("Copy didn't work here. The code is selected above: copy it manually.");}};
+  const showR=on=>{$("#bcode").hidden=!on;$("#brow").hidden=!on;if(on){$("#bcode").value="";$("#bcode").focus();}};
+  $("#bshow").onclick=()=>{showR(true);bmsg("");};
+  $("#bcancel").onclick=()=>{showR(false);bmsg("");};
+  $("#brestore").onclick=()=>{const r=restoreCode($("#bcode").value);
+    if(!r.ok){bmsg(r.msg);return;} showR(false); $("#pstat").textContent=progressSummary(); bmsg("Progress restored.");};
+  $("#fcopy").onclick=()=>{const x=msg(); if(!x.m){stat("Write a message first.");return;} copy(x.body,`Message copied. Paste it into an email to ${A.email}.`);};
 }
 
 /* ---- router ---- */
@@ -529,7 +945,9 @@ function route(){
   const m=h.match(/^lesson-(\d+)$/);
   if(m&&+m[1]>=1&&+m[1]<=LESSONS.length) lesson(+m[1]-1);
   else if(h==="warmup") warmup();
-  else if(h==="pacer") pacer();
+  else if(/^kids-\d+$/.test(h)&&+h.slice(5)>=1&&+h.slice(5)<=KIDS.length) kidLesson(+h.slice(5)-1);
+  else if(h==="kids") kids();
+  else if(h==="about") about();
   else home();
   window.scrollTo(0,0);
 }
