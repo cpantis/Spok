@@ -6,6 +6,18 @@
 <title>Spok</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <meta name="theme-color" content="#1B2230">
+<meta name="description" content="Free app to speak clearly and confidently in interviews and meetings: 29 lessons, a natural voice guide, self-recording and lessons for kids.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Spok">
+<meta property="og:title" content="Spok: speak clearly, interview with confidence">
+<meta property="og:description" content="29 short lessons for interviews and meetings, a natural voice guide, self-recording and lessons for kids. Free, no account.">
+<meta property="og:url" content="https://tryspok.app/">
+<meta property="og:image" content="https://tryspok.app/og-image.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Spok app: Speak clearly. Interview with confidence.">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://tryspok.app/og-image.jpg">
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon-192.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -210,6 +222,21 @@ textarea{width:100%;min-height:120px;border:1.5px solid var(--line);border-radiu
 .kline .spk{font-size:15px;margin-right:4px}
 .kline.active{background:color-mix(in srgb,var(--kc) 22%,var(--surface));box-shadow:inset 3px 0 0 var(--kc)}
 .btn.kbtn{background:color-mix(in srgb,var(--kc) 78%,#000);color:#fff}
+.ksec{display:flex;flex-direction:column;gap:6px;margin-top:10px}
+.ksec h2{font-family:var(--kid);font-size:24px}
+.kcard .ksym{width:auto;min-width:34px;padding:0 10px;border-radius:999px;font-size:16px}
+.ptitle{display:flex;gap:14px;align-items:center}
+.psym{flex:none;display:grid;place-items:center;min-width:64px;height:64px;padding:0 12px;border-radius:20px;background:color-mix(in srgb,var(--kc) 85%,#000);color:#fff;font:700 28px var(--kid)}
+.poops{font-size:15px;background:color-mix(in srgb,var(--k-sun) 16%,var(--surface));border-radius:12px;padding:10px 12px;line-height:1.5}
+.pwords{display:flex;flex-wrap:wrap;gap:10px}
+.pword{border:1.5px solid color-mix(in srgb,var(--kc) 45%,var(--line));background:var(--surface);color:var(--ink);border-radius:14px;padding:10px 14px;font:700 20px var(--kid);min-height:48px}
+.pword .spk{font-size:14px}
+.pword.active{background:color-mix(in srgb,var(--kc) 22%,var(--surface));border-color:var(--kc)}
+.silent{color:var(--muted);opacity:.55;text-decoration-thickness:2px}
+.ppairs{display:flex;flex-direction:column;gap:10px}
+.ppair{display:grid;grid-template-columns:1fr auto 1fr;gap:10px;align-items:center}
+.ppair .pword{width:100%}
+.pvs{font:700 20px var(--kid);color:var(--muted)}
 .kwin{display:flex;gap:12px;align-items:center}.kwin .star{width:44px;height:44px;flex:none}
 .kwin b{font:700 20px var(--kid)}
 
@@ -509,7 +536,81 @@ const KIDS = [
   turn:"Do a whole mini talk: hello, one fact, and the big finish!",secs:60}
 ];
 
-const APP_VERSION="2.0";
+/* Pronunciation games for Romanian children. Instructions are written in Romanian; everything spoken is English. */
+const PRON = [
+ {t:"The Snake Sound",sym:"th",ipa:"θ",c:"sky",badge:"TH Hero",
+  how:"Pune vârful limbii ușor între dinții din față. Suflă aer printre limbă și dinți, fără voce, ca un șarpe care șoptește.",
+  oops:"Nu spune „t” („tink”) și nici „f” („fink”). Limba trebuie să se vadă puțin între dinți.",
+  game:"Ține o oglindă în față. Dacă vezi vârful limbii când spui „think”, ai reușit!",
+  words:["think","three","thank you","bath","mouth"],
+  pairs:[["tree","three"],["tank","thank"],["fin","thin"]],
+  sentence:"Thank you for three things."},
+ {t:"The Bee Sound",sym:"th",ipa:"ð",c:"berry",badge:"Buzzy Bee",
+  how:"Limba stă la fel ca la sunetul șarpelui, între dinți. Acum pornește și vocea: simți cum bâzâie limba, ca o albină.",
+  oops:"Nu spune „d” („dis”, „dat”). Pune degetul pe gât: trebuie să simți vibrația.",
+  game:"Spune „zzz” ca o albină, apoi mută limba între dinți și continuă să bâzâi. Acesta e sunetul!",
+  words:["this","that","the","mother","brother"],
+  pairs:[["day","they"],["den","then"],["dare","there"]],
+  sentence:"This is my mother and that is my brother."},
+ {t:"Kiss and Smile: W",sym:"w",ipa:"w",c:"grape",badge:"Wonder W",
+  how:"Strânge buzele rotund, ca pentru un pupic, apoi deschide-le repede într-un zâmbet. Dinții nu ating buza.",
+  oops:"Nu spune „v” („vater”). La „v” dinții de sus ating buza de jos; la „w” nu.",
+  game:"Spune „u-a, u-a” din ce în ce mai repede. Se aude „wa”! Acum spune „water”.",
+  words:["water","window","we","what","white"],
+  pairs:[["vet","wet"],["vest","west"],["vine","wine"]],
+  sentence:"We want warm water."},
+ {t:"Ship or Sheep?",sym:"i·ee",ipa:"ɪ / iː",c:"leaf",badge:"Sharp Ears",
+  how:"„i” scurt (ship) e rapid și relaxat, aproape ca un „i” românesc amestecat cu „e”. „ee” lung (sheep) e un „i” întins: zâmbește larg și ține sunetul mai mult.",
+  oops:"Dacă le spui la fel, „ship” (vapor) devine „sheep” (oaie)! Diferența schimbă cuvântul.",
+  game:"Ascultă perechile și arată cu mâna: mâna jos pentru „i” scurt, mâna sus pentru „ee” lung.",
+  words:["ship","sheep","sit","seat","feel"],
+  pairs:[["ship","sheep"],["sit","seat"],["fill","feel"]],
+  sentence:"The sheep is on the ship."},
+ {t:"The Lazy R",sym:"r",ipa:"ɹ",c:"sun",badge:"Rabbit Runner",
+  how:"Nu rula „r”-ul ca în română! Trage limba puțin înapoi, fără să atingă cerul gurii, și rotunjește ușor buzele. Sunetul e moale, ca un mârâit leneș.",
+  oops:"Limba nu „bate” deloc. Dacă simți vibrații rapide ale limbii, e „r” românesc.",
+  game:"Spune „rrr” ca un cățel somnoros, foarte încet și moale. Apoi spune „red”.",
+  words:["red","rabbit","rain","carrot","run"],
+  pairs:[],
+  sentence:"A red rabbit runs in the rain."},
+ {t:"Foggy Mirror: H",sym:"h",ipa:"h",c:"sky",badge:"Happy Breath",
+  how:"„h” în engleză e doar aer cald, ca atunci când aburești o oglindă. E mai moale decât „h” din română și nu hârâie în gât.",
+  oops:"Nu-l sări! „hat” (pălărie) fără „h” devine „at”. Și nu-l spune aspru, ca în „hârtie”.",
+  game:"Ține palma în fața gurii. Când spui „hello”, trebuie să simți aer cald.",
+  words:["hello","happy","house","hand","hat"],
+  pairs:[["at","hat"],["and","hand"],["air","hair"]],
+  sentence:"Hello! How are you? I'm happy."},
+ {t:"Don't Eat the Last Sound",sym:"-g",ipa:"g d b",c:"leaf",badge:"Strong Ending",
+  how:"În engleză, sunetul de la final contează. Spune-l clar și cu voce: „dog” se termină cu „g”, nu cu „c”.",
+  oops:"Mulți copii șoptesc sau „înghit” ultimul sunet, iar „dog” ajunge să sune ca „doc”. În engleză, „dog” (câine) și „dock” (doc) sunt cuvinte diferite!",
+  game:"Pune mâna pe gât și lungește puțin sunetul de la final: „doggg”, „bedd”. Simți vibrația?",
+  words:["dog","bed","bag","five","his"],
+  pairs:[["dock","dog"],["back","bag"],["bet","bed"]],
+  sentence:"My big dog has a red bag."},
+ {t:"Silent Letters",sym:"shh",ipa:"",c:"grape",badge:"Secret Spotter",
+  how:"Unele litere se scriu, dar nu se citesc. Sunt ca niște spioni ascunși în cuvânt!",
+  oops:"Nu citi toate literele, ca în română. În „know” nu se aude „k”, în „write” nu se aude „w”, în „listen” nu se aude „t”.",
+  game:"Uită-te la cuvânt, găsește litera tăcută și acoper-o cu degetul. Apoi citește ce a rămas.",
+  words:["know|{k}now","write|{w}rite","listen|lis{t}en","lamb|lam{b}","half|ha{l}f"],
+  pairs:[],
+  sentence:"I know how to write and listen."},
+ {t:"Three Ways to Say -ed",sym:"-ed",ipa:"d t ɪd",c:"berry",badge:"Past Master",
+  how:"Terminația „-ed” se citește în trei feluri. De obicei se aude „d” (played). După sunete fără voce, ca p, k, s, ch, sh, se aude „t” (jumped). Doar după „t” sau „d” se aude „id” (wanted).",
+  oops:"Nu spune „ed” peste tot („play-ed”). În „played” e o singură silabă!",
+  game:"Bate din palme pentru fiecare silabă: „played” are o bătaie, „wanted” are două.",
+  words:["played","cleaned","jumped","watched","wanted","painted"],
+  pairs:[],
+  sentence:"I played, jumped and painted all day."},
+ {t:"The Strong Beat",sym:"Ta",ipa:"ˈ",c:"sun",badge:"Rhythm Star",
+  how:"În cuvintele lungi, o silabă e mai tare și mai lungă decât celelalte. Literele mari arată silaba tare.",
+  oops:"Dacă pui accentul în alt loc, oamenii nu recunosc cuvântul. E „baNAna”, nu „BAnana”.",
+  game:"Bate din palme tare pe silaba mare și încet pe celelalte: TEA-cher, ba-NA-na.",
+  words:["teacher|TEA·cher","banana|ba·NA·na","computer|com·PU·ter","tomorrow|to·MOR·row","holiday|HOL·i·day"],
+  pairs:[],
+  sentence:"My teacher has a banana and a computer."}
+];
+
+const APP_VERSION="2.1";
 const AUTHOR={
   name:"Calin Pantis",
   role:"Test Engineer · former Software Test Manager",
@@ -523,7 +624,7 @@ const AUTHOR={
 
 /* ---- storage ---- */
 const KEY="spok-v2";
-let state={done:{},checks:{},fillers:{},days:[],kids:{}};
+let state={done:{},checks:{},fillers:{},days:[],kids:{},pron:{}};
 try{const s=JSON.parse(localStorage.getItem(KEY)||"null"); if(s) state=Object.assign(state,s);}catch(e){}
 function save(){try{localStorage.setItem(KEY,JSON.stringify(state));}catch(e){}}
 function today(){const d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
@@ -841,7 +942,7 @@ function bindRecorder(){
 
 /* ---- natural recorded voice (Kokoro "Heart"), with word timings ---- */
 const NATURAL="__heart";
-const TIMING={"l1-1":[0.0,0.51,0.79,1.59,1.91,2.14,2.36,2.73,2.91],"l1-2":[0.0,0.51,0.79,1.59,1.79,1.95,2.18,2.37,2.72],"l1-3":[0.0,0.51,0.79,1.59,1.95,2.08,2.39],"l2-1":[0.0,0.44,0.88,1.18,1.4],"l2-2":[0.0,0.24,0.57,0.81,1.04,1.18,1.42,1.75],"l2-3":[0.0,0.22,0.67,1.03,1.47,1.7,2.14,2.5],"l3-1":[0.0,0.28,0.55,0.83,1.11,1.38,1.66,1.94,2.21,2.49],"l3-2":[0.0,0.39,0.63,0.97,1.36,1.6,1.94,2.19,2.48,2.72,3.01,3.4,3.64],"l3-3":[0.0,0.24,0.53,0.72,0.91,1.2,1.44,1.68,2.07,2.26],"l4-1":[0.0,0.28,0.73,1.02,1.82,1.96,2.29,2.71,3.0,3.19],"l4-2":[0.0,0.3,0.45,0.9,1.7,1.93,2.12,2.36,2.59,2.88],"l4-3":[0.0,0.27,0.65,1.03,1.35,1.84],"l5-1":[0.0,0.57,1.37,1.99,2.79,3.46,4.26],"l5-2":[0.0,0.35,1.0,1.8,2.16,2.39,2.62,3.07],"l5-3":[0.0,0.26,0.64,0.9,1.27,1.53],"l6-1":[0.0,0.54,1.09,1.45,1.69,2.06,2.24],"l6-2":[0.0,0.39,0.64,0.99,1.38,1.63,1.82],"l6-3":[0.0,0.42,0.78,1.36,1.78,2.14],"l7-1":[0.0,0.26,0.41,0.88,1.55,1.86,2.22,2.59,2.79,3.41,3.62],"l7-2":[0.0,0.3,0.86,1.01,1.27,1.42,1.72,1.93,2.28,2.74,2.99,3.35],"l7-3":[0.0,0.33,0.53,0.78,1.03,1.19,1.44,1.56,1.8,2.01,2.21],"l8-1":[0.0,0.27,0.54,0.92,1.36,1.63,2.06,2.33],"l8-2":[0.0,0.21,0.42,0.67,0.84],"l8-3":[0.0,0.31,0.49,0.76,0.99],"l9-1":[0.0,0.23,0.56,0.79,1.02,1.34,1.67,1.9,2.17,2.41,2.91,3.28],"l9-2":[0.0,0.15,0.54,0.84,1.33,1.57,1.97,2.21,2.56,3.0,3.49],"l9-3":[0.0,0.19,0.57,0.76,1.09,1.33,1.57,1.95,2.33,2.52],"l10-1":[0.0,0.24,0.44,0.63,1.17,1.37,1.81,2.29],"l10-2":[0.0,0.25,0.74,0.89,1.33,1.48,1.92,2.27,2.66,2.91,3.41,3.65],"l10-3":[0.0,0.21,0.7,1.02,1.23,1.61,1.82,2.15,2.31,2.63,3.22],"l11-1":[0.0,0.46,0.67,0.87,1.34,1.49,1.8,2.06,2.26,2.52,2.83],"l11-2":[0.0,0.27,0.44,0.82,1.04,1.7,2.03,2.25,2.75,3.13],"l11-3":[0.0,0.27,0.53,0.71,0.97,1.24,1.51],"l12-1":[0.0,0.13,0.39,0.65,0.86,1.03,1.29,1.51,1.64,1.98],"l12-2":[0.0,0.41,0.72,1.08,1.24,1.8,1.96,2.37,2.58,3.04],"l12-3":[0.0,0.25,0.51,0.86,1.22,1.47,1.93,2.13,2.38,2.69,2.89],"l13-1":[0.0,0.2,0.59,1.14,1.34,1.64,2.08,2.53,2.97],"l13-2":[0.0,0.33,0.52,0.71,0.99,1.13,1.42,1.7,2.08,2.36,2.69,2.93],"l13-3":[0.0,0.18,0.4,0.79,1.1,1.27,1.54,1.89,2.2],"l14-1":[0.0,0.2,0.35,0.63,0.9,1.14,1.33,1.45],"l14-2":[0.0,0.14,0.55,0.82,1.1,1.37,1.87,2.1,2.37,2.65,3.15],"l14-3":[0.0,0.39,0.64,0.88,1.18],"l15-1":[0.0,0.34,0.54,0.73,1.27,1.51,1.95,2.19,2.53,2.73,3.16,3.65,3.8],"l15-2":[0.0,0.28,0.48,0.71,0.87,1.11,1.39,1.59,1.82],"l15-3":[0.0,0.24,0.77,0.96,1.3,1.49,1.78],"l16-1":[0.0,0.24,0.51,0.87,1.11,1.34,1.5,1.7,1.98,2.17],"l16-2":[0.0,0.22,0.48,0.7,0.96,1.31,1.58,1.75,2.01,2.19],"l16-3":[0.0,0.35,0.56,0.95,1.43,1.65,1.9,2.08,2.42,2.73],"l17-1":[0.0,0.32,0.6,0.87,1.24,1.66,1.93],"l17-2":[0.0,0.28,0.56,0.84,1.22,1.4,1.97,2.15,2.29,2.67,3.0,3.23,3.51],"l17-3":[0.0,0.25,0.46,0.68,0.93],"l18-1":[0.0,0.35,0.65,0.95,1.3,1.49],"l18-2":[0.0,0.21,0.67,0.93,1.19,1.5],"l18-3":[0.0,0.14,0.37,0.51,0.93,1.26],"l19-1":[0.0,0.34,0.9],"l19-2":[0.0,0.14,0.46,0.74,1.16,1.48,1.81,2.04],"l19-3":[0.0,0.22,0.35,0.56,0.78,1.08],"l20-1":[0.0,0.35,0.6,0.85,1.2,1.51,1.71,2.06,2.31,2.56,2.91],"l20-2":[0.0,0.38,0.59,0.91,1.13,1.34,1.93,2.14],"l20-3":[0.0,0.51,0.66,0.96,1.47,1.77],"l21-1":[0.0,0.38,0.76,0.98,1.31,1.58,1.91,2.4,2.67],"l21-2":[0.0,0.38,0.56,0.85,1.08,1.51,1.74,2.07],"l21-3":[0.0,0.44,0.73,0.93],"l22-1":[0.0,0.19,0.48,0.86,1.25,1.44,1.73,1.97,2.45,2.64,2.88,3.17],"l22-2":[0.0,0.23,0.36,0.59,0.86],"l22-3":[0.0,0.33,0.61,1.04,1.27],"l23-1":[0.0,0.14,0.36,0.59,0.86,1.31,1.49],"l23-2":[0.0,0.2,0.64,0.83,1.13,1.32,1.67,1.91,2.25],"l23-3":[0.0,0.31,0.49,0.71,0.89,1.16,1.38,1.65],"l24-1":[0.0,0.57,0.86,1.15,1.48,1.67],"l24-2":[0.0,0.34,0.52,0.86,1.25,1.51,1.68,1.89],"l24-3":[0.0,0.2,0.54,0.99,1.53,1.77,2.17],"l25-1":[0.0,0.17,0.52,0.95,1.26,1.6,1.78,1.99,2.34],"l25-2":[0.0,0.3,0.56,0.82,1.04,1.3,1.56,1.74],"l25-3":[0.0,0.27,0.53,0.85,1.12,1.6,1.86],"l26-1":[0.0,0.31,0.57,0.94,1.2,1.56],"l26-2":[0.0,0.24,0.71,0.95,1.13],"l26-3":[0.0,0.4,0.6,0.9,1.15,1.41],"l27-1":[0.0,0.2,0.72,1.23,1.48,2.15,2.45,2.81],"l27-2":[0.0,0.25,0.64,0.89,1.19,1.43,1.93,2.17,2.52],"l27-3":[0.0,0.2,0.39,0.55,0.79,1.02,1.26],"l28-1":[0.0,0.38,0.62,1.1,1.3,1.54,1.68,2.01,2.3,2.59,2.78,3.12],"l28-2":[0.0,0.25,0.45,0.74,1.24,1.59,1.83,2.08,2.28,2.53],"l28-3":[0.0,0.31,0.46,0.71,0.92,1.12,1.53,1.73,1.94],"l29-1":[0.0,0.15,0.73,0.97,1.36],"l29-2":[0.0,0.36,0.64,0.86,1.14],"l29-3":[0.0,0.35,0.61,0.74,0.96,1.13,1.3],"k1-1":[0.0,0.18,0.72],"k1-2":[0.0,0.18,0.71],"k1-3":[0.0,0.16,0.38,0.71,0.99],"k2-1":[0.0,0.57],"k2-2":[0.0,0.27,0.67,0.94],"k2-3":[0.0,0.17,0.4,0.73,1.13],"k2-4":[0.0,0.14,0.43,0.92,1.16],"k3-1":[0.0,0.21,0.69],"k3-2":[0.0,0.18,0.53],"k3-3":[0.0,0.18,0.47,0.71],"k4-1":[0.0,0.36,0.97],"k4-2":[0.0,0.38,0.54,0.86,1.18,1.56,1.77],"k4-3":[0.0,0.19,0.39,0.62,0.78,0.94,1.13],"k5-1":[0.0,0.31,0.51,0.71,1.28],"k5-2":[0.0,0.19,0.44,0.58,0.92,1.31,1.51],"k5-3":[0.0,0.15,0.45,0.7,1.0,1.2],"k6-1":[0.0,0.28,0.67,1.12,1.46],"k6-2":[0.0,0.28,0.61,1.1],"k6-3":[0.0,0.39,0.78,1.17,1.57,1.96],"k7-1":[0.0,0.29,0.52,0.81],"k7-2":[0.0,0.33,0.56,0.84],"k7-3":[0.0,0.23,0.41,0.64,0.87,1.15,1.33],"k8-1":[0.0,0.32,0.53,0.74,1.11],"k8-2":[0.0,0.32,0.71,0.97],"k8-3":[0.0,0.16,0.48,0.75,1.23,1.45,1.66,1.98],"k9-1":[0.0,0.41,0.57,0.88,1.09,1.35],"k9-2":[0.0,0.39,0.56,0.83,1.0,1.28,1.67],"k9-3":[0.0,0.56,0.78,1.23,1.56],"k10-1":[0.0,0.15,0.49,0.74,1.14,1.34],"k10-2":[0.0,0.15,0.49,0.68,1.13,1.37,1.61,1.81],"k10-3":[0.0,0.24,0.49,0.83,1.07,1.41,1.71],"k11-1":[0.0,0.4,0.65,0.9,1.15,1.45,1.7],"k11-2":[0.0,0.24,0.48,0.72,1.01,1.4],"k11-3":[0.0,0.28,0.56,0.83,1.11],"k12-1":[0.0,0.41,0.66,0.91,1.11,1.32],"k12-2":[0.0,0.34,0.58,0.82],"k12-3":[0.0,0.19,0.42,0.7,0.93]};
+const TIMING={"l1-1":[0.0,0.51,0.79,1.59,1.91,2.14,2.36,2.73,2.91],"l1-2":[0.0,0.51,0.79,1.59,1.79,1.95,2.18,2.37,2.72],"l1-3":[0.0,0.51,0.79,1.59,1.95,2.08,2.39],"l2-1":[0.0,0.44,0.88,1.18,1.4],"l2-2":[0.0,0.24,0.57,0.81,1.04,1.18,1.42,1.75],"l2-3":[0.0,0.22,0.67,1.03,1.47,1.7,2.14,2.5],"l3-1":[0.0,0.28,0.55,0.83,1.11,1.38,1.66,1.94,2.21,2.49],"l3-2":[0.0,0.39,0.63,0.97,1.36,1.6,1.94,2.19,2.48,2.72,3.01,3.4,3.64],"l3-3":[0.0,0.24,0.53,0.72,0.91,1.2,1.44,1.68,2.07,2.26],"l4-1":[0.0,0.28,0.73,1.02,1.82,1.96,2.29,2.71,3.0,3.19],"l4-2":[0.0,0.3,0.45,0.9,1.7,1.93,2.12,2.36,2.59,2.88],"l4-3":[0.0,0.27,0.65,1.03,1.35,1.84],"l5-1":[0.0,0.57,1.37,1.99,2.79,3.46,4.26],"l5-2":[0.0,0.35,1.0,1.8,2.16,2.39,2.62,3.07],"l5-3":[0.0,0.26,0.64,0.9,1.27,1.53],"l6-1":[0.0,0.54,1.09,1.45,1.69,2.06,2.24],"l6-2":[0.0,0.39,0.64,0.99,1.38,1.63,1.82],"l6-3":[0.0,0.42,0.78,1.36,1.78,2.14],"l7-1":[0.0,0.26,0.41,0.88,1.55,1.86,2.22,2.59,2.79,3.41,3.62],"l7-2":[0.0,0.3,0.86,1.01,1.27,1.42,1.72,1.93,2.28,2.74,2.99,3.35],"l7-3":[0.0,0.33,0.53,0.78,1.03,1.19,1.44,1.56,1.8,2.01,2.21],"l8-1":[0.0,0.27,0.54,0.92,1.36,1.63,2.06,2.33],"l8-2":[0.0,0.21,0.42,0.67,0.84],"l8-3":[0.0,0.31,0.49,0.76,0.99],"l9-1":[0.0,0.23,0.56,0.79,1.02,1.34,1.67,1.9,2.17,2.41,2.91,3.28],"l9-2":[0.0,0.15,0.54,0.84,1.33,1.57,1.97,2.21,2.56,3.0,3.49],"l9-3":[0.0,0.19,0.57,0.76,1.09,1.33,1.57,1.95,2.33,2.52],"l10-1":[0.0,0.24,0.44,0.63,1.17,1.37,1.81,2.29],"l10-2":[0.0,0.25,0.74,0.89,1.33,1.48,1.92,2.27,2.66,2.91,3.41,3.65],"l10-3":[0.0,0.21,0.7,1.02,1.23,1.61,1.82,2.15,2.31,2.63,3.22],"l11-1":[0.0,0.46,0.67,0.87,1.34,1.49,1.8,2.06,2.26,2.52,2.83],"l11-2":[0.0,0.27,0.44,0.82,1.04,1.7,2.03,2.25,2.75,3.13],"l11-3":[0.0,0.27,0.53,0.71,0.97,1.24,1.51],"l12-1":[0.0,0.13,0.39,0.65,0.86,1.03,1.29,1.51,1.64,1.98],"l12-2":[0.0,0.41,0.72,1.08,1.24,1.8,1.96,2.37,2.58,3.04],"l12-3":[0.0,0.25,0.51,0.86,1.22,1.47,1.93,2.13,2.38,2.69,2.89],"l13-1":[0.0,0.2,0.59,1.14,1.34,1.64,2.08,2.53,2.97],"l13-2":[0.0,0.33,0.52,0.71,0.99,1.13,1.42,1.7,2.08,2.36,2.69,2.93],"l13-3":[0.0,0.18,0.4,0.79,1.1,1.27,1.54,1.89,2.2],"l14-1":[0.0,0.2,0.35,0.63,0.9,1.14,1.33,1.45],"l14-2":[0.0,0.14,0.55,0.82,1.1,1.37,1.87,2.1,2.37,2.65,3.15],"l14-3":[0.0,0.39,0.64,0.88,1.18],"l15-1":[0.0,0.34,0.54,0.73,1.27,1.51,1.95,2.19,2.53,2.73,3.16,3.65,3.8],"l15-2":[0.0,0.28,0.48,0.71,0.87,1.11,1.39,1.59,1.82],"l15-3":[0.0,0.24,0.77,0.96,1.3,1.49,1.78],"l16-1":[0.0,0.24,0.51,0.87,1.11,1.34,1.5,1.7,1.98,2.17],"l16-2":[0.0,0.22,0.48,0.7,0.96,1.31,1.58,1.75,2.01,2.19],"l16-3":[0.0,0.35,0.56,0.95,1.43,1.65,1.9,2.08,2.42,2.73],"l17-1":[0.0,0.32,0.6,0.87,1.24,1.66,1.93],"l17-2":[0.0,0.28,0.56,0.84,1.22,1.4,1.97,2.15,2.29,2.67,3.0,3.23,3.51],"l17-3":[0.0,0.25,0.46,0.68,0.93],"l18-1":[0.0,0.35,0.65,0.95,1.3,1.49],"l18-2":[0.0,0.21,0.67,0.93,1.19,1.5],"l18-3":[0.0,0.14,0.37,0.51,0.93,1.26],"l19-1":[0.0,0.34,0.9],"l19-2":[0.0,0.14,0.46,0.74,1.16,1.48,1.81,2.04],"l19-3":[0.0,0.22,0.35,0.56,0.78,1.08],"l20-1":[0.0,0.35,0.6,0.85,1.2,1.51,1.71,2.06,2.31,2.56,2.91],"l20-2":[0.0,0.38,0.59,0.91,1.13,1.34,1.93,2.14],"l20-3":[0.0,0.51,0.66,0.96,1.47,1.77],"l21-1":[0.0,0.38,0.76,0.98,1.31,1.58,1.91,2.4,2.67],"l21-2":[0.0,0.38,0.56,0.85,1.08,1.51,1.74,2.07],"l21-3":[0.0,0.44,0.73,0.93],"l22-1":[0.0,0.19,0.48,0.86,1.25,1.44,1.73,1.97,2.45,2.64,2.88,3.17],"l22-2":[0.0,0.23,0.36,0.59,0.86],"l22-3":[0.0,0.33,0.61,1.04,1.27],"l23-1":[0.0,0.14,0.36,0.59,0.86,1.31,1.49],"l23-2":[0.0,0.2,0.64,0.83,1.13,1.32,1.67,1.91,2.25],"l23-3":[0.0,0.31,0.49,0.71,0.89,1.16,1.38,1.65],"l24-1":[0.0,0.57,0.86,1.15,1.48,1.67],"l24-2":[0.0,0.34,0.52,0.86,1.25,1.51,1.68,1.89],"l24-3":[0.0,0.2,0.54,0.99,1.53,1.77,2.17],"l25-1":[0.0,0.17,0.52,0.95,1.26,1.6,1.78,1.99,2.34],"l25-2":[0.0,0.3,0.56,0.82,1.04,1.3,1.56,1.74],"l25-3":[0.0,0.27,0.53,0.85,1.12,1.6,1.86],"l26-1":[0.0,0.31,0.57,0.94,1.2,1.56],"l26-2":[0.0,0.24,0.71,0.95,1.13],"l26-3":[0.0,0.4,0.6,0.9,1.15,1.41],"l27-1":[0.0,0.2,0.72,1.23,1.48,2.15,2.45,2.81],"l27-2":[0.0,0.25,0.64,0.89,1.19,1.43,1.93,2.17,2.52],"l27-3":[0.0,0.2,0.39,0.55,0.79,1.02,1.26],"l28-1":[0.0,0.38,0.62,1.1,1.3,1.54,1.68,2.01,2.3,2.59,2.78,3.12],"l28-2":[0.0,0.25,0.45,0.74,1.24,1.59,1.83,2.08,2.28,2.53],"l28-3":[0.0,0.31,0.46,0.71,0.92,1.12,1.53,1.73,1.94],"l29-1":[0.0,0.15,0.73,0.97,1.36],"l29-2":[0.0,0.36,0.64,0.86,1.14],"l29-3":[0.0,0.35,0.61,0.74,0.96,1.13,1.3],"k1-1":[0.0,0.18,0.72],"k1-2":[0.0,0.18,0.71],"k1-3":[0.0,0.16,0.38,0.71,0.99],"k2-1":[0.0,0.57],"k2-2":[0.0,0.27,0.67,0.94],"k2-3":[0.0,0.17,0.4,0.73,1.13],"k2-4":[0.0,0.14,0.43,0.92,1.16],"k3-1":[0.0,0.21,0.69],"k3-2":[0.0,0.18,0.53],"k3-3":[0.0,0.18,0.47,0.71],"k4-1":[0.0,0.36,0.97],"k4-2":[0.0,0.38,0.54,0.86,1.18,1.56,1.77],"k4-3":[0.0,0.19,0.39,0.62,0.78,0.94,1.13],"k5-1":[0.0,0.31,0.51,0.71,1.28],"k5-2":[0.0,0.19,0.44,0.58,0.92,1.31,1.51],"k5-3":[0.0,0.15,0.45,0.7,1.0,1.2],"k6-1":[0.0,0.28,0.67,1.12,1.46],"k6-2":[0.0,0.28,0.61,1.1],"k6-3":[0.0,0.39,0.78,1.17,1.57,1.96],"k7-1":[0.0,0.29,0.52,0.81],"k7-2":[0.0,0.33,0.56,0.84],"k7-3":[0.0,0.23,0.41,0.64,0.87,1.15,1.33],"k8-1":[0.0,0.32,0.53,0.74,1.11],"k8-2":[0.0,0.32,0.71,0.97],"k8-3":[0.0,0.16,0.48,0.75,1.23,1.45,1.66,1.98],"k9-1":[0.0,0.41,0.57,0.88,1.09,1.35],"k9-2":[0.0,0.39,0.56,0.83,1.0,1.28,1.67],"k9-3":[0.0,0.56,0.78,1.23,1.56],"k10-1":[0.0,0.15,0.49,0.74,1.14,1.34],"k10-2":[0.0,0.15,0.49,0.68,1.13,1.37,1.61,1.81],"k10-3":[0.0,0.24,0.49,0.83,1.07,1.41,1.71],"k11-1":[0.0,0.4,0.65,0.9,1.15,1.45,1.7],"k11-2":[0.0,0.24,0.48,0.72,1.01,1.4],"k11-3":[0.0,0.28,0.56,0.83,1.11],"k12-1":[0.0,0.41,0.66,0.91,1.11,1.32],"k12-2":[0.0,0.34,0.58,0.82],"k12-3":[0.0,0.19,0.42,0.7,0.93],"p1-s":[0.08,0.44,0.69,0.95,1.3],"p2-s":[0.08,0.4,0.61,0.82,1.24,1.5,1.82,2.03,2.24],"p3-s":[0.08,0.34,0.72,1.11],"p4-s":[0.08,0.32,0.65,0.84,1.03,1.27],"p5-s":[0.08,0.23,0.49,0.9,1.2,1.41,1.66],"p6-s":[0.08,0.56,0.87,1.17,1.53,1.83],"p7-s":[0.08,0.32,0.62,0.92,1.22,1.4,1.7],"p8-s":[0.08,0.22,0.51,0.75,0.94,1.28,1.51],"p9-s":[0.08,0.24,0.72,1.15,1.42,1.9,2.17],"p10-s":[0.08,0.31,0.84,1.14,1.31,1.78,2.08,2.25]};
 let naturalFailed=false, curClip=null, clipRaf=0;
 const useNatural=()=>!naturalFailed&&(!state.voice||state.voice===NATURAL);
 function stopClip(){cancelAnimationFrame(clipRaf);if(curClip){const c=curClip;curClip=null;c._tok=null;c.onended=c.onerror=c.onplaying=null;try{c.pause();}catch(e){}}}
@@ -927,21 +1028,27 @@ const KCOL={sky:"--k-sky",sun:"--k-sun",grape:"--k-grape",leaf:"--k-leaf",berry:
 function starSVG(on){return `<svg viewBox="0 0 24 24" class="star ${on?"on":""}" aria-hidden="true"><path d="M12 2.6l2.9 6 6.5.8-4.8 4.5 1.2 6.5L12 17.3l-5.8 3.1 1.2-6.5L2.6 9.4l6.5-.8z"/></svg>`;}
 function kids(){
   topbar(false); setTab("kids");
-  const got=KIDS.filter((_,i)=>state.kids[i]).length;
+  const got=KIDS.filter((_,i)=>state.kids[i]).length+PRON.filter((_,i)=>state.pron[i]).length, all=KIDS.length+PRON.length;
   app.innerHTML=`<section class="view kidsv">
     <div class="kidhero">
       <div style="display:flex;flex-direction:column;gap:8px;min-width:0">
         <h1>Brave Voices</h1>
         <p class="kidlead">Little steps to speak English in front of your class, without butterflies.</p>
       </div>
-      <div class="starbox" aria-label="${got} of ${KIDS.length} stars">${starSVG(true)}<b>${got}<small>/${KIDS.length}</small></b></div>
+      <div class="starbox" aria-label="${got} of ${all} stars">${starSVG(true)}<b>${got}<small>/${all}</small></b></div>
     </div>
     <p class="note">For parents and teachers: each lesson takes about 5 minutes. Tap the speaker to hear every sentence, then let your child repeat it. Practise at home first, then in class.</p>
     <div class="kgrid">${KIDS.map((k,i)=>`<button class="kcard" data-i="${i}" style="--kc:var(${KCOL[k.c]})">
       <span class="knum">${i+1}</span><span class="kt">${esc(k.t)}</span>
       <span class="kbadge">${state.kids[i]?starSVG(true)+" "+esc(k.badge):"Earn: "+esc(k.badge)}</span></button>`).join("")}</div>
+    <div class="ksec"><h2>Say It Right</h2>
+      <p class="tip">Sunete din engleză care le dau des bătăi de cap copiilor români. Instrucțiunile sunt scrise în română, iar cuvintele le spune vocea, în engleză.</p></div>
+    <div class="kgrid">${PRON.map((k,i)=>`<button class="kcard pcard" data-p="${i}" style="--kc:var(${KCOL[k.c]})">
+      <span class="knum ksym">${esc(k.sym)}</span><span class="kt">${esc(k.t)}</span>
+      <span class="kbadge">${state.pron[i]?starSVG(true)+" "+esc(k.badge):"Câștigi: "+esc(k.badge)}</span></button>`).join("")}</div>
   </section>`;
-  app.querySelectorAll(".kcard").forEach(b=>b.onclick=()=>go("kids-"+(+b.dataset.i+1)));
+  app.querySelectorAll(".kcard:not(.pcard)").forEach(b=>b.onclick=()=>go("kids-"+(+b.dataset.i+1)));
+  app.querySelectorAll(".pcard").forEach(b=>b.onclick=()=>go("sound-"+(+b.dataset.p+1)));
 }
 function kidLesson(i){
   const K=KIDS[i]; topbar("kids","Brave Voices"); setTab("kids");
@@ -998,6 +1105,53 @@ function kidLesson(i){
   bindRecorder();
   $("#kstar").onclick=()=>{state.kids[i]=!state.kids[i];if(state.kids[i])markPractice();save();kidLesson(i);if(state.kids[i])app.querySelector(".kdone").scrollIntoView({block:"center"});};
   if($("#knext")) $("#knext").onclick=()=>go("kids-"+(i+2));
+}
+
+/* ---- KIDS: pronunciation games (Romanian instructions) ---- */
+const pronWord=w=>{const [say,show]=w.split("|");return {say,html:esc(show||say).replace(/\{(.+?)\}/g,'<s class="silent">$1</s>')};};
+function pronLesson(i){
+  const P=PRON[i], n=i+1; topbar("kids","Kids"); setTab("kids");
+  app.innerHTML=`<section class="view kidsv" style="--kc:var(${KCOL[P.c]})">
+    <div class="kidtop">
+      <div class="meta"><span>SUNETUL ${n} DIN ${PRON.length}</span><span>CAM 5 MINUTE</span></div>
+      <div class="ptitle"><span class="psym">${esc(P.sym)}</span><div style="min-width:0"><h1>${esc(P.t)}</h1>${P.ipa?`<p class="tip">Sunetul /${esc(P.ipa)}/</p>`:""}</div></div>
+    </div>
+    <div class="card kcardx"><h3>Cum se face</h3><p class="kidlead">${esc(P.how)}</p>
+      <p class="poops"><b>Atenție:</b> ${esc(P.oops)}</p></div>
+    <div class="card kcardx"><h3>Ascultă și repetă</h3>
+      <p class="tip">Apasă pe un cuvânt, ascultă-l, apoi spune-l cu voce tare.</p>
+      <div class="pwords">${P.words.map((w,j)=>`<button class="pword" data-a="p${n}-w${j+1}" data-t="${esc(pronWord(w).say)}"><span class="spk" aria-hidden="true">🔊</span> ${pronWord(w).html}</button>`).join("")}</div>
+    </div>
+    ${P.pairs.length?`<div class="card kcardx"><h3>Perechi-capcană</h3>
+      <p class="tip">Ascultă ambele cuvinte din fiecare pereche. Auzi diferența? Spune-le și tu, unul după altul.</p>
+      <div class="ppairs">${P.pairs.map(([a,b],j)=>`<div class="ppair"><button class="pword" data-a="p${n}-a${j+1}" data-t="${esc(a)}">${esc(a)}</button><span class="pvs" aria-hidden="true">≠</span><button class="pword" data-a="p${n}-b${j+1}" data-t="${esc(b)}">${esc(b)}</button></div>`).join("")}</div>
+    </div>`:""}
+    <div class="card kcardx"><h3>Propoziția</h3>
+      <p class="tip">Ascultă propoziția, apoi înregistrează-te și compară.</p>
+      <div class="lines"><button class="line kline" id="psent"><span class="spk" aria-hidden="true">🔊</span> ${words(P.sentence)}</button></div>
+      ${recorderHTML()}
+    </div>
+    <div class="card kcardx"><h3>Joc</h3><p class="kidlead">${esc(P.game)}</p></div>
+    <div class="card kcardx kdone">
+      ${state.pron[i]?`<div class="kwin">${starSVG(true)}<div><b>Ai câștigat: ${esc(P.badge)}</b><p class="tip">Bravo! Poți exersa din nou oricând.</p></div></div>`
+        :`<p class="prompt">Ai spus toate cuvintele?</p>`}
+      <div class="row"><button class="btn ${state.pron[i]?"ghost":"kbtn"}" id="pstar">${state.pron[i]?"Retrage steluța":"Am reușit! Vreau o steluță"}</button>
+      ${i<PRON.length-1?`<button class="btn ghost" id="pnext">Sunetul următor →</button>`:""}</div>
+    </div>
+  </section>`;
+  window.scrollTo(0,0);
+  const btns=[...app.querySelectorAll(".pword")], sent=$("#psent");
+  const clearActive=()=>{btns.forEach(b=>b.classList.remove("active"));sent.classList.remove("active");};
+  const ttsSay=(text,done)=>{try{if(!("speechSynthesis" in window)){done&&done();return;}speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.lang="en-US";const v=englishVoices()[0];if(v)u.voice=v;u.rate=.8;u.onend=u.onerror=()=>done&&done();speechSynthesis.speak(u);}catch(e){done&&done();}};
+  const say=(name,text,el,container)=>{stopClip();try{speechSynthesis.cancel();}catch(e){}clearActive();el.classList.add("active");markPractice();
+    const done=()=>el.classList.remove("active");
+    if(!naturalFailed) playClip(name,container||null,1,null,done,()=>ttsSay(text,done)); else ttsSay(text,done);};
+  btns.forEach(b=>b.onclick=()=>say(b.dataset.a,b.dataset.t,b));
+  sent.onclick=()=>say(`p${n}-s`,P.sentence,sent,sent);
+  cleanup.push(()=>{stopClip();try{speechSynthesis.cancel();}catch(e){}});
+  bindRecorder();
+  $("#pstar").onclick=()=>{state.pron[i]=!state.pron[i];if(state.pron[i])markPractice();save();pronLesson(i);if(state.pron[i])app.querySelector(".kdone").scrollIntoView({block:"center"});};
+  if($("#pnext")) $("#pnext").onclick=()=>go("sound-"+(i+2));
 }
 
 /* ---- ABOUT ---- */
@@ -1061,6 +1215,7 @@ function route(){
   else if(h==="warmup") warmup(false);
   else if(h==="warmup-express") warmup(true);
   else if(/^kids-\d+$/.test(h)&&+h.slice(5)>=1&&+h.slice(5)<=KIDS.length) kidLesson(+h.slice(5)-1);
+  else if(/^sound-\d+$/.test(h)&&+h.slice(6)>=1&&+h.slice(6)<=PRON.length) pronLesson(+h.slice(6)-1);
   else if(h==="kids") kids();
   else if(h==="about") about();
   else home();
