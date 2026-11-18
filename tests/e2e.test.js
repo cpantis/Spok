@@ -64,7 +64,7 @@ test("every page renders with a heading, a title and no errors, without sideways
     const info = await page.evaluate(() => ({ h1: document.querySelector("#app h1")?.textContent, w: document.documentElement.scrollWidth, title: document.title }));
     assert.ok(info.h1, `${r}: no heading`);
     assert.ok(info.w <= 360, `${r}: page is ${info.w}px wide`);
-    assert.ok(info.title.includes("Spok"), `${r}: title "${info.title}"`);
+    assert.ok(info.title.includes("TrySpok"), `${r}: title "${info.title}"`);
   }
   await go(page, "lesson-99");
   assert.ok(await page.$("#cont"), "an unknown address shows the home page");
@@ -368,7 +368,7 @@ test("backup: save a file and restore it on a fresh device", async () => {
   const bad = path.join(path.dirname(file), "not-spok.json");
   fs.writeFileSync(bad, '{"hello":1}');
   await fresh.setInputFiles("#bload", bad);
-  await fresh.waitForFunction(() => /isn't a Spok backup/.test(document.querySelector("#bstat").textContent));
+  await fresh.waitForFunction(() => /isn't a TrySpok backup/.test(document.querySelector("#bstat").textContent));
   assert.deepStrictEqual((await stored(fresh)).done, { 0: true, 5: true });
   assert.deepStrictEqual(fresh.errors, []);
 });

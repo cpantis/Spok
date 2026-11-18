@@ -1,4 +1,4 @@
-# Spok
+# TrySpok
 
 Free voice and interview practice app: 29 short lessons, a 20-minute "interview tomorrow" plan, a warm-up, lessons for kids and pronunciation games for Romanian children. Every practice line can be recorded and compared with the model voice, back to back. It is a static web app (one `index.html`, a service worker for offline use and the recorded "Heart" voice clips in `audio/`), so any static host can serve it.
 

@@ -3,19 +3,19 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Spok</title>
+<title>TrySpok</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <meta name="theme-color" content="#1B2230">
 <meta name="description" content="Free app to speak clearly and confidently in interviews and meetings: 29 lessons, a natural voice guide, self-recording and lessons for kids.">
 <meta property="og:type" content="website">
-<meta property="og:site_name" content="Spok">
-<meta property="og:title" content="Spok: speak clearly, interview with confidence">
+<meta property="og:site_name" content="TrySpok">
+<meta property="og:title" content="TrySpok: speak clearly, interview with confidence">
 <meta property="og:description" content="29 short lessons for interviews and meetings, a natural voice guide, self-recording and lessons for kids. Free, no account.">
 <meta property="og:url" content="https://tryspok.app/">
 <meta property="og:image" content="https://tryspok.app/og-image.jpg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="Spok app: Speak clearly. Interview with confidence.">
+<meta property="og:image:alt" content="TrySpok app: Speak clearly. Interview with confidence.">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://tryspok.app/og-image.jpg">
 <link rel="manifest" href="manifest.json">
@@ -722,7 +722,7 @@ function rerender(draw){const y=window.scrollY;stopAll();draw();window.scrollTo(
 function topbar(back,label){
   const n=streak();
   topEl.innerHTML=(back?`<button class="back" id="back">&#8592; ${label||"Lessons"}</button>`:
-   `<div class="logo" aria-hidden="true"><i style="height:8px"></i><i style="height:15px"></i><i style="height:22px"></i><i style="height:15px"></i><i style="height:8px"></i></div><div class="brand">Spok</div>`)+
+   `<div class="logo" aria-hidden="true"><i style="height:8px"></i><i style="height:15px"></i><i style="height:22px"></i><i style="height:15px"></i><i style="height:8px"></i></div><div class="brand">TrySpok</div>`)+
    `<div class="spacer"></div><div class="streak">${n===0?"Practise today":n===1?"1 day streak":n+" day streak"}</div>`;
   if(back) $("#back").onclick=()=>go(back===true?"home":back);
 }
@@ -944,24 +944,24 @@ const IN_APP=/FBAN|FBAV|FB_IAB|Instagram|Messenger|LinkedInApp|Snapchat|TikTok|L
 const IN_FRAME=(()=>{try{return window.top!==window.self;}catch(e){return true;}})();
 const STANDALONE=(()=>{try{return matchMedia("(display-mode: standalone)").matches||navigator.standalone===true;}catch(e){return false;}})();
 function micHelp(kind){
-  if(kind==="frame") return "The microphone is blocked in this preview. Open Spok from its own website (for example tryspok.app) to record yourself.";
+  if(kind==="frame") return "The microphone is blocked in this preview. Open TrySpok from its own website (for example tryspok.app) to record yourself.";
   if(kind==="inapp") return IS_IOS
     ? "This app's built-in browser blocks the microphone. Tap ⋯ or the share icon and choose \"Open in Safari\", then try again."
     : "This app's built-in browser blocks the microphone. Tap ⋮ and choose \"Open in Chrome\", then try again.";
   if(kind==="denied") return IS_IOS
     ? (STANDALONE
-      ? "Microphone access is off. Open Settings → Safari → Microphone and choose Ask or Allow. Then close Spok completely and open it again."
+      ? "Microphone access is off. Open Settings → Safari → Microphone and choose Ask or Allow. Then close TrySpok completely and open it again."
       : "Microphone access is off. In Safari, tap \"aA\" in the address bar → Website Settings → Microphone → Allow. Or open Settings → Safari → Microphone → Allow. Then reload the page.")
     : IS_ANDROID
       ? "Microphone access is off. Tap the icon to the left of the address → Permissions → Microphone → Allow. If that doesn't help, open Settings → Apps → Chrome → Permissions → Microphone → Allow. Then reload."
       : "Microphone access is off. Click the icon to the left of the address, allow the microphone, then reload the page.";
   if(kind==="busy") return "The microphone is busy in another app. End any call or voice recording, then try again.";
   if(kind==="none") return "No microphone was found on this device.";
-  if(kind==="insecure") return "Recording needs a secure https address. Open Spok from its https website.";
+  if(kind==="insecure") return "Recording needs a secure https address. Open TrySpok from its https website.";
   if(kind==="unsupported") return IS_IOS
     ? "This version of iOS can't record in the browser. Update iOS (14.5 or later), or use Voice Memos alongside the timer."
     : "This browser can't record audio. Use the latest Chrome, or your phone's voice recorder alongside the timer.";
-  return "The microphone didn't start. Close other apps using it, reload Spok and try again.";
+  return "The microphone didn't start. Close other apps using it, reload TrySpok and try again.";
 }
 // Why recording can't start, or null if it can.
 function micPrecheck(){
@@ -1410,17 +1410,17 @@ function about(){
         <label for="fname" class="tip">Your name (optional)</label>
         <input id="fname" class="vsel" autocomplete="name">
         <label for="fmsg" class="tip">Message</label>
-        <textarea id="fmsg" placeholder="What would make Spok better for you?"></textarea>
+        <textarea id="fmsg" placeholder="What would make TrySpok better for you?"></textarea>
       </div>
       <div class="row"><button class="btn dark" id="fsend">Send by email</button><button class="btn ghost small" id="fcopy">Copy message</button></div>
       <p class="tip" id="fstat" aria-live="polite"></p>
     </div>
-    <div class="card support"><h2 class="eyebrow">Support Spok</h2>
-      <p>Spok is free, with no ads and no account. If it helped you before an interview or a big meeting, you can support my personal projects.</p>
+    <div class="card support"><h2 class="eyebrow">Support TrySpok</h2>
+      <p>TrySpok is free, with no ads and no account. If it helped you before an interview or a big meeting, you can support my personal projects.</p>
       ${A.donate?`<div class="row"><a class="btn primary" href="${esc(A.donate)}" target="_blank" rel="noopener">${esc(A.donateLabel)} ↗</a></div>`
-        :`<p class="tip">A donation link is coming soon. Until then, sharing Spok with a friend helps a lot.</p>`}
+        :`<p class="tip">A donation link is coming soon. Until then, sharing TrySpok with a friend helps a lot.</p>`}
     </div>
-    <p class="tip">Spok ${APP_VERSION} · Works offline once installed · Progress stays on your device · Voice generated with Kokoro (Apache 2.0)</p>
+    <p class="tip">TrySpok ${APP_VERSION} · Works offline once installed · Progress stays on your device · Voice generated with Kokoro (Apache 2.0)</p>
   </section>`;
   const bstat=t=>$("#bstat").textContent=t;
   $("#bsave").onclick=()=>{try{
@@ -1432,17 +1432,17 @@ function about(){
   $("#bpick").onclick=()=>$("#bload").click();
   $("#bload").onchange=async e=>{const f=e.target.files&&e.target.files[0];e.target.value="";if(!f)return;
     try{const d=JSON.parse(await f.text()), st=d&&d.app==="spok"&&d.state;
-      if(!st||typeof st!=="object"||!Array.isArray(st.days)) throw new Error("not a Spok backup");
+      if(!st||typeof st!=="object"||!Array.isArray(st.days)) throw new Error("not a TrySpok backup");
       if(!confirm("Replace the progress on this device with the backup?")) return;
       state=normalizeState(st);save();about();bstat("Progress restored.");
-    }catch(err){bstat("That file isn't a Spok backup. Choose the .json file saved from Spok.");}};
-  const msg=()=>{const t=$("#ftype").value,n=$("#fname").value.trim(),m=$("#fmsg").value.trim();return {t,n,m,body:`Topic: ${t}\n${n?"From: "+n+"\n":""}\n${m}\n\n— sent from Spok ${APP_VERSION}`};};
+    }catch(err){bstat("That file isn't a TrySpok backup. Choose the .json file saved from TrySpok.");}};
+  const msg=()=>{const t=$("#ftype").value,n=$("#fname").value.trim(),m=$("#fmsg").value.trim();return {t,n,m,body:`Topic: ${t}\n${n?"From: "+n+"\n":""}\n${m}\n\n— sent from TrySpok ${APP_VERSION}`};};
   const stat=t=>$("#fstat").textContent=t;
   const copy=async(text,ok)=>{try{await navigator.clipboard.writeText(text);stat(ok);}catch(e){stat("Copy didn't work here. Select the text and copy it manually.");}};
   if($("#cmail")) $("#cmail").onclick=()=>copy(A.email,"Email address copied.");
   $("#fsend").onclick=()=>{const x=msg(); if(!x.m){stat("Write a message first.");$("#fmsg").focus();return;}
     if(!A.email){copy(x.body,"Message copied.");return;}
-    location.href=`mailto:${A.email}?subject=${encodeURIComponent("Spok feedback: "+x.t)}&body=${encodeURIComponent(x.body)}`;
+    location.href=`mailto:${A.email}?subject=${encodeURIComponent("TrySpok feedback: "+x.t)}&body=${encodeURIComponent(x.body)}`;
     stat(`Your email app should open with the message ready. If it doesn't, tap "Copy message" and send it to ${A.email}.`);};
   $("#fcopy").onclick=()=>{const x=msg(); if(!x.m){stat("Write a message first.");return;} copy(x.body,`Message copied. Paste it into an email to ${A.email}.`);};
 }
@@ -1466,7 +1466,7 @@ function route(){
   window.scrollTo(0,0);
   // name the page and move screen-reader focus to its heading (not on first load)
   const h1=app.querySelector("h1"), name=h1?h1.textContent.replace(/\s+/g," ").trim():"";
-  document.title=h==="home"||!h||!name?"Spok: speak clearly, interview with confidence":name+" · Spok";
+  document.title=h==="home"||!h||!name?"TrySpok: speak clearly, interview with confidence":name+" · TrySpok";
   if(routed&&h1){h1.tabIndex=-1;h1.focus({preventScroll:true});}
   app.dataset.route=h||"home"; // which page is on screen (used by the tests)
   routed=true;

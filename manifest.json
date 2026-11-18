@@ -1,6 +1,6 @@
 {
-  "name": "Spok: Voice & Charisma Trainer",
-  "short_name": "Spok",
+  "name": "TrySpok: Voice & Charisma Trainer",
+  "short_name": "TrySpok",
   "description": "29 short lessons to speak clearly in interviews and meetings, with a natural voice guide, a voice recorder and lessons for kids.",
   "start_url": "./index.html",
   "scope": "./",
