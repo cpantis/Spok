@@ -662,6 +662,8 @@ const words=s=>{let out="",inCue=false;
   return out;};
 let cleanup=[];
 function stopAll(){cleanup.forEach(f=>{try{f()}catch(e){}});cleanup=[];}
+// Re-draw the current page in place (e.g. after marking it complete) without jumping back to the top.
+function rerender(draw){const y=window.scrollY;stopAll();draw();window.scrollTo(0,y);}
 
 function topbar(back,label){
   const n=streak();
@@ -829,28 +831,29 @@ function lesson(i){
   cleanup.push(stopDrill);
 
   // timer
-  let left=L.secs, tInt=null; const clock=$("#clock");
+  let left=L.secs, tInt=null, ran=false; const clock=$("#clock");
   const draw=()=>{clock.textContent=fmt(left);clock.classList.toggle("over",left<0);};
   $("#tgo").onclick=()=>{
     if(tInt){clearInterval(tInt);tInt=null;$("#tgo").textContent="Resume";return;}
-    markPractice(); $("#tgo").textContent="Pause";
+    primeAudio(); markPractice(); ran=true; $("#tgo").textContent="Pause";
     tInt=setInterval(()=>{left--;draw();if(left===0)beep();},1000);
   };
-  $("#treset").onclick=()=>{clearInterval(tInt);tInt=null;left=L.secs;draw();$("#tgo").textContent=`Start ${L.secs}s timer`;};
-  cleanup.push(()=>clearInterval(tInt));
+  let saveTally=()=>{};
+  $("#treset").onclick=()=>{saveTally();clearInterval(tInt);tInt=null;left=L.secs;ran=false;draw();$("#tgo").textContent=`Start ${L.secs}s timer`;};
+  cleanup.push(()=>{clearInterval(tInt);saveTally();});
 
-  // filler tally
-  if(L.tally){let f=0;const best=state.fillers[i];
-    const show=()=>{$("#fcount").textContent=f;$("#fbest").textContent=best!=null?`Best: ${best}`:"";};
+  // filler tally: a round counts once the timer has run or a filler was tapped; the best (lowest) score is kept
+  if(L.tally){let f=0;
+    const show=()=>{const best=state.fillers[i];$("#fcount").textContent=f;$("#fbest").textContent=best!=null?`Best: ${best}`:"";};
     $("#fplus").onclick=()=>{f++;show();}; $("#fminus").onclick=()=>{f=Math.max(0,f-1);show();};
-    $("#treset").addEventListener("click",()=>{if(f>0||left!==L.secs){state.fillers[i]=best==null?f:Math.min(best,f);save();}f=0;show();});
+    saveTally=()=>{if(f>0||ran){const best=state.fillers[i];state.fillers[i]=best==null?f:Math.min(best,f);save();}f=0;ran=false;if(document.body.contains(clock))show();};
     show();}
 
   bindRecorder();
 
   // checks & complete
   app.querySelectorAll(".checks input").forEach(c=>c.onchange=()=>{const a=state.checks[i]||[];a[+c.dataset.k]=c.checked;state.checks[i]=a;save();});
-  $("#done").onclick=()=>{state.done[i]=!state.done[i]; if(state.done[i]) markPractice(); save(); lesson(i);};
+  $("#done").onclick=()=>{state.done[i]=!state.done[i]; if(state.done[i]) markPractice(); save(); rerender(()=>lesson(i));};
   if($("#nextL")) $("#nextL").onclick=()=>go("lesson-"+(i+2));
 }
 
@@ -892,7 +895,7 @@ function recMime(){if(!window.MediaRecorder||!MediaRecorder.isTypeSupported)retu
 function bindRecorder(){
   const btn=$("#rec"); if(!btn) return;
   const stat=$("#rstat"), audio=$("#play"), note=$("#rnote"), prow=$("#rplayrow");
-  let tick=null, secs=0, stopTO=null;
+  let tick=null, secs=0, stopTO=null, starting=false;
   const MAX=180;
   const showErr=t=>{note.hidden=false;note.textContent=t;};
   $("#rplay").onclick=()=>{stopClip();try{speechSynthesis.cancel();}catch(e){}
@@ -904,14 +907,17 @@ function bindRecorder(){
   audio.onpause=audio.onended=()=>$("#rplay").textContent="▶ Play my recording";
   btn.onclick=async()=>{
     if(mediaRec&&mediaRec.state==="recording"){mediaRec.stop();return;}
+    if(starting) return;
     note.hidden=true;
     if(!window.isSecureContext){showErr(micHelp("insecure"));return;}
     if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia||!window.MediaRecorder){showErr(micHelp(IN_FRAME?"frame":IN_APP?"inapp":"unsupported"));return;}
     stopClip(); try{speechSynthesis.cancel();}catch(e){}
     audio.pause();
+    starting=true;
     try{
       stream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true}});
     }catch(e){
+      starting=false;
       const n=e&&e.name;
       if(n==="NotAllowedError"||n==="SecurityError") showErr(micHelp(IN_FRAME?"frame":IN_APP?"inapp":"denied"));
       else if(n==="NotFoundError"||n==="OverconstrainedError") showErr(micHelp("none"));
@@ -920,6 +926,9 @@ function bindRecorder(){
       else showErr(micHelp("other")+(n?" ("+n+")":""));
       return;
     }
+    starting=false;
+    // the page changed while the permission prompt was open: release the microphone
+    if(!document.body.contains(btn)){stream.getTracks().forEach(t=>t.stop());return;}
     const chunks=[]; const mt=recMime();
     try{ mediaRec=mt?new MediaRecorder(stream,{mimeType:mt}):new MediaRecorder(stream); }catch(e){ mediaRec=new MediaRecorder(stream); }
     const myRec=mediaRec;
@@ -977,7 +986,8 @@ function voiceLabel(x){const accent=/GB/i.test(x.lang)?"British":/US/i.test(x.la
   return x.name.replace(/^(Microsoft|Google)\s+/,"").replace(/\s*\(.*\)$/,"").replace(/\s+-\s+English.*$/,"")+" · "+accent;}
 
 let actx=null;
-function beep(){try{actx=actx||new (window.AudioContext||window.webkitAudioContext)();const o=actx.createOscillator(),g=actx.createGain();
+function primeAudio(){try{actx=actx||new (window.AudioContext||window.webkitAudioContext)();if(actx.state==="suspended")actx.resume();}catch(e){}}
+function beep(){try{primeAudio();const o=actx.createOscillator(),g=actx.createGain();
   o.frequency.value=880;g.gain.setValueAtTime(.15,actx.currentTime);g.gain.exponentialRampToValueAtTime(.001,actx.currentTime+.4);
   o.connect(g).connect(actx.destination);o.start();o.stop(actx.currentTime+.4);}catch(e){}
   try{navigator.vibrate&&navigator.vibrate(200)}catch(e){}}
@@ -1015,8 +1025,8 @@ function warmup(express){
     if(!naturalFailed) playClip("w"+w.n,null,1,null,null,tts); else tts();};
   const next=()=>{stopClip();if(k<steps.length-1){k++;left=steps[k].secs;show();if(int)say();}else{clearInterval(int);int=null;
     $("#wt").textContent="Warm-up done";$("#wd").textContent="Your voice is ready. Go and speak with confidence.";$("#wclock").textContent="0:00";$("#wgo").textContent="Go to lessons";$("#wgo").onclick=()=>go("home");}};
-  const start=()=>{if(int){clearInterval(int);int=null;$("#wgo").textContent="Resume";return;}
-    if(left===steps[k].secs) say(); markPractice();$("#wgo").textContent="Pause";
+  const start=()=>{if(int){clearInterval(int);int=null;stopClip();try{speechSynthesis.cancel();}catch(e){}$("#wgo").textContent="Resume";return;}
+    if(left===steps[k].secs) say(); primeAudio(); markPractice();$("#wgo").textContent="Pause";
     int=setInterval(()=>{left--;if(left<=0){beep();next();}else $("#wclock").textContent=fmt(left);},1000);};
   $("#wgo").onclick=start; $("#wskip").onclick=next; $("#wsay").onclick=say;
   cleanup.push(()=>{clearInterval(int);stopClip();try{speechSynthesis.cancel();}catch(e){}}); show();
@@ -1098,19 +1108,19 @@ function kidLesson(i){
   let left=K.secs,int=null;const ck=$("#kclock");
   const draw=()=>{ck.textContent=fmt(Math.max(0,left));};
   $("#kgo").onclick=()=>{if(int){clearInterval(int);int=null;$("#kgo").textContent="Go on";return;}
-    stopK();markPractice();$("#kgo").textContent="Pause";
+    stopK();primeAudio();markPractice();$("#kgo").textContent="Pause";
     int=setInterval(()=>{left--;draw();if(left<=0){clearInterval(int);int=null;beep();$("#kgo").textContent="Again";left=K.secs;}},1000);};
   $("#kreset").onclick=()=>{clearInterval(int);int=null;left=K.secs;draw();$("#kgo").textContent="Start";};
   cleanup.push(()=>clearInterval(int));
   bindRecorder();
-  $("#kstar").onclick=()=>{state.kids[i]=!state.kids[i];if(state.kids[i])markPractice();save();kidLesson(i);if(state.kids[i])app.querySelector(".kdone").scrollIntoView({block:"center"});};
+  $("#kstar").onclick=()=>{state.kids[i]=!state.kids[i];if(state.kids[i])markPractice();save();rerender(()=>kidLesson(i));};
   if($("#knext")) $("#knext").onclick=()=>go("kids-"+(i+2));
 }
 
 /* ---- KIDS: pronunciation games (Romanian instructions) ---- */
 const pronWord=w=>{const [say,show]=w.split("|");return {say,html:esc(show||say).replace(/\{(.+?)\}/g,'<s class="silent">$1</s>')};};
 function pronLesson(i){
-  const P=PRON[i], n=i+1; topbar("kids","Kids"); setTab("kids");
+  const P=PRON[i], n=i+1; topbar("kids","Brave Voices"); setTab("kids");
   app.innerHTML=`<section class="view kidsv" style="--kc:var(${KCOL[P.c]})">
     <div class="kidtop">
       <div class="meta"><span>SUNETUL ${n} DIN ${PRON.length}</span><span>CAM 5 MINUTE</span></div>
@@ -1150,7 +1160,7 @@ function pronLesson(i){
   sent.onclick=()=>say(`p${n}-s`,P.sentence,sent,sent);
   cleanup.push(()=>{stopClip();try{speechSynthesis.cancel();}catch(e){}});
   bindRecorder();
-  $("#pstar").onclick=()=>{state.pron[i]=!state.pron[i];if(state.pron[i])markPractice();save();pronLesson(i);if(state.pron[i])app.querySelector(".kdone").scrollIntoView({block:"center"});};
+  $("#pstar").onclick=()=>{state.pron[i]=!state.pron[i];if(state.pron[i])markPractice();save();rerender(()=>pronLesson(i));};
   if($("#pnext")) $("#pnext").onclick=()=>go("sound-"+(i+2));
 }
 

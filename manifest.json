@@ -1,7 +1,7 @@
 {
   "name": "Spok: Voice & Charisma Trainer",
   "short_name": "Spok",
-  "description": "14 lessons with articulation drills, a reading pacer, speaking prompts and a voice recorder.",
+  "description": "29 short lessons to speak clearly in interviews and meetings, with a natural voice guide, a voice recorder and lessons for kids.",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
