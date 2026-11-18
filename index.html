@@ -26,22 +26,22 @@
 <style>
 /* Layout: single-column phone app — sticky top bar, stacked lesson rows, bottom tab bar. */
 :root{
-  --bg:#F1F3F6; --surface:#FFFFFF; --ink:#18202C; --muted:#5D6778; --line:#DCE1E8;
-  --accent:#E2552A; --accent-ink:#FFFFFF; --accent-soft:#FCE7DF; --good:#1F8A5B; --good-soft:#DDF2E8;
+  --bg:#F1F3F6; --surface:#FFFFFF; --ink:#18202C; --muted:#535C6C; --line:#DCE1E8;
+  --accent:#B34321; --accent-ink:#FFFFFF; --accent-soft:#FCE7DF; --good:#1B7950; --good-soft:#DDF2E8;
   --bar:#1B2230; --bar-ink:#F3F5F8; --hl:#FFE3A3;
-  --m-voice:#E2552A; --m-interview:#2F6FD6; --m-meetings:#1F8F6A; --m-hard:#7A4FD0;
-  --k-sky:#2F86D6; --k-sun:#E8A317; --k-grape:#8A5CD1; --k-leaf:#2E9E5B; --k-berry:#D9466F;
+  --m-voice:#B34321; --m-interview:#2B65C3; --m-meetings:#197557; --m-hard:#784DCC; --brand:#E2552A;
+  --k-sky:#266BAB; --k-sun:#E8A317; --k-grape:#8A5CD1; --k-leaf:#2E9E5B; --k-berry:#D9466F;
   --kid:"Baloo 2", "Bricolage Grotesque", system-ui, sans-serif;
   --display:"Bricolage Grotesque", "Avenir Next", system-ui, sans-serif;
   --body:"Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
   --mono:"JetBrains Mono", ui-monospace, Menlo, monospace;
 }
 @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
-  --bg:#11161F; --surface:#1A212D; --ink:#E8ECF2; --muted:#98A2B3; --line:#2A3342;
+  --bg:#11161F; --surface:#1A212D; --ink:#E8ECF2; --muted:#A3ACBC; --line:#2A3342;
   --accent:#F2683C; --accent-ink:#1A0D07; --accent-soft:#3A2219; --good:#4CC28B; --good-soft:#173329;
   --bar:#0B0F15; --bar-ink:#E8ECF2; --hl:#5A4415; --m-voice:#F2683C; --m-interview:#6A9BF0; --m-meetings:#3FBF8F; --m-hard:#A787F0; --k-sky:#3E8FDB; --k-sun:#E3A21F; --k-grape:#9468D8; --k-leaf:#2F9A5A; --k-berry:#D9507A; color-scheme:dark }}
 :root[data-theme="dark"]{
-  --bg:#11161F; --surface:#1A212D; --ink:#E8ECF2; --muted:#98A2B3; --line:#2A3342;
+  --bg:#11161F; --surface:#1A212D; --ink:#E8ECF2; --muted:#A3ACBC; --line:#2A3342;
   --accent:#F2683C; --accent-ink:#1A0D07; --accent-soft:#3A2219; --good:#4CC28B; --good-soft:#173329;
   --bar:#0B0F15; --bar-ink:#E8ECF2; --hl:#5A4415; --m-voice:#F2683C; --m-interview:#6A9BF0; --m-meetings:#3FBF8F; --m-hard:#A787F0; --k-sky:#3E8FDB; --k-sun:#E3A21F; --k-grape:#9468D8; --k-leaf:#2F9A5A; --k-berry:#D9507A; color-scheme:dark }
 
@@ -56,7 +56,7 @@ button{font:inherit;color:inherit;cursor:pointer}
 header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bar);color:var(--bar-ink)}
 header.top .wrap{display:flex;align-items:center;gap:12px;padding-block:12px}
 .logo{display:flex;align-items:flex-end;gap:3px;height:22px}
-.logo i{display:block;width:4px;border-radius:2px;background:var(--accent)}
+.logo i{display:block;width:4px;border-radius:2px;background:var(--brand,var(--accent))}
 .brand{font:700 20px/1 var(--display);letter-spacing:-.01em}
 .top .back{background:none;border:0;color:var(--bar-ink);padding:6px 4px;font-weight:600;display:flex;gap:6px;align-items:center}
 .top .spacer{flex:1}
@@ -65,9 +65,10 @@ header.top .wrap{display:flex;align-items:center;gap:12px;padding-block:12px}
 main{padding-bottom:calc(84px + env(safe-area-inset-bottom,0px))}
 section.view{padding-block:20px;display:flex;flex-direction:column;gap:22px}
 
+h1:focus{outline:none}
 h1{font:800 clamp(28px,7vw,40px)/1.05 var(--display);letter-spacing:-.02em;margin:0;text-wrap:balance}
 h2{font:700 20px/1.2 var(--display);margin:0;text-wrap:balance}
-h3{font:600 12px/1 var(--body);letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin:0}
+h3,.eyebrow{font:600 12px/1 var(--body);letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin:0}
 p{margin:0}
 .muted{color:var(--muted)}
 
@@ -79,8 +80,10 @@ p{margin:0}
 .ring .num small{display:block;font:500 10px var(--mono);color:var(--muted);margin-top:4px}
 
 .next{background:var(--bar);color:var(--bar-ink);border-radius:18px;padding:18px;display:flex;flex-direction:column;gap:12px}
-.next h3{color:#A9B3C3}
+.next .eyebrow{color:#A9B3C3}
 .next .t{font:700 22px/1.15 var(--display)}
+.next .g{font-size:14px;color:#C9D1DD}
+.next .mdot{background:color-mix(in srgb,var(--mc) 55%,#fff)}
 .btn{border:0;border-radius:12px;padding:12px 16px;font-weight:600;display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px}
 .btn.primary{background:var(--accent);color:var(--accent-ink)}
 .btn.ghost{background:transparent;border:1.5px solid var(--line)}
@@ -195,10 +198,10 @@ textarea{width:100%;min-height:120px;border:1.5px solid var(--line);border-radiu
 
 /* lesson pages take their module colour */
 .modtint{--accent:var(--mc);--accent-soft:color-mix(in srgb,var(--mc) 15%,var(--surface))}
-.lhead{display:flex;flex-direction:column;gap:10px;padding:18px;border-radius:20px;background:color-mix(in srgb,var(--mc) 11%,var(--bg));border:1px solid color-mix(in srgb,var(--mc) 25%,transparent)}
+.lhead{display:flex;flex-direction:column;gap:10px;padding:18px;border-radius:20px;background:color-mix(in srgb,var(--mc) 7%,var(--bg));border:1px solid color-mix(in srgb,var(--mc) 25%,transparent)}
 .mchip{display:inline-flex;align-items:center;gap:6px;color:var(--mc);font-weight:600;text-transform:uppercase}
 .mchip svg{width:15px;height:15px}
-.modtint .card h3{color:var(--mc)}
+.modtint .card .eyebrow{color:var(--mc)}
 
 /* kids */
 .kidsv h1{font-family:var(--kid)}
@@ -209,24 +212,26 @@ textarea{width:100%;min-height:120px;border:1.5px solid var(--line);border-radiu
 .star{width:26px;height:26px;fill:var(--line)}.star.on{fill:var(--k-sun)}
 .kgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
 .kcard{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:8px;text-align:left;border:0;border-radius:20px;padding:16px;min-height:132px;background:color-mix(in srgb,var(--kc) 22%,var(--surface));color:var(--ink)}
-.kcard .knum{display:grid;place-items:center;width:34px;height:34px;border-radius:50%;background:color-mix(in srgb,var(--kc) 85%,#000);color:#fff;font:700 17px var(--kid)}
+.kcard .knum{display:grid;place-items:center;width:34px;height:34px;border-radius:50%;background:color-mix(in srgb,var(--kc) 62%,#000);color:#fff;font:700 17px var(--kid)}
 .kcard .kt{font:700 18px/1.2 var(--kid);min-width:0}
 .kcard .kbadge{margin-top:auto;display:flex;align-items:center;gap:4px;font-size:12px;font-weight:600;color:var(--muted)}
 .kcard .kbadge .star{width:16px;height:16px}
 .kidtop{display:flex;flex-direction:column;gap:12px;background:color-mix(in srgb,var(--kc) 20%,var(--surface));border-radius:22px;padding:20px}
 .kcardx{border-radius:20px}
-.kcardx h3{color:var(--kc)}
+.kcardx .eyebrow{color:color-mix(in srgb,var(--kc) 62%,#000)}
+:root[data-theme="dark"] .kcardx .eyebrow{color:var(--kc)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .kcardx .eyebrow{color:var(--kc)}}
 .kgame{margin:0;padding-left:22px;display:flex;flex-direction:column;gap:10px;font-size:17px}
 .kgame li::marker{font:700 17px var(--kid);color:var(--kc)}
 .kline{font-family:var(--kid);font-size:20px}
 .kline .spk{font-size:15px;margin-right:4px}
 .kline.active{background:color-mix(in srgb,var(--kc) 22%,var(--surface));box-shadow:inset 3px 0 0 var(--kc)}
-.btn.kbtn{background:color-mix(in srgb,var(--kc) 78%,#000);color:#fff}
+.btn.kbtn{background:color-mix(in srgb,var(--kc) 62%,#000);color:#fff}
 .ksec{display:flex;flex-direction:column;gap:6px;margin-top:10px}
 .ksec h2{font-family:var(--kid);font-size:24px}
 .kcard .ksym{width:auto;min-width:34px;padding:0 10px;border-radius:999px;font-size:16px}
 .ptitle{display:flex;gap:14px;align-items:center}
-.psym{flex:none;display:grid;place-items:center;min-width:64px;height:64px;padding:0 12px;border-radius:20px;background:color-mix(in srgb,var(--kc) 85%,#000);color:#fff;font:700 28px var(--kid)}
+.psym{flex:none;display:grid;place-items:center;min-width:64px;height:64px;padding:0 12px;border-radius:20px;background:color-mix(in srgb,var(--kc) 62%,#000);color:#fff;font:700 28px var(--kid)}
 .poops{font-size:15px;background:color-mix(in srgb,var(--k-sun) 16%,var(--surface));border-radius:12px;padding:10px 12px;line-height:1.5}
 .pwords{display:flex;flex-wrap:wrap;gap:10px}
 .pword{border:1.5px solid color-mix(in srgb,var(--kc) 45%,var(--line));background:var(--surface);color:var(--ink);border-radius:14px;padding:10px 14px;font:700 20px var(--kid);min-height:48px}
@@ -242,7 +247,7 @@ textarea{width:100%;min-height:120px;border:1.5px solid var(--line);border-radiu
 
 /* about */
 .author{display:flex;gap:16px;align-items:center}
-.avatar{flex:none;width:76px;height:76px;border-radius:50%;display:grid;place-items:center;background:var(--bar);color:var(--accent);font:800 28px var(--display);letter-spacing:-.02em}
+.avatar{flex:none;width:76px;height:76px;border-radius:50%;display:grid;place-items:center;background:var(--bar);color:var(--brand,var(--accent));font:800 28px var(--display);letter-spacing:-.02em}
 .aname{font-size:clamp(26px,6vw,34px)}
 .open{display:flex;flex-direction:column;gap:12px;align-items:flex-start;background:var(--good-soft);border-radius:16px;padding:16px}
 .open p{max-width:60ch}
@@ -624,8 +629,14 @@ const AUTHOR={
 
 /* ---- storage ---- */
 const KEY="spok-v2";
-let state={done:{},checks:{},fillers:{},days:[],kids:{},pron:{}};
-try{const s=JSON.parse(localStorage.getItem(KEY)||"null"); if(s) state=Object.assign(state,s);}catch(e){}
+// Fill in anything missing or malformed, so old or hand-edited data can't break the app.
+function normalizeState(s){const st={done:{},checks:{},fillers:{},days:[],kids:{},pron:{}};
+  if(s&&typeof s==="object"){for(const k of ["done","checks","fillers","kids","pron"]) if(s[k]&&typeof s[k]==="object") st[k]=s[k];
+    if(Array.isArray(s.days)) st.days=[...new Set(s.days.filter(d=>typeof d==="string"&&/^\d{4}-\d{2}-\d{2}$/.test(d)))].sort();
+    if(typeof s.voice==="string") st.voice=s.voice;}
+  return st;}
+let state=normalizeState(null);
+try{state=normalizeState(JSON.parse(localStorage.getItem(KEY)||"null"));}catch(e){}
 function save(){try{localStorage.setItem(KEY,JSON.stringify(state));}catch(e){}}
 function today(){const d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
 function markPractice(){const t=today(); if(!state.days.includes(t)){state.days.push(t); save();}}
@@ -661,7 +672,32 @@ const words=s=>{let out="",inCue=false;
   if(inCue) out+='</span>';
   return out;};
 let cleanup=[];
-function stopAll(){cleanup.forEach(f=>{try{f()}catch(e){}});cleanup=[];}
+function stopAll(){cleanup.forEach(f=>{try{f()}catch(e){}});cleanup=[];awake.clear();}
+
+/* Keep the screen on while a timer, the warm-up or a recording is running (where the browser allows it). */
+const awake={who:new Set(),lock:null,
+  set(key,on){on?this.who.add(key):this.who.delete(key);this.sync();},
+  clear(){this.who.clear();this.sync();},
+  async sync(){try{
+    if(this.who.size&&!this.lock&&document.visibilityState==="visible"&&navigator.wakeLock){
+      this.lock=await navigator.wakeLock.request("screen");this.lock.addEventListener("release",()=>{this.lock=null;});
+      if(!this.who.size){const l=this.lock;this.lock=null;l.release();}}
+    else if(!this.who.size&&this.lock){const l=this.lock;this.lock=null;await l.release();}
+  }catch(e){this.lock=null;}}};
+document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")awake.sync();});
+
+/* A stopwatch that counts real time, so it stays correct when the phone throttles or suspends the page.
+   onSecond(n) runs once for every whole second passed (n = seconds since start, pauses excluded). */
+function makeClock(onSecond){
+  let base=0,t0=0,int=null,last=0;
+  const elapsed=()=>base+(int?Date.now()-t0:0);
+  // re-read the time on every step: onSecond may reset or restart this clock
+  const tick=()=>{while(int){const n=Math.floor(elapsed()/1000);if(last>=n)break;last++;onSecond(last);}};
+  return {get running(){return !!int;},
+    start(){if(int)return;t0=Date.now();int=setInterval(tick,250);},
+    pause(){if(!int)return;tick();base+=Date.now()-t0;clearInterval(int);int=null;},
+    reset(){if(int){clearInterval(int);int=null;}base=0;last=0;}};
+}
 // Re-draw the current page in place (e.g. after marking it complete) without jumping back to the top.
 function rerender(draw){const y=window.scrollY;stopAll();draw();window.scrollTo(0,y);}
 
@@ -710,6 +746,11 @@ function home(){
         <div class="num"><div>${doneCount}<small>OF ${LESSONS.length}</small></div></div>
       </div>
     </div>
+    ${nextI>=0?(()=>{const L=LESSONS[nextI],M=MODULES.find(m=>m.id===L.mod);return `<div class="next" style="--mc:${modColor(L.mod)}">
+      <h2 class="eyebrow">${doneCount?"Continue where you left off":"Start here"}</h2>
+      <div class="t">${esc(L.t)}</div>
+      <p class="g"><span class="mdot" aria-hidden="true"></span>${esc(M.name)} · Lesson ${nextI+1} of ${LESSONS.length} · ${L.m} min</p>
+      <div class="row"><button class="btn primary" id="cont">${doneCount?"Continue lesson":"Start lesson 1"} →</button></div></div>`;})():""}
     <div class="quick">
       <span class="qicon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 12h3l3-7 4 14 3-7h5"/></svg></span>
       <div class="qtext"><b>Quick warm-up</b><span>Just before a call, interview or presentation</span></div>
@@ -737,6 +778,7 @@ function home(){
     const open=!homeOpen.has(id); if(open)homeOpen.add(id);else homeOpen.delete(id);
     box.classList.toggle("expanded",open); list.hidden=!open; b.setAttribute("aria-expanded",open);});
   $("#qx").onclick=()=>{autoWarm=true;go("warmup-express");};
+  if($("#cont")) $("#cont").onclick=()=>go("lesson-"+(nextI+1));
   $("#qf").onclick=()=>{autoWarm=true;go("warmup");};
 }
 
@@ -749,26 +791,26 @@ function lesson(i){
       <h1>${esc(L.t)}</h1>
       <p class="goal">${esc(L.goal)}</p>
     </div>
-    <div class="card"><h3>1 · Key ideas</h3>
+    <div class="card"><h2 class="eyebrow">1 · Key ideas</h2>
       <ul class="ideas">${L.ideas.map((x,k)=>`<li><b>${k+1}</b><span>${esc(x)}</span></li>`).join("")}</ul></div>
-    <div class="card"><h3>2 · Articulation drill</h3>
+    <div class="card"><h2 class="eyebrow">2 · Articulation drill</h2>
       <p class="tip">${esc(L.dtip)} Tap a line to hear it, then repeat it out loud. Or play all lines and read along.</p>
       <div class="lines" id="lines">${L.drill.map((x,k)=>`<button class="line" data-k="${k}">${words(x)}</button>`).join("")}</div>
       <div class="speed"><label for="dwpm" class="tip">Guide speed</label><input type="range" id="dwpm" min="80" max="200" step="10" value="110"><output id="dwpmo">110 wpm</output></div>
       <div class="speed" id="vrow" hidden><label for="dvoice" class="tip">Teacher's voice</label><select id="dvoice" class="vsel"></select></div>
       <div class="row"><button class="btn ghost small" id="dplay">▶ Listen & read along</button></div>
     </div>
-    <div class="card"><h3>3 · Speak it</h3>
+    <div class="card"><h2 class="eyebrow">3 · Speak it</h2>
       <p class="prompt">${esc(L.prompt)}</p>
-      <div class="timer"><div class="clock" id="clock">${fmt(L.secs)}</div>
+      <div class="timer"><div class="clock" id="clock" role="timer">${fmt(L.secs)}</div>
         <div class="row"><button class="btn primary small" id="tgo">Start ${L.secs}s timer</button><button class="btn ghost small" id="treset">Reset</button></div></div>
       ${L.tally?`<div class="tally"><span class="tip">Filler words</span><button class="btn ghost small" id="fminus" aria-label="Remove one">−</button><span class="count" id="fcount">0</span><button class="btn primary small" id="fplus">+ um / uh / like</button><span class="tip" id="fbest"></span></div>`:""}
       ${recorderHTML()}
     </div>
-    <div class="card"><h3>4 · Check yourself</h3>
+    <div class="card"><h2 class="eyebrow">4 · Check yourself</h2>
       <div class="checks">${L.checks.map((c,k)=>`<label><input type="checkbox" id="c${i}-${k}" data-k="${k}" ${ch[k]?"checked":""}><span>${esc(c)}</span></label>`).join("")}</div>
       <div class="row"><button class="btn ${state.done[i]?"ghost":"primary"}" id="done">${state.done[i]?"Completed · mark as not done":"Mark lesson complete"}</button>
-      ${i<LESSONS.length-1?`<button class="btn ghost" id="nextL">Next lesson →</button>`:""}</div>
+      ${i<LESSONS.length-1?`<button class="btn ${state.done[i]?"primary":"ghost"}" id="nextL">Next lesson →</button>`:`<button class="btn ghost" id="nextL">All lessons</button>`}</div>
     </div>
   </section>`;
   window.scrollTo(0,0);
@@ -831,16 +873,17 @@ function lesson(i){
   cleanup.push(stopDrill);
 
   // timer
-  let left=L.secs, tInt=null, ran=false; const clock=$("#clock");
+  // counts down, then keeps counting the overtime (+0:05) so you can see how far over you went
+  let left=L.secs, ran=false; const clock=$("#clock");
   const draw=()=>{clock.textContent=fmt(left);clock.classList.toggle("over",left<0);};
+  const tclock=makeClock(n=>{left=L.secs-n;draw();if(left===0)beep();});
   $("#tgo").onclick=()=>{
-    if(tInt){clearInterval(tInt);tInt=null;$("#tgo").textContent="Resume";return;}
-    primeAudio(); markPractice(); ran=true; $("#tgo").textContent="Pause";
-    tInt=setInterval(()=>{left--;draw();if(left===0)beep();},1000);
+    if(tclock.running){tclock.pause();awake.set("timer",false);$("#tgo").textContent="Resume";return;}
+    primeAudio(); markPractice(); ran=true; $("#tgo").textContent="Pause"; tclock.start(); awake.set("timer",true);
   };
   let saveTally=()=>{};
-  $("#treset").onclick=()=>{saveTally();clearInterval(tInt);tInt=null;left=L.secs;ran=false;draw();$("#tgo").textContent=`Start ${L.secs}s timer`;};
-  cleanup.push(()=>{clearInterval(tInt);saveTally();});
+  $("#treset").onclick=()=>{saveTally();tclock.reset();awake.set("timer",false);left=L.secs;ran=false;draw();$("#tgo").textContent=`Start ${L.secs}s timer`;};
+  cleanup.push(()=>{tclock.reset();saveTally();});
 
   // filler tally: a round counts once the timer has run or a filler was tapped; the best (lowest) score is kept
   if(L.tally){let f=0;
@@ -854,7 +897,7 @@ function lesson(i){
   // checks & complete
   app.querySelectorAll(".checks input").forEach(c=>c.onchange=()=>{const a=state.checks[i]||[];a[+c.dataset.k]=c.checked;state.checks[i]=a;save();});
   $("#done").onclick=()=>{state.done[i]=!state.done[i]; if(state.done[i]) markPractice(); save(); rerender(()=>lesson(i));};
-  if($("#nextL")) $("#nextL").onclick=()=>go("lesson-"+(i+2));
+  $("#nextL").onclick=()=>go(i<LESSONS.length-1?"lesson-"+(i+2):"home");
 }
 
 function recorderHTML(){return `<div class="rec">
@@ -933,7 +976,7 @@ function bindRecorder(){
     try{ mediaRec=mt?new MediaRecorder(stream,{mimeType:mt}):new MediaRecorder(stream); }catch(e){ mediaRec=new MediaRecorder(stream); }
     const myRec=mediaRec;
     myRec.ondataavailable=e=>{if(e.data&&e.data.size)chunks.push(e.data);};
-    myRec.onstop=()=>{clearInterval(tick);clearTimeout(stopTO);stream&&stream.getTracks().forEach(t=>t.stop());
+    myRec.onstop=()=>{clearInterval(tick);clearTimeout(stopTO);awake.set("rec",false);stream&&stream.getTracks().forEach(t=>t.stop());
       if(!document.body.contains(btn)) return;
       if(!chunks.length){showErr("Nothing was recorded. Check that the microphone isn't muted and try again.");btn.innerHTML='<span class="dot"></span> Record yourself';stat.textContent="";return;}
       if(recUrl) try{URL.revokeObjectURL(recUrl);}catch(e){}
@@ -941,7 +984,7 @@ function bindRecorder(){
       audio.src=recUrl; audio.hidden=false; prow.hidden=false;
       btn.innerHTML='<span class="dot"></span> Record again';
       stat.textContent=`Recorded ${fmt(secs)}. Play it back: are the word endings crisp?`;};
-    myRec.start(); markPractice(); secs=0;
+    myRec.start(); markPractice(); secs=0; awake.set("rec",true);
     btn.innerHTML='<span class="dot live"></span> Stop recording'; stat.textContent="Recording… 0:00";
     tick=setInterval(()=>{secs++;stat.textContent="Recording… "+fmt(secs);},1000);
     stopTO=setTimeout(()=>{if(myRec.state==="recording")myRec.stop();},MAX*1000);
@@ -1018,26 +1061,27 @@ function warmup(express){
       <div class="steps" id="wsteps">${steps.map(()=>"<span></span>").join("")}</div>
       <div class="meta" id="wmeta"></div>
       <h2 id="wt"></h2><p id="wd" style="font-size:17px"></p>
-      <div class="timer"><div class="clock" id="wclock"></div>
+      <div class="timer"><div class="clock" id="wclock" role="timer"></div>
       <div class="row"><button class="btn primary" id="wgo">Start</button><button class="btn ghost small" id="wskip">Skip →</button><button class="btn ghost small" id="wsay" aria-label="Hear the instructions">🔊 Hear it</button></div></div>
     </div>
-    <div style="display:flex;flex-direction:column;gap:10px"><h3>The routine · about ${Math.max(1,Math.round(total/60))} min</h3>
+    <div style="display:flex;flex-direction:column;gap:10px"><h2 class="eyebrow">The routine · about ${Math.max(1,Math.round(total/60))} min</h2>
     <div class="list">${steps.map((w,k)=>`<div class="item" style="cursor:default"><span class="n">${String(k+1).padStart(2,"0")}</span><span class="ti">${esc(w.t)}</span><span class="mi">${w.secs}s</span></div>`).join("")}</div></div>
   </section>`;
   app.querySelectorAll(".seg button").forEach(b=>b.onclick=()=>go(b.dataset.w));
-  let k=0,left=steps[0].secs,int=null;
+  let k=0,left=steps[0].secs;
+  const wclock=makeClock(n=>{left=steps[k].secs-n;if(left<=0){beep();next();}else $("#wclock").textContent=fmt(left);});
   const show=()=>{const w=steps[k];$("#wt").textContent=w.t;$("#wd").textContent=w.d;$("#wclock").textContent=fmt(left);
     $("#wmeta").textContent=`STEP ${k+1} OF ${steps.length}`;
     document.querySelectorAll("#wsteps span").forEach((s,j)=>s.classList.toggle("on",j<=k));};
   const say=()=>{const w=steps[k];const tts=()=>{try{if(!("speechSynthesis" in window))return;speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(w.t+". "+w.d);u.lang="en-US";const v=englishVoices()[0];if(v)u.voice=v;u.rate=.95;speechSynthesis.speak(u);}catch(e){}};
     if(!naturalFailed) playClip("w"+w.n,null,1,null,null,tts); else tts();};
-  const next=()=>{stopClip();if(k<steps.length-1){k++;left=steps[k].secs;show();if(int)say();}else{clearInterval(int);int=null;
+  const next=()=>{stopClip();const was=wclock.running;wclock.reset();
+    if(k<steps.length-1){k++;left=steps[k].secs;show();if(was){say();wclock.start();}}else{awake.set("warm",false);$("#wskip").disabled=true;
     $("#wt").textContent="Warm-up done";$("#wd").textContent="Your voice is ready. Go and speak with confidence.";$("#wclock").textContent="0:00";$("#wgo").textContent="Go to lessons";$("#wgo").onclick=()=>go("home");}};
-  const start=()=>{if(int){clearInterval(int);int=null;stopClip();try{speechSynthesis.cancel();}catch(e){}$("#wgo").textContent="Resume";return;}
-    if(left===steps[k].secs) say(); primeAudio(); markPractice();$("#wgo").textContent="Pause";
-    int=setInterval(()=>{left--;if(left<=0){beep();next();}else $("#wclock").textContent=fmt(left);},1000);};
+  const start=()=>{if(wclock.running){wclock.pause();awake.set("warm",false);stopClip();try{speechSynthesis.cancel();}catch(e){}$("#wgo").textContent="Resume";return;}
+    if(left===steps[k].secs) say(); primeAudio(); markPractice();$("#wgo").textContent="Pause";wclock.start();awake.set("warm",true);};
   $("#wgo").onclick=start; $("#wskip").onclick=next; $("#wsay").onclick=say;
-  cleanup.push(()=>{clearInterval(int);stopClip();try{speechSynthesis.cancel();}catch(e){}}); show();
+  cleanup.push(()=>{wclock.reset();stopClip();try{speechSynthesis.cancel();}catch(e){}}); show();
   if(autoWarm){autoWarm=false;start();}
 }
 
@@ -1060,10 +1104,10 @@ function kids(){
       <span class="knum">${i+1}</span><span class="kt">${esc(k.t)}</span>
       <span class="kbadge">${state.kids[i]?starSVG(true)+" "+esc(k.badge):"Earn: "+esc(k.badge)}</span></button>`).join("")}</div>
     <div class="ksec"><h2>Say It Right</h2>
-      <p class="tip">Sunete din engleză care le dau des bătăi de cap copiilor români. Instrucțiunile sunt scrise în română, iar cuvintele le spune vocea, în engleză.</p></div>
+      <p class="tip" lang="ro">Sunete din engleză care le dau des bătăi de cap copiilor români. Instrucțiunile sunt scrise în română, iar cuvintele le spune vocea, în engleză.</p></div>
     <div class="kgrid">${PRON.map((k,i)=>`<button class="kcard pcard" data-p="${i}" style="--kc:var(${KCOL[k.c]})">
       <span class="knum ksym">${esc(k.sym)}</span><span class="kt">${esc(k.t)}</span>
-      <span class="kbadge">${state.pron[i]?starSVG(true)+" "+esc(k.badge):"Câștigi: "+esc(k.badge)}</span></button>`).join("")}</div>
+      <span class="kbadge">${state.pron[i]?starSVG(true)+" "+esc(k.badge):`<span lang="ro">Câștigi:</span> `+esc(k.badge)}</span></button>`).join("")}</div>
   </section>`;
   app.querySelectorAll(".kcard:not(.pcard)").forEach(b=>b.onclick=()=>go("kids-"+(+b.dataset.i+1)));
   app.querySelectorAll(".pcard").forEach(b=>b.onclick=()=>go("sound-"+(+b.dataset.p+1)));
@@ -1077,17 +1121,17 @@ function kidLesson(i){
       <p class="kidlead">${esc(K.why)}</p>
       <div class="row"><button class="btn kbtn" id="kintro">🔊 Listen</button></div>
     </div>
-    <div class="card kcardx"><h3>Let's play</h3>
+    <div class="card kcardx"><h2 class="eyebrow">Let's play</h2>
       <ol class="kgame">${K.game.map(g=>`<li>${esc(g)}</li>`).join("")}</ol></div>
-    <div class="card kcardx"><h3>Say it with me</h3>
+    <div class="card kcardx"><h2 class="eyebrow">Say it with me</h2>
       <p class="tip">Tap a sentence to hear it. Then say it out loud!</p>
       <div class="lines">${K.say.map((x,j)=>`<button class="line kline" data-j="${j}"><span class="spk" aria-hidden="true">🔊</span> ${words(x)}</button>`).join("")}</div>
       <div class="row"><button class="btn ghost small" id="kall">▶ Play all</button></div>
     </div>
-    <div class="card kcardx"><h3>My turn</h3>
+    <div class="card kcardx"><h2 class="eyebrow">My turn</h2>
       <p class="prompt">${esc(K.turn)}</p>
       <div class="row"><button class="btn ghost small" id="kturnsay">🔊 Hear it</button></div>
-      <div class="timer"><div class="clock" id="kclock">${fmt(K.secs)}</div>
+      <div class="timer"><div class="clock" id="kclock" role="timer">${fmt(K.secs)}</div>
         <div class="row"><button class="btn kbtn small" id="kgo">Start</button><button class="btn ghost small" id="kreset">Reset</button></div></div>
       ${recorderHTML()}
     </div>
@@ -1113,13 +1157,13 @@ function kidLesson(i){
   $("#kintro").onclick=()=>clip(`ki${i+1}`,K.t+". "+K.why+" "+K.game.join(" "));
   $("#kturnsay").onclick=()=>clip(`kt${i+1}`,K.turn);
   cleanup.push(stopK);
-  let left=K.secs,int=null;const ck=$("#kclock");
+  let left=K.secs;const ck=$("#kclock");
   const draw=()=>{ck.textContent=fmt(Math.max(0,left));};
-  $("#kgo").onclick=()=>{if(int){clearInterval(int);int=null;$("#kgo").textContent="Go on";return;}
-    stopK();primeAudio();markPractice();$("#kgo").textContent="Pause";
-    int=setInterval(()=>{left--;draw();if(left<=0){clearInterval(int);int=null;beep();$("#kgo").textContent="Again";left=K.secs;}},1000);};
-  $("#kreset").onclick=()=>{clearInterval(int);int=null;left=K.secs;draw();$("#kgo").textContent="Start";};
-  cleanup.push(()=>clearInterval(int));
+  const kclock=makeClock(n=>{left=K.secs-n;draw();if(left<=0){kclock.reset();awake.set("timer",false);beep();$("#kgo").textContent="Again";left=K.secs;}});
+  $("#kgo").onclick=()=>{if(kclock.running){kclock.pause();awake.set("timer",false);$("#kgo").textContent="Go on";return;}
+    stopK();primeAudio();markPractice();$("#kgo").textContent="Pause";draw();kclock.start();awake.set("timer",true);};
+  $("#kreset").onclick=()=>{kclock.reset();awake.set("timer",false);left=K.secs;draw();$("#kgo").textContent="Start";};
+  cleanup.push(()=>kclock.reset());
   bindRecorder();
   $("#kstar").onclick=()=>{state.kids[i]=!state.kids[i];if(state.kids[i])markPractice();save();rerender(()=>kidLesson(i));};
   if($("#knext")) $("#knext").onclick=()=>go("kids-"+(i+2));
@@ -1129,29 +1173,29 @@ function kidLesson(i){
 const pronWord=w=>{const [say,show]=w.split("|");return {say,html:esc(show||say).replace(/\{(.+?)\}/g,'<s class="silent">$1</s>')};};
 function pronLesson(i){
   const P=PRON[i], n=i+1; topbar("kids","Brave Voices"); setTab("kids");
-  app.innerHTML=`<section class="view kidsv" style="--kc:var(${KCOL[P.c]})">
+  app.innerHTML=`<section class="view kidsv" lang="ro" style="--kc:var(${KCOL[P.c]})">
     <div class="kidtop">
       <div class="meta"><span>SUNETUL ${n} DIN ${PRON.length}</span><span>CAM 5 MINUTE</span></div>
-      <div class="ptitle"><span class="psym">${esc(P.sym)}</span><div style="min-width:0"><h1>${esc(P.t)}</h1>${P.ipa?`<p class="tip">Sunetul /${esc(P.ipa)}/</p>`:""}</div></div>
+      <div class="ptitle"><span class="psym">${esc(P.sym)}</span><div style="min-width:0"><h1 lang="en">${esc(P.t)}</h1>${P.ipa?`<p class="tip">Sunetul /${esc(P.ipa)}/</p>`:""}</div></div>
     </div>
-    <div class="card kcardx"><h3>Cum se face</h3><p class="kidlead">${esc(P.how)}</p>
+    <div class="card kcardx"><h2 class="eyebrow">Cum se face</h2><p class="kidlead">${esc(P.how)}</p>
       <p class="poops"><b>Atenție:</b> ${esc(P.oops)}</p></div>
-    <div class="card kcardx"><h3>Ascultă și repetă</h3>
+    <div class="card kcardx"><h2 class="eyebrow">Ascultă și repetă</h2>
       <p class="tip">Apasă pe un cuvânt, ascultă-l, apoi spune-l cu voce tare.</p>
-      <div class="pwords">${P.words.map((w,j)=>`<button class="pword" data-a="p${n}-w${j+1}" data-t="${esc(pronWord(w).say)}"><span class="spk" aria-hidden="true">🔊</span> ${pronWord(w).html}</button>`).join("")}</div>
+      <div class="pwords" lang="en">${P.words.map((w,j)=>`<button class="pword" data-a="p${n}-w${j+1}" data-t="${esc(pronWord(w).say)}"><span class="spk" aria-hidden="true">🔊</span> ${pronWord(w).html}</button>`).join("")}</div>
     </div>
-    ${P.pairs.length?`<div class="card kcardx"><h3>Perechi-capcană</h3>
+    ${P.pairs.length?`<div class="card kcardx"><h2 class="eyebrow">Perechi-capcană</h2>
       <p class="tip">Ascultă ambele cuvinte din fiecare pereche. Auzi diferența? Spune-le și tu, unul după altul.</p>
-      <div class="ppairs">${P.pairs.map(([a,b],j)=>`<div class="ppair"><button class="pword" data-a="p${n}-a${j+1}" data-t="${esc(a)}">${esc(a)}</button><span class="pvs" aria-hidden="true">≠</span><button class="pword" data-a="p${n}-b${j+1}" data-t="${esc(b)}">${esc(b)}</button></div>`).join("")}</div>
+      <div class="ppairs" lang="en">${P.pairs.map(([a,b],j)=>`<div class="ppair"><button class="pword" data-a="p${n}-a${j+1}" data-t="${esc(a)}">${esc(a)}</button><span class="pvs" aria-hidden="true">≠</span><button class="pword" data-a="p${n}-b${j+1}" data-t="${esc(b)}">${esc(b)}</button></div>`).join("")}</div>
     </div>`:""}
-    <div class="card kcardx"><h3>Propoziția</h3>
+    <div class="card kcardx"><h2 class="eyebrow">Propoziția</h2>
       <p class="tip">Ascultă propoziția, apoi înregistrează-te și compară.</p>
-      <div class="lines"><button class="line kline" id="psent"><span class="spk" aria-hidden="true">🔊</span> ${words(P.sentence)}</button></div>
+      <div class="lines" lang="en"><button class="line kline" id="psent"><span class="spk" aria-hidden="true">🔊</span> ${words(P.sentence)}</button></div>
       ${recorderHTML()}
     </div>
-    <div class="card kcardx"><h3>Joc</h3><p class="kidlead">${esc(P.game)}</p></div>
+    <div class="card kcardx"><h2 class="eyebrow">Joc</h2><p class="kidlead">${esc(P.game)}</p></div>
     <div class="card kcardx kdone">
-      ${state.pron[i]?`<div class="kwin">${starSVG(true)}<div><b>Ai câștigat: ${esc(P.badge)}</b><p class="tip">Bravo! Poți exersa din nou oricând.</p></div></div>`
+      ${state.pron[i]?`<div class="kwin">${starSVG(true)}<div><b>Ai câștigat: <span lang="en">${esc(P.badge)}</span></b><p class="tip">Bravo! Poți exersa din nou oricând.</p></div></div>`
         :`<p class="prompt">Ai spus toate cuvintele?</p>`}
       <div class="row"><button class="btn ${state.pron[i]?"ghost":"kbtn"}" id="pstar">${state.pron[i]?"Retrage steluța":"Am reușit! Vreau o steluță"}</button>
       ${i<PRON.length-1?`<button class="btn ghost" id="pnext">Sunetul următor →</button>`:""}</div>
@@ -1180,7 +1224,7 @@ function about(){
     <div class="author">
       <div class="avatar" aria-hidden="true">${esc(A.name.split(" ").map(x=>x[0]).join(""))}</div>
       <div style="min-width:0;display:flex;flex-direction:column;gap:4px">
-        <h3>Made by</h3><h1 class="aname">${esc(A.name)}</h1><p class="muted">${esc(A.role)}</p>
+        <p class="eyebrow">Made by</p><h1 class="aname">${esc(A.name)}</h1><p class="muted">${esc(A.role)}</p>
       </div>
     </div>
     <p class="goal">${esc(A.bio)}</p>
@@ -1192,7 +1236,14 @@ function about(){
         ${A.linkedin?`<a class="btn ghost small" href="${esc(A.linkedin)}" target="_blank" rel="noopener">LinkedIn ↗</a>`:""}
       </div>
     </div>
-    <div class="card"><h3>Send feedback</h3>
+    <div class="card"><h2 class="eyebrow">Your progress</h2>
+      <p>${esc(progressSummary())}</p>
+      <p class="tip">Progress is stored only in this browser. Browsers can clear it, for example Safari after a few weeks without visits, so keep a backup file before switching phones or clearing data.</p>
+      <div class="row"><button class="btn dark small" id="bsave">Save backup file</button>
+        <button class="btn ghost small" id="bpick">Restore from file</button><input type="file" id="bload" accept=".json,application/json" hidden aria-hidden="true" tabindex="-1"></div>
+      <p class="tip" id="bstat" role="status"></p>
+    </div>
+    <div class="card"><h2 class="eyebrow">Send feedback</h2>
       <p class="tip">Found a bug, have an idea, or want a new lesson? I read every message.</p>
       <div class="fgrid">
         <label for="ftype" class="tip">Topic</label>
@@ -1205,13 +1256,27 @@ function about(){
       <div class="row"><button class="btn dark" id="fsend">Send by email</button><button class="btn ghost small" id="fcopy">Copy message</button></div>
       <p class="tip" id="fstat" aria-live="polite"></p>
     </div>
-    <div class="card support"><h3>Support Spok</h3>
+    <div class="card support"><h2 class="eyebrow">Support Spok</h2>
       <p>Spok is free, with no ads and no account. If it helped you before an interview or a big meeting, you can support my personal projects.</p>
       ${A.donate?`<div class="row"><a class="btn primary" href="${esc(A.donate)}" target="_blank" rel="noopener">${esc(A.donateLabel)} ↗</a></div>`
         :`<p class="tip">A donation link is coming soon. Until then, sharing Spok with a friend helps a lot.</p>`}
     </div>
     <p class="tip">Spok ${APP_VERSION} · Works offline once installed · Progress stays on your device · Voice generated with Kokoro (Apache 2.0)</p>
   </section>`;
+  const bstat=t=>$("#bstat").textContent=t;
+  $("#bsave").onclick=()=>{try{
+    const data=JSON.stringify({app:"spok",version:1,saved:new Date().toISOString(),state},null,1);
+    const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([data],{type:"application/json"}));
+    a.download=`spok-progress-${today()}.json`;document.body.appendChild(a);a.click();a.remove();
+    setTimeout(()=>URL.revokeObjectURL(a.href),10000);bstat("Backup saved to your downloads.");
+  }catch(e){bstat("The backup couldn't be saved in this browser.");}};
+  $("#bpick").onclick=()=>$("#bload").click();
+  $("#bload").onchange=async e=>{const f=e.target.files&&e.target.files[0];e.target.value="";if(!f)return;
+    try{const d=JSON.parse(await f.text()), st=d&&d.app==="spok"&&d.state;
+      if(!st||typeof st!=="object"||!Array.isArray(st.days)) throw new Error("not a Spok backup");
+      if(!confirm("Replace the progress on this device with the backup?")) return;
+      state=normalizeState(st);save();about();bstat("Progress restored.");
+    }catch(err){bstat("That file isn't a Spok backup. Choose the .json file saved from Spok.");}};
   const msg=()=>{const t=$("#ftype").value,n=$("#fname").value.trim(),m=$("#fmsg").value.trim();return {t,n,m,body:`Topic: ${t}\n${n?"From: "+n+"\n":""}\n${m}\n\n— sent from Spok ${APP_VERSION}`};};
   const stat=t=>$("#fstat").textContent=t;
   const copy=async(text,ok)=>{try{await navigator.clipboard.writeText(text);stat(ok);}catch(e){stat("Copy didn't work here. Select the text and copy it manually.");}};
@@ -1238,7 +1303,13 @@ function route(){
   else if(h==="about") about();
   else home();
   window.scrollTo(0,0);
+  // name the page and move screen-reader focus to its heading (not on first load)
+  const h1=app.querySelector("h1"), name=h1?h1.textContent.replace(/\s+/g," ").trim():"";
+  document.title=h==="home"||!h||!name?"Spok: speak clearly, interview with confidence":name+" · Spok";
+  if(routed&&h1){h1.tabIndex=-1;h1.focus({preventScroll:true});}
+  routed=true;
 }
+let routed=false;
 document.querySelectorAll("nav.tabs button").forEach(b=>b.onclick=()=>go(b.dataset.tab));
 window.addEventListener("hashchange",route);
 route();
