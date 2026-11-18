@@ -1,0 +1,12 @@
+{
+  "name": "spok",
+  "private": true,
+  "description": "Spok: voice and interview practice app (static PWA). This file only holds the test tools.",
+  "scripts": {
+    "test": "node tests/data.test.js && node tests/e2e.test.js"
+  },
+  "devDependencies": {
+    "axe-core": "4.10.2",
+    "playwright": "1.56.1"
+  }
+}
