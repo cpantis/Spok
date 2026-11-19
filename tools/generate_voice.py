@@ -45,6 +45,7 @@ LEAD_SECONDS = 0.04            # silence kept before the first word
 TAIL_SECONDS = 0.12            # silence kept after the last word
 PAUSE_SECONDS = 0.8            # from the start of a "(pause)" cue to the next word
 PAUSE = "(pause)"
+CUE_SECONDS = 1.2              # silence for a [bracketed instruction] such as [Breathe in.]: shown, never spoken
 MAX_PEAK = 0.9                 # the existing clips peak at about 0.93
 # kokoro.KPipeline reports each word 3 duration frames (3 x 25 ms) before its first phoneme; undo that
 OFFICIAL_TS_SHIFT = 3 * 600 / SAMPLE_RATE
@@ -94,21 +95,40 @@ def norm(s):
 
 
 def spoken(token):
-    """How a displayed token is said: cue brackets are dropped, a blank (____) is read as "name"."""
-    return token.replace("[", "").replace("]", "").replace("____", "name")
+    """How a displayed token is said: a blank (____) is read as "name"."""
+    return token.replace("____", "name")
 
 
-def segments(display):
-    """Split a line at its (pause) cues: [[tokens...], [tokens...], ...]."""
-    segs, cur = [], []
-    for tok in display.split():
-        if tok == PAUSE:
-            segs.append(cur)
+def pieces(display):
+    """Split a line into what is said and what is only shown, in order:
+    ("say", [tokens]), ("pause", ["(pause)"]) and ("cue", [tokens of a [bracketed instruction]])."""
+    out, cur, cue = [], [], None
+    def flush():
+        nonlocal cur
+        if cur:
+            out.append(("say", cur))
             cur = []
+    for tok in display.split():
+        if cue is not None:
+            cue.append(tok)
+            if tok.endswith("]"):
+                out.append(("cue", cue))
+                cue = None
+        elif tok.startswith("["):
+            flush()
+            if tok.endswith("]"):
+                out.append(("cue", [tok]))
+            else:
+                cue = [tok]
+        elif tok == PAUSE:
+            flush()
+            out.append(("pause", [tok]))
         else:
             cur.append(tok)
-    segs.append(cur)
-    return segs
+    if cue:
+        out.append(("cue", cue))
+    flush()
+    return out
 
 
 def align(tokens, words):
@@ -180,35 +200,47 @@ def run_kokoro(pipeline, text, speed):
 
 
 def synthesize(pipeline, display, speed):
-    """Return (samples, starts) for one line, with one start time per displayed token."""
+    """Return (samples, starts) for one line, with one start time per displayed token.
+
+    Only the words are spoken. A [bracketed instruction] is a silence while it is highlighted,
+    and a (pause) is a silence of PAUSE_SECONDS before the next words.
+    """
     import numpy as np
 
-    out, starts, t, prev_end = [], [], 0.0, 0.0
+    out, starts, t = [], [], 0.0
 
     def add(samples):
         nonlocal t
         out.append(samples)
         t += len(samples) / SAMPLE_RATE
 
-    for si, seg in enumerate(segments(display)):
-        if si > 0:
-            # the "(pause)" cue lights up when the voice stops; the next words follow 0.8 s later
-            starts.append(prev_end)
-            add(np.zeros(max(0, int(round((prev_end + PAUSE_SECONDS - t) * SAMPLE_RATE))), dtype=np.float32))
-        if not seg:
+    def silence(sec):
+        add(np.zeros(max(0, int(round(sec * SAMPLE_RATE))), dtype=np.float32))
+
+    spoke = False
+    for kind, toks in pieces(display):
+        if kind == "cue":
+            starts.extend(spread(toks, t, t + CUE_SECONDS * 0.6))
+            silence(CUE_SECONDS)
             continue
-        raw, words = run_kokoro(pipeline, " ".join(spoken(x) for x in seg), speed)
+        if kind == "pause":
+            # the "(pause)" chip lights up as the voice stops; the next words start 0.8 s later
+            starts.append(t)
+            silence(PAUSE_SECONDS)
+            continue
+        raw, words = run_kokoro(pipeline, " ".join(spoken(x) for x in toks), speed)
         a, b = speech_span(raw)
-        cut = max(0, a - int(LEAD_SECONDS * SAMPLE_RATE)) if si == 0 else a
+        cut = max(0, a - int(LEAD_SECONDS * SAMPLE_RATE)) if not spoke and t == 0 else a
         offset = t - cut / SAMPLE_RATE  # output time of raw sample 0
         speech_start = t + (a - cut) / SAMPLE_RATE
         add(raw[cut:b])
-        prev_end = t
-        got = align(seg, [(w, None if s is None else s + offset) for w, s in words])
+        got = align(toks, [(w, None if st is None else st + offset) for w, st in words])
         if got is None:
-            print(f"   ! word timings did not line up for {' '.join(seg)!r}; spreading them evenly")
-            got = spread(seg, speech_start, prev_end)
+            print(f"   ! word timings did not line up for {' '.join(toks)!r}; spreading them evenly")
+            got = spread(toks, speech_start, t)
+        got[0] = speech_start  # the first word lights up exactly when the voice starts
         starts.extend(got)
+        spoke = True
     add(np.zeros(int(TAIL_SECONDS * SAMPLE_RATE), dtype=np.float32))
     samples = np.concatenate(out)
     peak = float(np.abs(samples).max()) if len(samples) else 0.0
