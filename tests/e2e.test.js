@@ -24,7 +24,7 @@ const test = (name, fn) => tests.push({ name, fn });
 
 let base, browser;
 async function open(hash = "", { state, voices, width = 390, clock = false } = {}) {
-  const context = await browser.newContext({ viewport: { width, height: 800 }, serviceWorkers: "block", acceptDownloads: true });
+  const context = await browser.newContext({ viewport: { width, height: 800 }, serviceWorkers: "block", acceptDownloads: true, permissions: ["microphone"] });
   const page = await context.newPage();
   const errors = [];
   page.on("pageerror", e => errors.push(e.message));
@@ -41,7 +41,12 @@ async function open(hash = "", { state, voices, width = 390, clock = false } = {
   page.errors = errors;
   return page;
 }
-const go = (page, hash) => page.evaluate(h => { location.hash = h; }, hash);
+// change page and wait until the new page has been drawn
+const go = async (page, hash) => { await page.evaluate(h => { location.hash = h; }, hash); await at(page, "#" + hash); };
+const at = (page, hash) => page.waitForFunction(h => {
+  const want = h.slice(1), r = document.querySelector("#app").dataset.route;
+  return location.hash === h && (r === want || (r === "home" && !/^(lesson|kids|sound|prep|warmup|about)/.test(want)));
+}, hash);
 const stored = page => page.evaluate(() => JSON.parse(localStorage.getItem("spok-v2") || "{}"));
 const text = (page, sel) => page.textContent(sel);
 
@@ -52,12 +57,14 @@ test("every page renders with a heading, a title and no errors, without sideways
   for (let i = 1; i <= 29; i++) routes.push("lesson-" + i);
   for (let i = 1; i <= 12; i++) routes.push("kids-" + i);
   for (let i = 1; i <= 10; i++) routes.push("sound-" + i);
+  routes.push("prep");
+  for (let i = 1; i <= 6; i++) routes.push("prep-" + i);
   for (const r of routes) {
     await go(page, r);
     const info = await page.evaluate(() => ({ h1: document.querySelector("#app h1")?.textContent, w: document.documentElement.scrollWidth, title: document.title }));
     assert.ok(info.h1, `${r}: no heading`);
     assert.ok(info.w <= 360, `${r}: page is ${info.w}px wide`);
-    assert.ok(info.title.includes("Spok"), `${r}: title "${info.title}"`);
+    assert.ok(info.title.includes("TrySpok"), `${r}: title "${info.title}"`);
   }
   await go(page, "lesson-99");
   assert.ok(await page.$("#cont"), "an unknown address shows the home page");
@@ -80,7 +87,7 @@ test("home: 'Start here' opens lesson 1, then 'Continue' points to the first unf
   const page = await open();
   assert.match(await text(page, ".next .eyebrow"), /Start here/);
   await page.click("#cont");
-  await page.waitForFunction(() => location.hash === "#lesson-1");
+  await at(page, "#lesson-1");
   await page.click("#done");
   await go(page, "home");
   assert.match(await text(page, ".next .eyebrow"), /Continue/);
@@ -122,10 +129,10 @@ test("lesson: marking complete keeps your place and makes 'Next lesson' the main
   assert.strictEqual(await page.evaluate(() => scrollY), y);
   assert.match(await page.getAttribute("#nextL", "class"), /primary/);
   await page.click("#nextL");
-  await page.waitForFunction(() => location.hash === "#lesson-4");
+  await at(page, "#lesson-4");
   await go(page, "lesson-29");
   await page.click("#nextL");
-  await page.waitForFunction(() => location.hash === "#home");
+  await at(page, "#home");
 });
 
 test("lesson: self-check answers are saved", async () => {
@@ -179,6 +186,97 @@ test("teacher voice list offers at most three voices", async () => {
   assert.match(opts[0], /Heart/);
 });
 
+/* ---------- compare with the model ---------- */
+async function compareRound(page, pick, doneText) {
+  const reqs = [];
+  page.on("request", r => { if (r.url().includes("/audio/")) reqs.push(r.url().split("/audio/")[1]); });
+  await page.click(pick);
+  await page.waitForTimeout(150);
+  await page.click("#cmprec");
+  await page.waitForFunction(() => /0:01/.test(document.querySelector("#cmpstat").textContent), null, { timeout: 5000 });
+  await page.click("#cmprec");
+  await page.waitForFunction(t => document.querySelector("#cmpstat").textContent.includes(t), doneText, { timeout: 15000 });
+  return reqs;
+}
+test("compare: record a lesson line, then hear the model and yourself back to back", async () => {
+  const page = await open("lesson-7");
+  assert.match(await text(page, "#cmprec"), /Record line 1/);
+  const reqs = await compareRound(page, '.line[data-k="2"]', "Same pace?");
+  assert.match(await text(page, "#cmpcur"), /^Line 3:/);
+  assert.match(await text(page, "#cmprec"), /Record line 3 again/);
+  assert.ok(!(await page.isHidden("#cmpplay")), "replay button shown");
+  assert.ok(reqs.filter(r => r === "l7-3.mp3").length >= 2, "model played for the comparison");
+  // replay, then stop halfway
+  await page.click("#cmpplay");
+  assert.strictEqual(await text(page, "#cmpplay"), "■ Stop");
+  await page.click("#cmpplay");
+  assert.strictEqual(await text(page, "#cmpplay"), "▶ Model, then me");
+  // another line has no recording yet
+  await page.click('.line[data-k="0"]');
+  assert.ok(await page.isHidden("#cmpplay"));
+  assert.deepStrictEqual(page.errors, []);
+});
+
+test("compare: kids sentences and Romanian pronunciation games", async () => {
+  const kids = await open("kids-2");
+  await compareRound(kids, '.kline[data-j="4"]', "Do you sound the same?");
+  assert.match(await text(kids, "#cmpcur"), /Nice to meet you/);
+  const pron = await open("sound-1");
+  assert.match(await text(pron, "#cmpcur"), /Thank you for three things/); // the sentence is picked first
+  await compareRound(pron, '.pword[data-a="p1-w2"]', "Sună la fel?");
+  assert.match(await text(pron, "#cmpcur"), /„three”/);
+  assert.deepStrictEqual([...kids.errors, ...pron.errors], []);
+});
+
+/* ---------- interview plan ---------- */
+test("interview plan: from home through all six steps, then start over", async () => {
+  const page = await open("", { clock: true });
+  assert.match(await text(page, ".quick .qtext"), /Interview tomorrow\?.*20-minute plan/);
+  await page.click("#qprep");
+  await at(page, "#prep");
+  assert.strictEqual(await text(page, "#pgo"), "Start step 1 →");
+  await page.click("#pgo");
+  await at(page, "#prep-1");
+  assert.match(await text(page, "h1"), /Wake up your voice/);
+  await page.click("#wgo");
+  await page.clock.runFor(112000); // the express warm-up runs by itself
+  assert.strictEqual(await text(page, "#wgo"), "Next step →");
+  await page.click("#wgo");
+  await at(page, "#prep-2");
+  assert.match(await text(page, "h1"), /Tell Me About Yourself/);
+  assert.match(await text(page, ".prepfocus"), /^Tonight:/);
+  assert.strictEqual(await page.$("#done"), null, "no lesson checklist in the plan");
+  // leave halfway: home and the plan remember where you are
+  await go(page, "home");
+  assert.match(await text(page, ".quick .qtext"), /1 of 6 steps done/);
+  await go(page, "prep");
+  assert.strictEqual(await text(page, "#pgo"), "Continue with step 2 →");
+  await page.click("#pgo");
+  for (let k = 2; k <= 6; k++) {
+    await at(page, "#prep-" + k);
+    assert.strictEqual(await text(page, "#pnextstep"), k === 6 ? "Finish the plan ✓" : "Done · next step →");
+    await page.click("#pnextstep");
+  }
+  await at(page, "#prep");
+  assert.match(await text(page, ".complete"), /You're ready/);
+  assert.strictEqual(Object.keys((await stored(page)).prep).length, 6);
+  await page.click("#preset"); // confirm is accepted
+  assert.strictEqual(await text(page, "#pgo"), "Start step 1 →");
+  assert.deepStrictEqual(page.errors, []);
+});
+
+test("interview plan: steps can be opened in any order, and 'next' skips the ones already done", async () => {
+  const page = await open("prep", { state: { prep: { 1: true, 2: true }, days: [] } });
+  assert.strictEqual(await text(page, "#pgo"), "Continue with step 1 →");
+  await page.click('.lrow[data-k="3"]');
+  await at(page, "#prep-4");
+  await page.click("#pnextstep");
+  await at(page, "#prep-5");
+  await page.click("#pplan");
+  await at(page, "#prep");
+  assert.match(await text(page, ".lhead .meta"), /3 OF 6 DONE/);
+});
+
 /* ---------- warm-up ---------- */
 test("warm-up runs through every step on its own and finishes", async () => {
   const page = await open("warmup-express", { clock: true });
@@ -192,7 +290,7 @@ test("warm-up runs through every step on its own and finishes", async () => {
   assert.strictEqual(await text(page, "#wt"), "Warm-up done");
   assert.ok(await page.isDisabled("#wskip"));
   await page.click("#wgo");
-  await page.waitForFunction(() => location.hash === "#home");
+  await at(page, "#home");
   assert.deepStrictEqual(page.errors, []);
 });
 
@@ -211,7 +309,7 @@ test("warm-up: pause stops the countdown, skip moves on", async () => {
 test("quick warm-up button on home starts the express routine right away", async () => {
   const page = await open("", { clock: true });
   await page.click("#qx");
-  await page.waitForFunction(() => location.hash === "#warmup-express");
+  await at(page, "#warmup-express");
   assert.strictEqual(await text(page, "#wgo"), "Pause");
 });
 
@@ -270,7 +368,7 @@ test("backup: save a file and restore it on a fresh device", async () => {
   const bad = path.join(path.dirname(file), "not-spok.json");
   fs.writeFileSync(bad, '{"hello":1}');
   await fresh.setInputFiles("#bload", bad);
-  await fresh.waitForFunction(() => /isn't a Spok backup/.test(document.querySelector("#bstat").textContent));
+  await fresh.waitForFunction(() => /isn't a TrySpok backup/.test(document.querySelector("#bstat").textContent));
   assert.deepStrictEqual((await stored(fresh)).done, { 0: true, 5: true });
   assert.deepStrictEqual(fresh.errors, []);
 });
@@ -288,7 +386,7 @@ test("no accessibility violations (axe-core) in light and dark mode", async () =
   for (const scheme of ["light", "dark"]) {
     const page = await open();
     await page.emulateMedia({ colorScheme: scheme });
-    for (const r of ["home", "lesson-1", "lesson-12", "lesson-20", "lesson-27", "warmup", "kids", "kids-2", "sound-1", "about"]) {
+    for (const r of ["home", "lesson-1", "lesson-12", "lesson-20", "lesson-27", "warmup", "kids", "kids-2", "sound-1", "about", "prep", "prep-1", "prep-3"]) {
       await go(page, r);
       if (r === "home") await page.$$eval(".mtop[aria-expanded='false']", bs => bs.forEach(b => b.click()));
       await page.addScriptTag({ content: axe });
@@ -301,7 +399,8 @@ test("no accessibility violations (axe-core) in light and dark mode", async () =
 (async () => {
   const server = await serve();
   base = `http://127.0.0.1:${server.address().port}`;
-  browser = await chromium.launch();
+  // a fake microphone (test tone) and audio that may play without a tap
+  browser = await chromium.launch({ args: ["--use-fake-device-for-media-stream", "--use-fake-ui-for-media-stream", "--autoplay-policy=no-user-gesture-required"] });
   let failed = 0;
   for (const t of tests) {
     try { await t.fn(); console.log(`  ✓ ${t.name}`); }

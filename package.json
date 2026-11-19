@@ -1,7 +1,7 @@
 {
   "name": "spok",
   "private": true,
-  "description": "Spok: voice and interview practice app (static PWA). This file only holds the test tools.",
+  "description": "TrySpok: voice and interview practice app (static PWA). This file only holds the test tools.",
   "scripts": {
     "test": "node tests/data.test.js && node tests/e2e.test.js"
   },

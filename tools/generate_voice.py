@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate the natural "Heart" voice clips for Spok's drill lines.
+"""Generate the natural "Heart" voice clips for TrySpok's drill lines.
 
 Every drill line in index.html (adult lessons: l<lesson>-<line>, kids lessons:
 k<lesson>-<line>) can have a recorded clip in audio/ plus word start times in

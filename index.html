@@ -3,19 +3,19 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Spok</title>
+<title>TrySpok</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <meta name="theme-color" content="#1B2230">
 <meta name="description" content="Free app to speak clearly and confidently in interviews and meetings: 29 lessons, a natural voice guide, self-recording and lessons for kids.">
 <meta property="og:type" content="website">
-<meta property="og:site_name" content="Spok">
-<meta property="og:title" content="Spok: speak clearly, interview with confidence">
+<meta property="og:site_name" content="TrySpok">
+<meta property="og:title" content="TrySpok: speak clearly, interview with confidence">
 <meta property="og:description" content="29 short lessons for interviews and meetings, a natural voice guide, self-recording and lessons for kids. Free, no account.">
 <meta property="og:url" content="https://tryspok.app/">
 <meta property="og:image" content="https://tryspok.app/og-image.jpg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="Spok app: Speak clearly. Interview with confidence.">
+<meta property="og:image:alt" content="TrySpok app: Speak clearly. Interview with confidence.">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://tryspok.app/og-image.jpg">
 <link rel="manifest" href="manifest.json">
@@ -138,6 +138,9 @@ p{margin:0}
 .checks label{display:flex;gap:10px;align-items:flex-start;padding:8px 0;cursor:pointer}
 .checks input{width:20px;height:20px;accent-color:var(--good);margin-top:2px;flex:none}
 .complete{background:var(--good-soft);color:var(--good);border-radius:12px;padding:12px 14px;font-weight:600}
+.cmp{display:flex;flex-direction:column;gap:10px;border-top:1px dashed var(--line);padding-top:14px}
+.cmphead{display:flex;flex-direction:column;gap:2px}.cmphead b{font:700 16px var(--display)}
+.cmpcur{font-weight:600;font-size:15px}
 .dot{width:10px;height:10px;border-radius:50%;background:var(--accent);display:inline-block}
 .dot.live{animation:pulse 1s infinite}
 @keyframes pulse{50%{opacity:.25}}
@@ -161,7 +164,11 @@ textarea{width:100%;min-height:120px;border:1.5px solid var(--line);border-radiu
 
 /* quick warm-up */
 .quick{display:grid;grid-template-columns:44px 1fr auto;gap:12px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:12px 14px}
-.qicon{display:grid;place-items:center;width:44px;height:44px;border-radius:12px;background:color-mix(in srgb,var(--m-voice) 14%,var(--surface));color:var(--m-voice)}
+.qicon{display:grid;place-items:center;width:44px;height:44px;border-radius:12px;background:color-mix(in srgb,var(--qc,var(--m-voice)) 14%,var(--surface));color:var(--qc,var(--m-voice))}
+.prepfocus{font-size:15px;line-height:1.5;background:var(--surface);border:1px solid color-mix(in srgb,var(--mc) 30%,var(--line));border-radius:12px;padding:10px 12px;max-width:60ch}
+.prepfocus b{color:var(--mc)}
+.lrow .why{display:block;font-weight:400;font-size:13px;color:var(--muted);margin-top:2px}
+.lrow .ti.stack{display:block}
 .qicon svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .qtext{display:flex;flex-direction:column;gap:2px;min-width:0}
 .qtext b{font:700 16px var(--display)}.qtext span{font-size:13px;color:var(--muted)}
@@ -169,7 +176,7 @@ textarea{width:100%;min-height:120px;border:1.5px solid var(--line);border-radiu
 @media (max-width:480px){.quick{grid-template-columns:44px 1fr}.qbtns{grid-column:1/-1;justify-content:stretch}.qbtns .btn{flex:1}}
 .seg{display:inline-flex;align-self:flex-start;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:3px;gap:3px}
 .seg button{border:0;background:none;border-radius:9px;padding:8px 14px;font-weight:600;font-size:14px;color:var(--muted)}
-.seg button[aria-selected="true"]{background:var(--ink);color:var(--bg)}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
 /* modules: collapsible cards, each in its own colour */
 .modules{display:flex;flex-direction:column;gap:12px}
 .mod{background:var(--surface);border:1px solid var(--line);border-radius:18px;overflow:hidden}
@@ -615,6 +622,17 @@ const PRON = [
   sentence:"My teacher has a banana and a computer."}
 ];
 
+/* Interview tomorrow: a focused run through the moments that decide an interview (lesson numbers are 0-based). */
+const PREP=[
+ {warm:true,t:"Wake up your voice",why:"Breath, lip trills and tongue twisters, so your first answer comes out steady.",min:2},
+ {l:6,t:"Tell me about yourself",why:"Most interviews open with it. Make your 60 seconds smooth.",focus:"Read the lines along with the voice, then answer the question twice with the timer. Record the second try and listen back.",min:4},
+ {l:8,t:"One strong STAR story",why:"Behaviour questions are where people ramble. Keep it tight and end on a result.",focus:"Pick the story you're most likely to need. Tell it once with the timer, then again in fewer words.",min:4},
+ {l:13,t:"When you don't know",why:"One hard question shouldn't shake the rest of the interview.",focus:"Say the three lines until they come out calmly. That's your safety net tomorrow.",min:3},
+ {l:14,t:"Salary, said calmly",why:"A steady number, said once, then silence.",focus:"Write your range down first. Then say it out loud until your pitch stays level on the number.",min:3},
+ {l:16,t:"A strong close",why:"Leave them with your fit, your interest and the next step.",focus:"Run your close twice. It should take under 30 seconds.",min:3}
+];
+const MORNING=["Do the 2-minute warm-up before you leave, or in the car.","Say your first sentence out loud once: \"Thanks for having me today.\"","Breathe in before your first answer. A short pause sounds confident.","Pause before numbers and results, so they land."];
+
 const APP_VERSION="2.1";
 const AUTHOR={
   name:"Calin Pantis",
@@ -630,8 +648,8 @@ const AUTHOR={
 /* ---- storage ---- */
 const KEY="spok-v2";
 // Fill in anything missing or malformed, so old or hand-edited data can't break the app.
-function normalizeState(s){const st={done:{},checks:{},fillers:{},days:[],kids:{},pron:{}};
-  if(s&&typeof s==="object"){for(const k of ["done","checks","fillers","kids","pron"]) if(s[k]&&typeof s[k]==="object") st[k]=s[k];
+function normalizeState(s){const st={done:{},checks:{},fillers:{},days:[],kids:{},pron:{},prep:{}};
+  if(s&&typeof s==="object"){for(const k of ["done","checks","fillers","kids","pron","prep"]) if(s[k]&&typeof s[k]==="object") st[k]=s[k];
     if(Array.isArray(s.days)) st.days=[...new Set(s.days.filter(d=>typeof d==="string"&&/^\d{4}-\d{2}-\d{2}$/.test(d)))].sort();
     if(typeof s.voice==="string") st.voice=s.voice;}
   return st;}
@@ -704,7 +722,7 @@ function rerender(draw){const y=window.scrollY;stopAll();draw();window.scrollTo(
 function topbar(back,label){
   const n=streak();
   topEl.innerHTML=(back?`<button class="back" id="back">&#8592; ${label||"Lessons"}</button>`:
-   `<div class="logo" aria-hidden="true"><i style="height:8px"></i><i style="height:15px"></i><i style="height:22px"></i><i style="height:15px"></i><i style="height:8px"></i></div><div class="brand">Spok</div>`)+
+   `<div class="logo" aria-hidden="true"><i style="height:8px"></i><i style="height:15px"></i><i style="height:22px"></i><i style="height:15px"></i><i style="height:8px"></i></div><div class="brand">TrySpok</div>`)+
    `<div class="spacer"></div><div class="streak">${n===0?"Practise today":n===1?"1 day streak":n+" day streak"}</div>`;
   if(back) $("#back").onclick=()=>go(back===true?"home":back);
 }
@@ -751,6 +769,11 @@ function home(){
       <div class="t">${esc(L.t)}</div>
       <p class="g"><span class="mdot" aria-hidden="true"></span>${esc(M.name)} · Lesson ${nextI+1} of ${LESSONS.length} · ${L.m} min</p>
       <div class="row"><button class="btn primary" id="cont">${doneCount?"Continue lesson":"Start lesson 1"} →</button></div></div>`;})():""}
+    <div class="quick" style="--qc:var(--m-interview)">
+      <span class="qicon" aria-hidden="true">${MOD_ICON.interview}</span>
+      <div class="qtext"><b>Interview tomorrow?</b><span>${prepSummary()}</span></div>
+      <div class="qbtns"><button class="btn ghost small" id="qprep">Open the plan →</button></div>
+    </div>
     <div class="quick">
       <span class="qicon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 12h3l3-7 4 14 3-7h5"/></svg></span>
       <div class="qtext"><b>Quick warm-up</b><span>Just before a call, interview or presentation</span></div>
@@ -779,17 +802,20 @@ function home(){
     box.classList.toggle("expanded",open); list.hidden=!open; b.setAttribute("aria-expanded",open);});
   $("#qx").onclick=()=>{autoWarm=true;go("warmup-express");};
   if($("#cont")) $("#cont").onclick=()=>go("lesson-"+(nextI+1));
+  $("#qprep").onclick=()=>go("prep");
   $("#qf").onclick=()=>{autoWarm=true;go("warmup");};
 }
 
-function lesson(i){
-  const L=LESSONS[i]; topbar(true); setTab("home");
+function lesson(i,pk){
+  const L=LESSONS[i], inPrep=pk!=null; inPrep?topbar("prep","Interview plan"):topbar(true); setTab("home");
   const ch=state.checks[i]||[];
   app.innerHTML=`<section class="view modtint" style="--mc:${modColor(L.mod)}">
     <div class="lhead">
-      <div class="meta"><span class="mchip">${MOD_ICON[L.mod]}${esc(MODULES.find(m=>m.id===L.mod).name)}</span><span>LESSON ${i+1} OF ${LESSONS.length}</span><span>${L.m} MIN</span></div>
+      <div class="meta">${inPrep?`<span class="mchip">${MOD_ICON.interview}Interview plan</span><span>STEP ${pk+1} OF ${PREP.length}</span><span>ABOUT ${PREP[pk].min} MIN</span>`
+        :`<span class="mchip">${MOD_ICON[L.mod]}${esc(MODULES.find(m=>m.id===L.mod).name)}</span><span>LESSON ${i+1} OF ${LESSONS.length}</span><span>${L.m} MIN</span>`}</div>
       <h1>${esc(L.t)}</h1>
       <p class="goal">${esc(L.goal)}</p>
+      ${inPrep?`<p class="prepfocus"><b>Tonight:</b> ${esc(PREP[pk].focus)}</p>`:""}
     </div>
     <div class="card"><h2 class="eyebrow">1 · Key ideas</h2>
       <ul class="ideas">${L.ideas.map((x,k)=>`<li><b>${k+1}</b><span>${esc(x)}</span></li>`).join("")}</ul></div>
@@ -799,6 +825,7 @@ function lesson(i){
       <div class="speed"><label for="dwpm" class="tip">Guide speed</label><input type="range" id="dwpm" min="80" max="200" step="10" value="110"><output id="dwpmo">110 wpm</output></div>
       <div class="speed" id="vrow" hidden><label for="dvoice" class="tip">Teacher's voice</label><select id="dvoice" class="vsel"></select></div>
       <div class="row"><button class="btn ghost small" id="dplay">▶ Listen & read along</button></div>
+      ${compareHTML(CMP_EN)}
     </div>
     <div class="card"><h2 class="eyebrow">3 · Speak it</h2>
       <p class="prompt">${esc(L.prompt)}</p>
@@ -807,11 +834,11 @@ function lesson(i){
       ${L.tally?`<div class="tally"><span class="tip">Filler words</span><button class="btn ghost small" id="fminus" aria-label="Remove one">−</button><span class="count" id="fcount">0</span><button class="btn primary small" id="fplus">+ um / uh / like</button><span class="tip" id="fbest"></span></div>`:""}
       ${recorderHTML()}
     </div>
-    <div class="card"><h2 class="eyebrow">4 · Check yourself</h2>
+    ${inPrep?prepFooter(pk):`<div class="card"><h2 class="eyebrow">4 · Check yourself</h2>
       <div class="checks">${L.checks.map((c,k)=>`<label><input type="checkbox" id="c${i}-${k}" data-k="${k}" ${ch[k]?"checked":""}><span>${esc(c)}</span></label>`).join("")}</div>
       <div class="row"><button class="btn ${state.done[i]?"ghost":"primary"}" id="done">${state.done[i]?"Completed · mark as not done":"Mark lesson complete"}</button>
       ${i<LESSONS.length-1?`<button class="btn ${state.done[i]?"primary":"ghost"}" id="nextL">Next lesson →</button>`:`<button class="btn ghost" id="nextL">All lessons</button>`}</div>
-    </div>
+    </div>`}
   </section>`;
   window.scrollTo(0,0);
 
@@ -850,8 +877,10 @@ function lesson(i){
     setActive(li); try{speechSynthesis.resume();}catch(e){} speechSynthesis.speak(u);
   }
   function stopDrill(){playing=false;clearTimeout(dTimer);dTimer=null;stopClip();if(TTS){try{speechSynthesis.cancel();}catch(e){}}clearHL();$("#dplay").textContent="▶ Listen & read along";}
-  lines.forEach((b,li)=>b.onclick=()=>{stopDrill();setActive(li);markPractice();speakLine(li);});
+  const cmp=bindCompare(CMP_EN,L.drill.map((x,k)=>({name:`line ${k+1}`,show:`Line ${k+1}: ${x.replace(/\[|\]/g,"")}`,play:done=>speakLine(k,()=>{setActive(-1);done();})})),stopDrill);
+  lines.forEach((b,li)=>b.onclick=()=>{cmp.select(li);stopDrill();setActive(li);markPractice();speakLine(li);});
   $("#dplay").onclick=()=>{
+    cmp.cancel();
     if(playing||dTimer){stopDrill();return;}
     markPractice(); $("#dplay").textContent="■ Stop";
     if(useNatural()||TTS){
@@ -894,6 +923,7 @@ function lesson(i){
 
   bindRecorder();
 
+  if(inPrep){bindPrepFooter(pk);return;}
   // checks & complete
   app.querySelectorAll(".checks input").forEach(c=>c.onchange=()=>{const a=state.checks[i]||[];a[+c.dataset.k]=c.checked;state.checks[i]=a;save();});
   $("#done").onclick=()=>{state.done[i]=!state.done[i]; if(state.done[i]) markPractice(); save(); rerender(()=>lesson(i));};
@@ -914,25 +944,39 @@ const IN_APP=/FBAN|FBAV|FB_IAB|Instagram|Messenger|LinkedInApp|Snapchat|TikTok|L
 const IN_FRAME=(()=>{try{return window.top!==window.self;}catch(e){return true;}})();
 const STANDALONE=(()=>{try{return matchMedia("(display-mode: standalone)").matches||navigator.standalone===true;}catch(e){return false;}})();
 function micHelp(kind){
-  if(kind==="frame") return "The microphone is blocked in this preview. Open Spok from its own website (for example tryspok.app) to record yourself.";
+  if(kind==="frame") return "The microphone is blocked in this preview. Open TrySpok from its own website (for example tryspok.app) to record yourself.";
   if(kind==="inapp") return IS_IOS
     ? "This app's built-in browser blocks the microphone. Tap ⋯ or the share icon and choose \"Open in Safari\", then try again."
     : "This app's built-in browser blocks the microphone. Tap ⋮ and choose \"Open in Chrome\", then try again.";
   if(kind==="denied") return IS_IOS
     ? (STANDALONE
-      ? "Microphone access is off. Open Settings → Safari → Microphone and choose Ask or Allow. Then close Spok completely and open it again."
+      ? "Microphone access is off. Open Settings → Safari → Microphone and choose Ask or Allow. Then close TrySpok completely and open it again."
       : "Microphone access is off. In Safari, tap \"aA\" in the address bar → Website Settings → Microphone → Allow. Or open Settings → Safari → Microphone → Allow. Then reload the page.")
     : IS_ANDROID
       ? "Microphone access is off. Tap the icon to the left of the address → Permissions → Microphone → Allow. If that doesn't help, open Settings → Apps → Chrome → Permissions → Microphone → Allow. Then reload."
       : "Microphone access is off. Click the icon to the left of the address, allow the microphone, then reload the page.";
   if(kind==="busy") return "The microphone is busy in another app. End any call or voice recording, then try again.";
   if(kind==="none") return "No microphone was found on this device.";
-  if(kind==="insecure") return "Recording needs a secure https address. Open Spok from its https website.";
+  if(kind==="insecure") return "Recording needs a secure https address. Open TrySpok from its https website.";
   if(kind==="unsupported") return IS_IOS
     ? "This version of iOS can't record in the browser. Update iOS (14.5 or later), or use Voice Memos alongside the timer."
     : "This browser can't record audio. Use the latest Chrome, or your phone's voice recorder alongside the timer.";
-  return "The microphone didn't start. Close other apps using it, reload Spok and try again.";
+  return "The microphone didn't start. Close other apps using it, reload TrySpok and try again.";
 }
+// Why recording can't start, or null if it can.
+function micPrecheck(){
+  if(!window.isSecureContext) return micHelp("insecure");
+  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia||!window.MediaRecorder) return micHelp(IN_FRAME?"frame":IN_APP?"inapp":"unsupported");
+  return null;}
+// Turn a getUserMedia error into advice for this phone.
+function micProblem(e){const n=e&&e.name;
+  if(n==="NotAllowedError"||n==="SecurityError") return micHelp(IN_FRAME?"frame":IN_APP?"inapp":"denied");
+  if(n==="NotFoundError"||n==="OverconstrainedError") return micHelp("none");
+  if(n==="NotReadableError"||n==="AbortError") return micHelp("busy");
+  if(n==="NotSupportedError") return micHelp(IN_FRAME?"frame":IN_APP?"inapp":"unsupported");
+  return micHelp("other")+(n?" ("+n+")":"");}
+const openMic=()=>navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true}});
+function makeRecorder(st){const mt=recMime();try{return mt?new MediaRecorder(st,{mimeType:mt}):new MediaRecorder(st);}catch(e){return new MediaRecorder(st);}}
 function recMime(){if(!window.MediaRecorder||!MediaRecorder.isTypeSupported)return "";
   for(const t of ["audio/mp4","audio/webm;codecs=opus","audio/webm","audio/ogg;codecs=opus"]) if(MediaRecorder.isTypeSupported(t)) return t; return "";}
 function bindRecorder(){
@@ -952,28 +996,17 @@ function bindRecorder(){
     if(mediaRec&&mediaRec.state==="recording"){mediaRec.stop();return;}
     if(starting) return;
     note.hidden=true;
-    if(!window.isSecureContext){showErr(micHelp("insecure"));return;}
-    if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia||!window.MediaRecorder){showErr(micHelp(IN_FRAME?"frame":IN_APP?"inapp":"unsupported"));return;}
+    if(cmpRec&&cmpRec.state==="recording"){showErr("Stop the other recording first.");return;}
+    const pre=micPrecheck(); if(pre){showErr(pre);return;}
     stopClip(); try{speechSynthesis.cancel();}catch(e){}
     audio.pause();
     starting=true;
-    try{
-      stream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true}});
-    }catch(e){
-      starting=false;
-      const n=e&&e.name;
-      if(n==="NotAllowedError"||n==="SecurityError") showErr(micHelp(IN_FRAME?"frame":IN_APP?"inapp":"denied"));
-      else if(n==="NotFoundError"||n==="OverconstrainedError") showErr(micHelp("none"));
-      else if(n==="NotReadableError"||n==="AbortError") showErr(micHelp("busy"));
-      else if(n==="NotSupportedError") showErr(micHelp(IN_FRAME?"frame":IN_APP?"inapp":"unsupported"));
-      else showErr(micHelp("other")+(n?" ("+n+")":""));
-      return;
-    }
+    try{ stream=await openMic(); }catch(e){ starting=false; showErr(micProblem(e)); return; }
     starting=false;
     // the page changed while the permission prompt was open: release the microphone
     if(!document.body.contains(btn)){stream.getTracks().forEach(t=>t.stop());return;}
-    const chunks=[]; const mt=recMime();
-    try{ mediaRec=mt?new MediaRecorder(stream,{mimeType:mt}):new MediaRecorder(stream); }catch(e){ mediaRec=new MediaRecorder(stream); }
+    const chunks=[], mt=recMime();
+    mediaRec=makeRecorder(stream);
     const myRec=mediaRec;
     myRec.ondataavailable=e=>{if(e.data&&e.data.size)chunks.push(e.data);};
     myRec.onstop=()=>{clearInterval(tick);clearTimeout(stopTO);awake.set("rec",false);stream&&stream.getTracks().forEach(t=>t.stop());
@@ -990,6 +1023,81 @@ function bindRecorder(){
     stopTO=setTimeout(()=>{if(myRec.state==="recording")myRec.stop();},MAX*1000);
   };
   cleanup.push(()=>{clearInterval(tick);clearTimeout(stopTO);try{if(mediaRec&&mediaRec.state==="recording")mediaRec.stop();}catch(e){} if(stream)stream.getTracks().forEach(t=>t.stop()); try{audio.pause();}catch(e){}});
+}
+
+/* ---- compare: record one line, then hear the model and yourself back to back ---- */
+let cmpRec=null, meUnlocked=false;
+const meEl=new Audio(); try{meEl.setAttribute("playsinline","");}catch(e){}
+// iOS only lets an audio element play outside a tap once it has played during one: play a moment of silence on the first tap.
+function unlockMe(){if(meUnlocked)return;meUnlocked=true;try{
+  const n=1200,b=new ArrayBuffer(44+n*2),v=new DataView(b),w=(o,t)=>[...t].forEach((c,i)=>v.setUint8(o+i,c.charCodeAt(0)));
+  w(0,"RIFF");v.setUint32(4,36+n*2,true);w(8,"WAVE");w(12,"fmt ");v.setUint32(16,16,true);v.setUint16(20,1,true);v.setUint16(22,1,true);
+  v.setUint32(24,24000,true);v.setUint32(28,48000,true);v.setUint16(32,2,true);v.setUint16(34,16,true);w(36,"data");v.setUint32(40,n*2,true);
+  meEl.src=URL.createObjectURL(new Blob([b],{type:"audio/wav"}));meEl.play().catch(()=>{});}catch(e){}}
+const CMP_EN={title:"Compare with the model",hint:"Tap a line, record yourself saying it, then hear the model and you back to back.",
+  rec:n=>`Record ${n}`,again:n=>`Record ${n} again`,stop:"Stop",play:"▶ Model, then me",stopPlay:"■ Stop",
+  recording:"Recording… say it now",model:"Model…",you:"Now you…",
+  done:"Same pace? Same word endings? Record again, or tap the next line.",tap:"Tap \"Model, then me\" to listen.",
+  nothing:"Nothing was recorded. Check that the microphone isn't muted and try again.",busy:"Stop the other recording first."};
+const CMP_KIDS={...CMP_EN,title:"Copy the voice",hint:"Tap a sentence, record yourself, then listen: first the voice, then you!",
+  play:"▶ The voice, then me",done:"Do you sound the same? Try again, or pick the next sentence."};
+const CMP_RO={title:"Compară cu modelul",hint:"Apasă pe un cuvânt sau pe propoziție, înregistrează-te, apoi ascultă: întâi vocea, apoi pe tine.",
+  rec:n=>`Înregistrează ${n}`,again:n=>`Din nou ${n}`,stop:"Stop",play:"▶ Vocea, apoi eu",stopPlay:"■ Stop",
+  recording:"Se înregistrează… spune acum",model:"Vocea…",you:"Acum tu…",
+  done:"Sună la fel? Încearcă din nou sau alege alt cuvânt.",tap:"Apasă „Vocea, apoi eu” ca să asculți.",
+  nothing:"Nu s-a înregistrat nimic. Verifică dacă microfonul e pornit și încearcă din nou.",busy:"Oprește mai întâi cealaltă înregistrare."};
+function compareHTML(T){return `<div class="cmp" id="cmp">
+  <div class="cmphead"><b>${T.title}</b><span class="tip">${T.hint}</span></div>
+  <p class="cmpcur" id="cmpcur"></p>
+  <div class="row"><button class="btn ghost small" id="cmprec"></button><button class="btn primary small" id="cmpplay" hidden></button></div>
+  <p class="tip" id="cmpstat" aria-live="polite"></p>
+  <p class="note" id="cmpnote" hidden></p></div>`;}
+// items: [{name, show, play(onDone)}]; stopModel stops the page's own playback. Returns {select(i), cancel()}.
+function bindCompare(T,items,stopModel,first=0){
+  const box=$("#cmp"), recB=$("#cmprec"), playB=$("#cmpplay"), stat=$("#cmpstat"), note=$("#cmpnote"), cur=$("#cmpcur");
+  const urls=new Map(); let sel=first, rec=null, starting=false, playing=false, tok=0, tmo=null, tick=null, stopTO=null;
+  const live=()=>document.body.contains(box);
+  const ui=()=>{const has=urls.has(sel), it=items[sel];
+    cur.textContent=it.show;
+    recB.innerHTML=rec?`<span class="dot live"></span> ${T.stop}`:`<span class="dot"></span> ${esc(has?T.again(it.name):T.rec(it.name))}`;
+    playB.hidden=!has||!!rec; playB.textContent=playing?T.stopPlay:T.play;};
+  const cancel=()=>{tok++;clearTimeout(tmo);meEl.onended=meEl.onerror=null;try{meEl.pause();}catch(e){}
+    if(playing){playing=false;stat.textContent="";}ui();};
+  const run=()=>{const url=urls.get(sel); if(!url) return;
+    cancel(); stopModel(); const my=++tok; playing=true; ui(); stat.textContent=T.model;
+    items[sel].play(()=>{if(my!==tok)return;
+      tmo=setTimeout(()=>{if(my!==tok)return; stat.textContent=T.you;
+        const end=()=>{if(my!==tok)return;playing=false;stat.textContent=T.done;ui();};
+        meEl.onended=end; meEl.onerror=end; meEl.src=url;
+        meEl.play().catch(()=>{if(my!==tok)return;playing=false;stat.textContent=T.tap;ui();});},400);});};
+  playB.onclick=()=>{unlockMe(); if(playing){cancel();stopModel();return;} run();};
+  recB.onclick=async()=>{
+    unlockMe();
+    if(rec){if(rec.state==="recording")rec.stop();return;}
+    if(starting) return;
+    note.hidden=true;
+    if(mediaRec&&mediaRec.state==="recording"){note.hidden=false;note.textContent=T.busy;return;}
+    const pre=micPrecheck(); if(pre){note.hidden=false;note.textContent=pre;return;}
+    cancel(); stopModel(); starting=true;
+    let st; try{st=await openMic();}catch(e){starting=false;note.hidden=false;note.textContent=micProblem(e);return;}
+    starting=false;
+    if(!live()){st.getTracks().forEach(t=>t.stop());return;}
+    const idx=sel, chunks=[], r=makeRecorder(st); rec=r; cmpRec=r;
+    r.ondataavailable=e=>{if(e.data&&e.data.size)chunks.push(e.data);};
+    r.onstop=()=>{clearInterval(tick);clearTimeout(stopTO);awake.set("cmp",false);st.getTracks().forEach(t=>t.stop());rec=null;cmpRec=null;
+      if(!live())return;
+      if(!chunks.length){stat.textContent="";note.hidden=false;note.textContent=T.nothing;ui();return;}
+      if(urls.has(idx)) URL.revokeObjectURL(urls.get(idx));
+      urls.set(idx,URL.createObjectURL(new Blob(chunks,{type:r.mimeType||"audio/webm"})));
+      if(idx===sel) run(); else {stat.textContent="";ui();}};
+    r.start(); markPractice(); awake.set("cmp",true);
+    let n=0; stat.textContent=T.recording+" 0:00";
+    tick=setInterval(()=>{n++;stat.textContent=T.recording+" "+fmt(n);},1000);
+    stopTO=setTimeout(()=>{if(r.state==="recording")r.stop();},30000);
+    ui();};
+  cleanup.push(()=>{cancel();if(rec&&rec.state==="recording")try{rec.stop();}catch(e){}urls.forEach(u=>URL.revokeObjectURL(u));});
+  stat.textContent=""; ui();
+  return {select(i){if(rec||i===sel&&!playing)return;cancel();sel=i;ui();},cancel};
 }
 
 /* ---- natural recorded voice (Kokoro "Heart"), with word timings ---- */
@@ -1045,18 +1153,20 @@ function beep(){try{primeAudio();const o=actx.createOscillator(),g=actx.createGa
 
 const EXPRESS=[0,2,5]; // breath, lip trills, tongue twisters: about 2 minutes
 let autoWarm=false;
-function warmup(express){
-  topbar(false); setTab("warmup");
+function warmup(express,pk){
+  const inPrep=pk!=null; if(inPrep) express=true;
+  inPrep?topbar("prep","Interview plan"):topbar(false); setTab(inPrep?"home":"warmup");
   const steps=(express?EXPRESS:WARMUP.map((_,i)=>i)).map(i=>({...WARMUP[i],n:i+1}));
   const total=steps.reduce((a,w)=>a+w.secs,0);
   const full=WARMUP.reduce((a,w)=>a+w.secs,0), ex=EXPRESS.reduce((a,i)=>a+WARMUP[i].secs,0);
   app.innerHTML=`<section class="view">
-    <div style="display:flex;flex-direction:column;gap:10px"><h1>${express?"Express warm-up":"Daily warm-up"}</h1>
-    <p class="muted">${express?"Three quick exercises for just before a call, interview or presentation.":"The full routine. Do it before a lesson or an important day."}</p>
-    <div class="seg" role="tablist" aria-label="Warm-up length">
-      <button role="tab" aria-selected="${!!express}" data-w="warmup-express">Express · ${Math.round(ex/60)} min</button>
-      <button role="tab" aria-selected="${!express}" data-w="warmup">Full · ${Math.round(full/60)} min</button>
-    </div></div>
+    <div style="display:flex;flex-direction:column;gap:10px">${inPrep?`<div class="meta"><span>INTERVIEW PLAN · STEP ${pk+1} OF ${PREP.length}</span></div>`:""}
+    <h1>${inPrep?esc(PREP[pk].t):express?"Express warm-up":"Daily warm-up"}</h1>
+    <p class="muted">${inPrep?esc(PREP[pk].why):express?"Three quick exercises for just before a call, interview or presentation.":"The full routine. Do it before a lesson or an important day."}</p>
+    ${inPrep?"":`<div class="seg" role="group" aria-label="Warm-up length">
+      <button aria-pressed="${!!express}" data-w="warmup-express">Express · ${Math.round(ex/60)} min</button>
+      <button aria-pressed="${!express}" data-w="warmup">Full · ${Math.round(full/60)} min</button>
+    </div>`}</div>
     <div class="card" id="wcard">
       <div class="steps" id="wsteps">${steps.map(()=>"<span></span>").join("")}</div>
       <div class="meta" id="wmeta"></div>
@@ -1077,12 +1187,57 @@ function warmup(express){
     if(!naturalFailed) playClip("w"+w.n,null,1,null,null,tts); else tts();};
   const next=()=>{stopClip();const was=wclock.running;wclock.reset();
     if(k<steps.length-1){k++;left=steps[k].secs;show();if(was){say();wclock.start();}}else{awake.set("warm",false);$("#wskip").disabled=true;
-    $("#wt").textContent="Warm-up done";$("#wd").textContent="Your voice is ready. Go and speak with confidence.";$("#wclock").textContent="0:00";$("#wgo").textContent="Go to lessons";$("#wgo").onclick=()=>go("home");}};
+    $("#wt").textContent="Warm-up done";$("#wd").textContent="Your voice is ready. Go and speak with confidence.";$("#wclock").textContent="0:00";
+    if(inPrep){prepDone(pk);$("#wgo").textContent="Next step →";$("#wgo").onclick=()=>go(prepNext(pk));}
+    else{$("#wgo").textContent="Go to lessons";$("#wgo").onclick=()=>go("home");}}};
   const start=()=>{if(wclock.running){wclock.pause();awake.set("warm",false);stopClip();try{speechSynthesis.cancel();}catch(e){}$("#wgo").textContent="Resume";return;}
     if(left===steps[k].secs) say(); primeAudio(); markPractice();$("#wgo").textContent="Pause";wclock.start();awake.set("warm",true);};
   $("#wgo").onclick=start; $("#wskip").onclick=next; $("#wsay").onclick=say;
   cleanup.push(()=>{wclock.reset();stopClip();try{speechSynthesis.cancel();}catch(e){}}); show();
   if(autoWarm){autoWarm=false;start();}
+}
+
+/* ---- INTERVIEW PLAN ---- */
+const prepCount=()=>PREP.filter((_,k)=>state.prep[k]).length;
+const prepMin=()=>Math.max(5,Math.round(PREP.reduce((a,x)=>a+x.min,0)/5)*5); // shown rounded: "20 minutes", not "19"
+function prepSummary(){const n=prepCount();
+  return n===0?`A ${prepMin()}-minute plan for tonight`:n<PREP.length?`${n} of ${PREP.length} steps done · pick up where you stopped`:"Plan done · run it again any time";}
+function prepDone(k){if(!state.prep[k]){state.prep[k]=true;markPractice();save();}}
+const prepFirstOpen=()=>PREP.findIndex((_,k)=>!state.prep[k]);
+const prepNext=k=>{for(let j=k+1;j<PREP.length;j++) if(!state.prep[j]) return "prep-"+(j+1); return "prep";};
+function prepFooter(k){const last=prepNext(k)==="prep";
+  return `<div class="card"><h2 class="eyebrow">Step ${k+1} of ${PREP.length}</h2>
+    <p>${state.prep[k]?"Done. You can go over it again or move on.":"When you've said it out loud and it feels steady, move on."}</p>
+    <div class="row"><button class="btn primary" id="pnextstep">${last?"Finish the plan ✓":"Done · next step →"}</button><button class="btn ghost" id="pplan">Back to the plan</button></div></div>`;}
+function bindPrepFooter(k){
+  $("#pnextstep").onclick=()=>{prepDone(k);go(prepNext(k));};
+  $("#pplan").onclick=()=>go("prep");}
+function prepPlan(){
+  topbar(false); setTab("home");
+  const n=prepCount(), all=n===PREP.length, first=prepFirstOpen();
+  app.innerHTML=`<section class="view modtint" style="--mc:var(--m-interview)">
+    <div class="lhead">
+      <div class="meta"><span class="mchip">${MOD_ICON.interview}Interview tomorrow</span><span>ABOUT ${prepMin()} MIN</span><span>${n} OF ${PREP.length} DONE</span></div>
+      <h1>Your interview plan</h1>
+      <p class="goal">A focused run through the moments that decide an interview. Do it tonight, out loud, then the short warm-up again tomorrow morning.</p>
+      <div class="row"><button class="btn primary" id="pgo">${all?"Run it again":n?`Continue with step ${first+1} →`:"Start step 1 →"}</button></div>
+    </div>
+    ${all?`<div class="complete">You're ready. Get some sleep, and do the 2-minute warm-up before you go in.</div>`:""}
+    <div class="mod expanded" style="--mc:var(--m-interview)"><div class="mlist" style="border-top:0">
+      ${PREP.map((x,k)=>{const dn=state.prep[k],nx=!all&&k===first;
+        return `<button class="item lrow ${dn?"done":""} ${nx?"isnext":""}" data-k="${k}">
+        <span class="lnum">${dn?'<svg viewBox="0 0 24 24" aria-label="Done"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>':k+1}</span>
+        <span class="ti stack">${esc(x.t)}${nx?' <span class="nextpill">Next</span>':""}<span class="why">${esc(x.why)}</span></span><span class="mi">${x.min} min</span></button>`;}).join("")}
+    </div></div>
+    <div class="card"><h2 class="eyebrow">Tomorrow morning</h2>
+      <ul class="ideas">${MORNING.map((x,k)=>`<li><b>${k+1}</b><span>${esc(x)}</span></li>`).join("")}</ul>
+      <div class="row"><button class="btn ghost small" id="pwarm">▶ 2-min warm-up</button></div></div>
+    ${n?`<div class="row"><button class="btn ghost small" id="preset">Start the plan over</button></div>`:""}
+  </section>`;
+  app.querySelectorAll(".lrow").forEach(b=>b.onclick=()=>go("prep-"+(+b.dataset.k+1)));
+  $("#pgo").onclick=()=>{if(all){state.prep={};save();go("prep-1");}else go("prep-"+(first+1));};
+  $("#pwarm").onclick=()=>{autoWarm=true;go("warmup-express");};
+  if($("#preset")) $("#preset").onclick=()=>{if(confirm("Clear the ticks and start the plan over?")){state.prep={};save();prepPlan();}};
 }
 
 /* ---- KIDS ---- */
@@ -1127,6 +1282,7 @@ function kidLesson(i){
       <p class="tip">Tap a sentence to hear it. Then say it out loud!</p>
       <div class="lines">${K.say.map((x,j)=>`<button class="line kline" data-j="${j}"><span class="spk" aria-hidden="true">🔊</span> ${words(x)}</button>`).join("")}</div>
       <div class="row"><button class="btn ghost small" id="kall">▶ Play all</button></div>
+      ${compareHTML(CMP_KIDS)}
     </div>
     <div class="card kcardx"><h2 class="eyebrow">My turn</h2>
       <p class="prompt">${esc(K.turn)}</p>
@@ -1151,8 +1307,9 @@ function kidLesson(i){
     if(!naturalFailed&&hasClip(`k${i+1}-${j+1}`)) playClip(`k${i+1}-${j+1}`,lines[j],1,null,()=>{setActive(-1);done&&done();},()=>ttsSay(K.say[j],()=>{setActive(-1);done&&done();}));
     else ttsSay(K.say[j],()=>{setActive(-1);done&&done();});};
   const clip=(name,text)=>{stopK(); if(!naturalFailed) playClip(name,null,1,null,null,()=>ttsSay(text)); else ttsSay(text);};
-  lines.forEach((b,j)=>b.onclick=()=>{stopK();markPractice();sayLine(j);});
-  $("#kall").onclick=()=>{if(playing){stopK();return;}stopK();playing=true;markPractice();$("#kall").textContent="■ Stop";let j=0;
+  const cmp=bindCompare(CMP_KIDS,K.say.map((x,j)=>({name:`sentence ${j+1}`,show:`“${x}”`,play:done=>sayLine(j,done)})),()=>{playing=false;clearTimeout(tmo);stopClip();try{speechSynthesis.cancel();}catch(e){}setActive(-1);});
+  lines.forEach((b,j)=>b.onclick=()=>{cmp.select(j);stopK();markPractice();sayLine(j);});
+  $("#kall").onclick=()=>{cmp.cancel();if(playing){stopK();return;}stopK();playing=true;markPractice();$("#kall").textContent="■ Stop";let j=0;
     const next=()=>{if(!playing)return;if(j>=lines.length){stopK();return;}sayLine(j++,()=>{if(playing)tmo=setTimeout(next,1800);});};next();};
   $("#kintro").onclick=()=>clip(`ki${i+1}`,K.t+". "+K.why+" "+K.game.join(" "));
   $("#kturnsay").onclick=()=>clip(`kt${i+1}`,K.turn);
@@ -1191,7 +1348,7 @@ function pronLesson(i){
     <div class="card kcardx"><h2 class="eyebrow">Propoziția</h2>
       <p class="tip">Ascultă propoziția, apoi înregistrează-te și compară.</p>
       <div class="lines" lang="en"><button class="line kline" id="psent"><span class="spk" aria-hidden="true">🔊</span> ${words(P.sentence)}</button></div>
-      ${recorderHTML()}
+      ${compareHTML(CMP_RO)}
     </div>
     <div class="card kcardx"><h2 class="eyebrow">Joc</h2><p class="kidlead">${esc(P.game)}</p></div>
     <div class="card kcardx kdone">
@@ -1205,13 +1362,15 @@ function pronLesson(i){
   const btns=[...app.querySelectorAll(".pword")], sent=$("#psent");
   const clearActive=()=>{btns.forEach(b=>b.classList.remove("active"));sent.classList.remove("active");};
   const ttsSay=(text,done)=>{try{if(!("speechSynthesis" in window)){done&&done();return;}speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.lang="en-US";const v=englishVoices()[0];if(v)u.voice=v;u.rate=.8;u.onend=u.onerror=()=>done&&done();speechSynthesis.speak(u);}catch(e){done&&done();}};
-  const say=(name,text,el,container)=>{stopClip();try{speechSynthesis.cancel();}catch(e){}clearActive();el.classList.add("active");markPractice();
-    const done=()=>el.classList.remove("active");
+  const say=(name,text,el,container,after)=>{stopClip();try{speechSynthesis.cancel();}catch(e){}clearActive();el.classList.add("active");markPractice();
+    const done=()=>{el.classList.remove("active");after&&after();};
     if(!naturalFailed) playClip(name,container||null,1,null,done,()=>ttsSay(text,done)); else ttsSay(text,done);};
-  btns.forEach(b=>b.onclick=()=>say(b.dataset.a,b.dataset.t,b));
-  sent.onclick=()=>say(`p${n}-s`,P.sentence,sent,sent);
+  const items=btns.map(b=>({name:`„${b.dataset.t}”`,show:`Ales: „${b.dataset.t}”`,play:d=>say(b.dataset.a,b.dataset.t,b,null,d)}))
+    .concat([{name:"propoziția",show:`Ales: „${P.sentence}”`,play:d=>say(`p${n}-s`,P.sentence,sent,sent,d)}]);
+  const cmp=bindCompare(CMP_RO,items,()=>{stopClip();try{speechSynthesis.cancel();}catch(e){}clearActive();},items.length-1);
+  btns.forEach((b,j)=>b.onclick=()=>{cmp.select(j);say(b.dataset.a,b.dataset.t,b);});
+  sent.onclick=()=>{cmp.select(items.length-1);say(`p${n}-s`,P.sentence,sent,sent);};
   cleanup.push(()=>{stopClip();try{speechSynthesis.cancel();}catch(e){}});
-  bindRecorder();
   $("#pstar").onclick=()=>{state.pron[i]=!state.pron[i];if(state.pron[i])markPractice();save();rerender(()=>pronLesson(i));};
   if($("#pnext")) $("#pnext").onclick=()=>go("sound-"+(i+2));
 }
@@ -1251,17 +1410,17 @@ function about(){
         <label for="fname" class="tip">Your name (optional)</label>
         <input id="fname" class="vsel" autocomplete="name">
         <label for="fmsg" class="tip">Message</label>
-        <textarea id="fmsg" placeholder="What would make Spok better for you?"></textarea>
+        <textarea id="fmsg" placeholder="What would make TrySpok better for you?"></textarea>
       </div>
       <div class="row"><button class="btn dark" id="fsend">Send by email</button><button class="btn ghost small" id="fcopy">Copy message</button></div>
       <p class="tip" id="fstat" aria-live="polite"></p>
     </div>
-    <div class="card support"><h2 class="eyebrow">Support Spok</h2>
-      <p>Spok is free, with no ads and no account. If it helped you before an interview or a big meeting, you can support my personal projects.</p>
+    <div class="card support"><h2 class="eyebrow">Support TrySpok</h2>
+      <p>TrySpok is free, with no ads and no account. If it helped you before an interview or a big meeting, you can support my personal projects.</p>
       ${A.donate?`<div class="row"><a class="btn primary" href="${esc(A.donate)}" target="_blank" rel="noopener">${esc(A.donateLabel)} ↗</a></div>`
-        :`<p class="tip">A donation link is coming soon. Until then, sharing Spok with a friend helps a lot.</p>`}
+        :`<p class="tip">A donation link is coming soon. Until then, sharing TrySpok with a friend helps a lot.</p>`}
     </div>
-    <p class="tip">Spok ${APP_VERSION} · Works offline once installed · Progress stays on your device · Voice generated with Kokoro (Apache 2.0)</p>
+    <p class="tip">TrySpok ${APP_VERSION} · Works offline once installed · Progress stays on your device · Voice generated with Kokoro (Apache 2.0)</p>
   </section>`;
   const bstat=t=>$("#bstat").textContent=t;
   $("#bsave").onclick=()=>{try{
@@ -1273,17 +1432,17 @@ function about(){
   $("#bpick").onclick=()=>$("#bload").click();
   $("#bload").onchange=async e=>{const f=e.target.files&&e.target.files[0];e.target.value="";if(!f)return;
     try{const d=JSON.parse(await f.text()), st=d&&d.app==="spok"&&d.state;
-      if(!st||typeof st!=="object"||!Array.isArray(st.days)) throw new Error("not a Spok backup");
+      if(!st||typeof st!=="object"||!Array.isArray(st.days)) throw new Error("not a TrySpok backup");
       if(!confirm("Replace the progress on this device with the backup?")) return;
       state=normalizeState(st);save();about();bstat("Progress restored.");
-    }catch(err){bstat("That file isn't a Spok backup. Choose the .json file saved from Spok.");}};
-  const msg=()=>{const t=$("#ftype").value,n=$("#fname").value.trim(),m=$("#fmsg").value.trim();return {t,n,m,body:`Topic: ${t}\n${n?"From: "+n+"\n":""}\n${m}\n\n— sent from Spok ${APP_VERSION}`};};
+    }catch(err){bstat("That file isn't a TrySpok backup. Choose the .json file saved from TrySpok.");}};
+  const msg=()=>{const t=$("#ftype").value,n=$("#fname").value.trim(),m=$("#fmsg").value.trim();return {t,n,m,body:`Topic: ${t}\n${n?"From: "+n+"\n":""}\n${m}\n\n— sent from TrySpok ${APP_VERSION}`};};
   const stat=t=>$("#fstat").textContent=t;
   const copy=async(text,ok)=>{try{await navigator.clipboard.writeText(text);stat(ok);}catch(e){stat("Copy didn't work here. Select the text and copy it manually.");}};
   if($("#cmail")) $("#cmail").onclick=()=>copy(A.email,"Email address copied.");
   $("#fsend").onclick=()=>{const x=msg(); if(!x.m){stat("Write a message first.");$("#fmsg").focus();return;}
     if(!A.email){copy(x.body,"Message copied.");return;}
-    location.href=`mailto:${A.email}?subject=${encodeURIComponent("Spok feedback: "+x.t)}&body=${encodeURIComponent(x.body)}`;
+    location.href=`mailto:${A.email}?subject=${encodeURIComponent("TrySpok feedback: "+x.t)}&body=${encodeURIComponent(x.body)}`;
     stat(`Your email app should open with the message ready. If it doesn't, tap "Copy message" and send it to ${A.email}.`);};
   $("#fcopy").onclick=()=>{const x=msg(); if(!x.m){stat("Write a message first.");return;} copy(x.body,`Message copied. Paste it into an email to ${A.email}.`);};
 }
@@ -1300,13 +1459,16 @@ function route(){
   else if(/^kids-\d+$/.test(h)&&+h.slice(5)>=1&&+h.slice(5)<=KIDS.length) kidLesson(+h.slice(5)-1);
   else if(/^sound-\d+$/.test(h)&&+h.slice(6)>=1&&+h.slice(6)<=PRON.length) pronLesson(+h.slice(6)-1);
   else if(h==="kids") kids();
+  else if(h==="prep") prepPlan();
+  else if(/^prep-\d+$/.test(h)&&+h.slice(5)>=1&&+h.slice(5)<=PREP.length){const k=+h.slice(5)-1;PREP[k].warm?warmup(true,k):lesson(PREP[k].l,k);}
   else if(h==="about") about();
   else home();
   window.scrollTo(0,0);
   // name the page and move screen-reader focus to its heading (not on first load)
   const h1=app.querySelector("h1"), name=h1?h1.textContent.replace(/\s+/g," ").trim():"";
-  document.title=h==="home"||!h||!name?"Spok: speak clearly, interview with confidence":name+" · Spok";
+  document.title=h==="home"||!h||!name?"TrySpok: speak clearly, interview with confidence":name+" · TrySpok";
   if(routed&&h1){h1.tabIndex=-1;h1.focus({preventScroll:true});}
+  app.dataset.route=h||"home"; // which page is on screen (used by the tests)
   routed=true;
 }
 let routed=false;

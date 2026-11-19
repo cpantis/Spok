@@ -1,6 +1,6 @@
-# Spok
+# TrySpok
 
-Free voice and interview practice app: 29 short lessons, a warm-up, lessons for kids and pronunciation games for Romanian children. It is a static web app (one `index.html`, a service worker for offline use and the recorded "Heart" voice clips in `audio/`), so any static host can serve it.
+Free voice and interview practice app: 29 short lessons, a 20-minute "interview tomorrow" plan, a warm-up, lessons for kids and pronunciation games for Romanian children. Every practice line can be recorded and compared with the model voice, back to back. It is a static web app (one `index.html`, a service worker for offline use and the recorded "Heart" voice clips in `audio/`), so any static host can serve it.
 
 ## Run locally
 
@@ -17,7 +17,7 @@ npm install
 npm test
 ```
 
-`tests/data.test.js` checks the content (every line has its audio and word timings, the offline list matches the files). `tests/e2e.test.js` drives the app in Chromium at phone size: every page, timers, warm-up, kids lessons, progress backup and an accessibility audit (axe-core).
+`tests/data.test.js` checks the content (every line has its audio and word timings, the offline list matches the files). `tests/e2e.test.js` drives the app in Chromium at phone size: every page, timers, warm-up, the interview plan, recording and comparing with the model (fake microphone), kids lessons, progress backup and an accessibility audit (axe-core).
 
 ## Adding or changing drill lines
 
