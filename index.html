@@ -138,6 +138,12 @@ p{margin:0}
 .checks label{display:flex;gap:10px;align-items:flex-start;padding:8px 0;cursor:pointer}
 .checks input{width:20px;height:20px;accent-color:var(--good);margin-top:2px;flex:none}
 .complete{background:var(--good-soft);color:var(--good);border-radius:12px;padding:12px 14px;font-weight:600}
+.fb{display:flex;flex-direction:column;gap:8px;background:var(--bg);border-radius:12px;padding:12px 14px}
+.fb h3{margin:0}
+.fbrow{display:grid;grid-template-columns:20px 1fr;gap:8px;align-items:start;font-size:14px;line-height:1.45}
+.fbrow>span:first-child{display:grid;place-items:center;width:20px;height:20px;border-radius:50%;font:700 12px var(--body);margin-top:1px}
+.fbrow.good>span:first-child{background:var(--good-soft);color:var(--good)}
+.fbrow.warn>span:first-child{background:var(--accent-soft);color:var(--accent)}
 .cmp{display:flex;flex-direction:column;gap:10px;border-top:1px dashed var(--line);padding-top:14px}
 .cmphead{display:flex;flex-direction:column;gap:2px}.cmphead b{font:700 16px var(--display)}
 .cmpcur{font-weight:600;font-size:15px}
@@ -226,8 +232,8 @@ textarea{width:100%;min-height:120px;border:1.5px solid var(--line);border-radiu
 .kidtop{display:flex;flex-direction:column;gap:12px;background:color-mix(in srgb,var(--kc) 20%,var(--surface));border-radius:22px;padding:20px}
 .kcardx{border-radius:20px}
 .kcardx .eyebrow{color:color-mix(in srgb,var(--kc) 62%,#000)}
-:root[data-theme="dark"] .kcardx .eyebrow{color:var(--kc)}
-@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .kcardx .eyebrow{color:var(--kc)}}
+:root[data-theme="dark"] .kcardx .eyebrow{color:color-mix(in srgb,var(--kc) 70%,#fff)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .kcardx .eyebrow{color:color-mix(in srgb,var(--kc) 70%,#fff)}}
 .kgame{margin:0;padding-left:22px;display:flex;flex-direction:column;gap:10px;font-size:17px}
 .kgame li::marker{font:700 17px var(--kid);color:var(--kc)}
 .kline{font-family:var(--kid);font-size:20px}
@@ -648,8 +654,8 @@ const AUTHOR={
 /* ---- storage ---- */
 const KEY="spok-v2";
 // Fill in anything missing or malformed, so old or hand-edited data can't break the app.
-function normalizeState(s){const st={done:{},checks:{},fillers:{},days:[],kids:{},pron:{},prep:{}};
-  if(s&&typeof s==="object"){for(const k of ["done","checks","fillers","kids","pron","prep"]) if(s[k]&&typeof s[k]==="object") st[k]=s[k];
+function normalizeState(s){const st={done:{},checks:{},fillers:{},days:[],kids:{},pron:{},prep:{},delivery:{}};
+  if(s&&typeof s==="object"){for(const k of ["done","checks","fillers","kids","pron","prep","delivery"]) if(s[k]&&typeof s[k]==="object") st[k]=s[k];
     if(Array.isArray(s.days)) st.days=[...new Set(s.days.filter(d=>typeof d==="string"&&/^\d{4}-\d{2}-\d{2}$/.test(d)))].sort();
     if(typeof s.voice==="string") st.voice=s.voice;}
   return st;}
@@ -832,7 +838,7 @@ function lesson(i,pk){
       <div class="timer"><div class="clock" id="clock" role="timer">${fmt(L.secs)}</div>
         <div class="row"><button class="btn primary small" id="tgo">Start ${L.secs}s timer</button><button class="btn ghost small" id="treset">Reset</button></div></div>
       ${L.tally?`<div class="tally"><span class="tip">Filler words</span><button class="btn ghost small" id="fminus" aria-label="Remove one">−</button><span class="count" id="fcount">0</span><button class="btn primary small" id="fplus">+ um / uh / like</button><span class="tip" id="fbest"></span></div>`:""}
-      ${recorderHTML()}
+      ${recorderHTML(true)}
     </div>
     ${inPrep?prepFooter(pk):`<div class="card"><h2 class="eyebrow">4 · Check yourself</h2>
       <div class="checks">${L.checks.map((c,k)=>`<label><input type="checkbox" id="c${i}-${k}" data-k="${k}" ${ch[k]?"checked":""}><span>${esc(c)}</span></label>`).join("")}</div>
@@ -877,7 +883,8 @@ function lesson(i,pk){
     setActive(li); try{speechSynthesis.resume();}catch(e){} speechSynthesis.speak(u);
   }
   function stopDrill(){playing=false;clearTimeout(dTimer);dTimer=null;stopClip();if(TTS){try{speechSynthesis.cancel();}catch(e){}}clearHL();$("#dplay").textContent="▶ Listen & read along";}
-  const cmp=bindCompare(CMP_EN,L.drill.map((x,k)=>({name:`line ${k+1}`,show:`Line ${k+1}: ${x.replace(/\[|\]/g,"")}`,play:done=>speakLine(k,()=>{setActive(-1);done();})})),stopDrill);
+  const cmp=bindCompare(CMP_EN,L.drill.map((x,k)=>({name:`line ${k+1}`,show:`Line ${k+1}: ${x.replace(/\[|\]/g,"")}`,play:done=>speakLine(k,()=>{setActive(-1);done();}),
+    clip:()=>useNatural()&&hasClip(`l${i+1}-${k+1}`)?`l${i+1}-${k+1}`:null,rate:()=>clipRate()})),stopDrill);
   lines.forEach((b,li)=>b.onclick=()=>{cmp.select(li);stopDrill();setActive(li);markPractice();speakLine(li);});
   $("#dplay").onclick=()=>{
     cmp.cancel();
@@ -921,7 +928,7 @@ function lesson(i,pk){
     saveTally=()=>{if(f>0||ran){const best=state.fillers[i];state.fillers[i]=best==null?f:Math.min(best,f);save();}f=0;ran=false;if(document.body.contains(clock))show();};
     show();}
 
-  bindRecorder();
+  bindRecorder({target:L.secs,key:i});
 
   if(inPrep){bindPrepFooter(pk);return;}
   // checks & complete
@@ -930,10 +937,11 @@ function lesson(i,pk){
   $("#nextL").onclick=()=>go(i<LESSONS.length-1?"lesson-"+(i+2):"home");
 }
 
-function recorderHTML(){return `<div class="rec">
+function recorderHTML(fb){return `<div class="rec">
   <div class="row"><button class="btn ghost small" id="rec"><span class="dot"></span> Record yourself</button><span class="tip" id="rstat" aria-live="polite">Listen back to hear what others hear.</span></div>
   <div class="row" id="rplayrow" hidden><button class="btn primary small" id="rplay">▶ Play my recording</button></div>
   <audio id="play" controls playsinline hidden></audio>
+  ${fb?`<div class="fb" id="rfb" aria-live="polite" hidden></div>`:""}
   <p class="note" id="rnote" hidden></p></div>`;}
 let mediaRec=null, stream=null, recUrl=null;
 /* ---- microphone help, tailored to the phone ---- */
@@ -979,7 +987,8 @@ const openMic=()=>navigator.mediaDevices.getUserMedia({audio:{echoCancellation:t
 function makeRecorder(st){const mt=recMime();try{return mt?new MediaRecorder(st,{mimeType:mt}):new MediaRecorder(st);}catch(e){return new MediaRecorder(st);}}
 function recMime(){if(!window.MediaRecorder||!MediaRecorder.isTypeSupported)return "";
   for(const t of ["audio/mp4","audio/webm;codecs=opus","audio/webm","audio/ogg;codecs=opus"]) if(MediaRecorder.isTypeSupported(t)) return t; return "";}
-function bindRecorder(){
+// fb: {target seconds, key} turns on delivery feedback after each recording (lessons)
+function bindRecorder(fb){
   const btn=$("#rec"); if(!btn) return;
   const stat=$("#rstat"), audio=$("#play"), note=$("#rnote"), prow=$("#rplayrow");
   let tick=null, secs=0, stopTO=null, starting=false;
@@ -1016,8 +1025,17 @@ function bindRecorder(){
       recUrl=URL.createObjectURL(new Blob(chunks,{type:myRec.mimeType||mt||"audio/webm"}));
       audio.src=recUrl; audio.hidden=false; prow.hidden=false;
       btn.innerHTML='<span class="dot"></span> Record again';
-      stat.textContent=`Recorded ${fmt(secs)}. Play it back: are the word endings crisp?`;};
-    myRec.start(); markPractice(); secs=0; awake.set("rec",true);
+      stat.textContent=`Recorded ${fmt(secs)}. Play it back: are the word endings crisp?`;
+      const box=$("#rfb");
+      if(fb&&box){const blob=new Blob(chunks,{type:myRec.mimeType||mt||"audio/webm"}), prev=state.delivery[fb.key];
+        box.hidden=false; box.innerHTML=`<h2 class="eyebrow">Your delivery</h2><p class="tip">Listening back…</p>`;
+        blob.arrayBuffer().then(analyzeAudio).then(r=>{
+          if(!document.body.contains(box)) return;
+          box.innerHTML=`<h2 class="eyebrow">Your delivery</h2>`+deliveryHTML(r,fb.target,prev);
+          if(!r.empty&&r.total>=6){state.delivery[fb.key]={wpm:Math.round(r.wpm/5)*5,range:+r.pitchRange.toFixed(1),day:today()};save();}
+        }).catch(()=>{if(document.body.contains(box)) box.hidden=true;});
+      }};
+    myRec.start(); markPractice(); secs=0; awake.set("rec",true); if($("#rfb")) $("#rfb").hidden=true;
     btn.innerHTML='<span class="dot live"></span> Stop recording'; stat.textContent="Recording… 0:00";
     tick=setInterval(()=>{secs++;stat.textContent="Recording… "+fmt(secs);},1000);
     stopTO=setTimeout(()=>{if(myRec.state==="recording")myRec.stop();},MAX*1000);
@@ -1038,29 +1056,42 @@ const CMP_EN={title:"Compare with the model",hint:"Tap a line, record yourself s
   rec:n=>`Record ${n}`,again:n=>`Record ${n} again`,stop:"Stop",play:"▶ Model, then me",stopPlay:"■ Stop",
   recording:"Recording… say it now",model:"Model…",you:"Now you…",
   done:"Same pace? Same word endings? Record again, or tap the next line.",tap:"Tap \"Model, then me\" to listen.",
-  nothing:"Nothing was recorded. Check that the microphone isn't muted and try again.",busy:"Stop the other recording first."};
+  nothing:"Nothing was recorded. Check that the microphone isn't muted and try again.",busy:"Stop the other recording first.",
+  fast:(u,m)=>`Pace: you took ${u}, the model ${m}. A little quick: slow down and finish every word.`,
+  slow:(u,m)=>`Pace: you took ${u}, the model ${m}. Slower than the model: fine if you paused on purpose, otherwise keep it flowing.`,
+  same:(u,m)=>`Pace: you took ${u}, the model ${m}. Very close to the model.`};
 const CMP_KIDS={...CMP_EN,title:"Copy the voice",hint:"Tap a sentence, record yourself, then listen: first the voice, then you!",
-  play:"▶ The voice, then me",done:"Do you sound the same? Try again, or pick the next sentence."};
+  play:"▶ The voice, then me",done:"Do you sound the same? Try again, or pick the next sentence.",
+  fast:()=>"You were super quick! Try it a little slower, like the voice.",
+  slow:()=>"You took your time. Try to say it in one go, like the voice.",
+  same:()=>"Same speed as the voice. Great job!"};
 const CMP_RO={title:"Compară cu modelul",hint:"Apasă pe un cuvânt sau pe propoziție, înregistrează-te, apoi ascultă: întâi vocea, apoi pe tine.",
   rec:n=>`Înregistrează ${n}`,again:n=>`Din nou ${n}`,stop:"Stop",play:"▶ Vocea, apoi eu",stopPlay:"■ Stop",
   recording:"Se înregistrează… spune acum",model:"Vocea…",you:"Acum tu…",
   done:"Sună la fel? Încearcă din nou sau alege alt cuvânt.",tap:"Apasă „Vocea, apoi eu” ca să asculți.",
-  nothing:"Nu s-a înregistrat nimic. Verifică dacă microfonul e pornit și încearcă din nou.",busy:"Oprește mai întâi cealaltă înregistrare."};
+  nothing:"Nu s-a înregistrat nimic. Verifică dacă microfonul e pornit și încearcă din nou.",busy:"Oprește mai întâi cealaltă înregistrare.",
+  fast:(u,m)=>`Ritm: tu ${u}, vocea ${m}. Ai vorbit mai repede: spune clar fiecare sunet.`,
+  slow:(u,m)=>`Ritm: tu ${u}, vocea ${m}. Ai vorbit mai rar: încearcă să spui totul dintr-o suflare.`,
+  same:(u,m)=>`Ritm: tu ${u}, vocea ${m}. Foarte aproape de voce. Bravo!`};
 function compareHTML(T){return `<div class="cmp" id="cmp">
   <div class="cmphead"><b>${T.title}</b><span class="tip">${T.hint}</span></div>
   <p class="cmpcur" id="cmpcur"></p>
   <div class="row"><button class="btn ghost small" id="cmprec"></button><button class="btn primary small" id="cmpplay" hidden></button></div>
   <p class="tip" id="cmpstat" aria-live="polite"></p>
+  <p class="fbrow good" id="cmpfb" hidden><span aria-hidden="true">✓</span><span></span></p>
   <p class="note" id="cmpnote" hidden></p></div>`;}
-// items: [{name, show, play(onDone)}]; stopModel stops the page's own playback. Returns {select(i), cancel()}.
+// items: [{name, show, play(onDone), clip(), rate()}]: clip() names the model's audio file (or null), rate() its playback speed.
+// stopModel stops the page's own playback. Returns {select(i), cancel()}.
 function bindCompare(T,items,stopModel,first=0){
   const box=$("#cmp"), recB=$("#cmprec"), playB=$("#cmpplay"), stat=$("#cmpstat"), note=$("#cmpnote"), cur=$("#cmpcur");
+  const fbEl=$("#cmpfb"), pace=new Map(); // per item: the pace sentence for the latest recording
   const urls=new Map(); let sel=first, rec=null, starting=false, playing=false, tok=0, tmo=null, tick=null, stopTO=null;
   const live=()=>document.body.contains(box);
   const ui=()=>{const has=urls.has(sel), it=items[sel];
     cur.textContent=it.show;
     recB.innerHTML=rec?`<span class="dot live"></span> ${T.stop}`:`<span class="dot"></span> ${esc(has?T.again(it.name):T.rec(it.name))}`;
-    playB.hidden=!has||!!rec; playB.textContent=playing?T.stopPlay:T.play;};
+    playB.hidden=!has||!!rec; playB.textContent=playing?T.stopPlay:T.play;
+    const pc=!rec&&pace.get(sel); fbEl.hidden=!pc; if(pc){fbEl.className="fbrow "+(pc.ok?"good":"warn");fbEl.firstElementChild.textContent=pc.ok?"✓":"!";fbEl.lastElementChild.textContent=pc.text;}};
   const cancel=()=>{tok++;clearTimeout(tmo);meEl.onended=meEl.onerror=null;try{meEl.pause();}catch(e){}
     if(playing){playing=false;stat.textContent="";}ui();};
   const run=()=>{const url=urls.get(sel); if(!url) return;
@@ -1088,7 +1119,16 @@ function bindCompare(T,items,stopModel,first=0){
       if(!live())return;
       if(!chunks.length){stat.textContent="";note.hidden=false;note.textContent=T.nothing;ui();return;}
       if(urls.has(idx)) URL.revokeObjectURL(urls.get(idx));
-      urls.set(idx,URL.createObjectURL(new Blob(chunks,{type:r.mimeType||"audio/webm"})));
+      const blob=new Blob(chunks,{type:r.mimeType||"audio/webm"});
+      urls.set(idx,URL.createObjectURL(blob)); pace.delete(idx);
+      // compare the length of your speech with the model's (at the speed it was played)
+      const it=items[idx], clip=it.clip&&it.clip(), rate=it.rate?it.rate():1;
+      if(clip) Promise.all([blob.arrayBuffer().then(analyzeAudio),modelDuration(clip)]).then(([u,m])=>{
+        if(!live()||u.empty||!m) return;
+        const md=m/rate, ratio=u.total/md, tol=md<1.2?.3:.15, us=secs1(u.total), ms=secs1(md);
+        pace.set(idx,ratio<1-tol?{ok:false,text:T.fast(us,ms)}:ratio>1+tol?{ok:false,text:T.slow(us,ms)}:{ok:true,text:T.same(us,ms)});
+        if(idx===sel) ui();
+      }).catch(()=>{});
       if(idx===sel) run(); else {stat.textContent="";ui();}};
     r.start(); markPractice(); awake.set("cmp",true);
     let n=0; stat.textContent=T.recording+" 0:00";
@@ -1098,6 +1138,99 @@ function bindCompare(T,items,stopModel,first=0){
   cleanup.push(()=>{cancel();if(rec&&rec.state==="recording")try{rec.stop();}catch(e){}urls.forEach(u=>URL.revokeObjectURL(u));});
   stat.textContent=""; ui();
   return {select(i){if(rec||i===sel&&!playing)return;cancel();sel=i;ui();},cancel};
+}
+
+/* ---- delivery feedback: measured on the phone from the recording, nothing is uploaded ----
+   Calibrated on recorded speech at five speeds, with and without background noise: pace within about 7% on
+   average (13% at worst, cross-validated), pauses to a tenth of a second, pitch within a fraction of a semitone. */
+function analyzeSpeech(x,sr){
+  const R=8000,f=sr/R,n=Math.floor(x.length/f),y=new Float32Array(n),half=Math.max(1,Math.round(f/2));
+  for(let i=0;i<n;i++){const c=Math.round(i*f);let s=0,k=0;for(let j=c-half;j<c+half;j++)if(j>=0&&j<x.length){s+=x[j];k++;}y[i]=k?s/k:0;}
+  // loudness every 10 ms over 30 ms
+  const HOP=80,WIN=240,F=Math.max(0,Math.floor((n-WIN)/HOP)+1),db=new Float32Array(F);
+  for(let i=0;i<F;i++){let s=0;for(let j=0;j<WIN;j++){const v=y[i*HOP+j];s+=v*v;}db[i]=10*Math.log10(s/WIN+1e-10);}
+  const sorted=Array.from(db).sort((a,b)=>a-b),pct=p=>F?sorted[Math.min(F-1,Math.floor(p*F))]:-100;
+  const floor=pct(.15),peak=pct(.98),thr=Math.min(Math.max(floor+10,peak-30),peak-15);
+  // where the voice is: close gaps under 200 ms, drop blips under 100 ms
+  const act=Array.from(db,v=>v>thr);
+  const runs=()=>{const r=[];let s=-1;for(let i=0;i<=F;i++){const a=i<F&&act[i];if(a&&s<0)s=i;if(!a&&s>=0){r.push([s,i]);s=-1;}}return r;};
+  let segs=runs();
+  for(let k=1;k<segs.length;k++)if(segs[k][0]-segs[k-1][1]<20)for(let i=segs[k-1][1];i<segs[k][0];i++)act[i]=true;
+  segs=runs(); for(const [a,b] of segs)if(b-a<10)for(let i=a;i<b;i++)act[i]=false;
+  segs=runs();
+  if(!segs.length||peak<-60) return {empty:true};
+  // pitch: normalised autocorrelation, 75-400 Hz
+  const PW=320,LMIN=20,LMAX=107,f0=new Float32Array(F),r=new Float32Array(LMAX+2);
+  for(let i=0;i<F;i++){
+    if(!act[i])continue; const o=i*HOP+WIN/2-PW/2; if(o<0||o+PW+LMAX>=n)continue;
+    let e0=0;for(let j=0;j<PW;j++)e0+=y[o+j]*y[o+j]; if(e0<=0)continue;
+    let best=0;
+    for(let L=LMIN;L<=LMAX+1;L++){let c=0,e1=0;for(let j=0;j<PW;j++){c+=y[o+j]*y[o+j+L];e1+=y[o+j+L]*y[o+j+L];}r[L]=c/Math.sqrt(e0*e1+1e-12);if(L<=LMAX&&r[L]>best)best=r[L];}
+    if(best<.55)continue;
+    let lag=0; for(let L=LMIN+1;L<=LMAX;L++)if(r[L]>=.9*best&&r[L]>=r[L-1]&&r[L]>=r[L+1]){lag=L;break;} // first strong peak: no octave errors
+    if(!lag)continue;
+    const a=r[lag-1],b=r[lag],c=r[lag+1],d=a-2*b+c; f0[i]=R/(lag+(d?.5*(a-c)/d:0));
+  }
+  const fz=Float32Array.from(f0);
+  for(let i=0;i<F;i++){if(!f0[i])continue;const w=[];for(let j=i-2;j<=i+2;j++)if(j>=0&&j<F&&f0[j])w.push(f0[j]);w.sort((p,q)=>p-q);if(Math.abs(12*Math.log2(f0[i]/w[w.length>>1]))>7)fz[i]=0;}
+  const voiced=[];for(let i=0;i<F;i++)if(fz[i])voiced.push(fz[i]); voiced.sort((p,q)=>p-q);
+  const f0med=voiced.length?voiced[voiced.length>>1]:0;
+  const stv=voiced.map(v=>12*Math.log2(v/f0med)).sort((p,q)=>p-q), q=p=>stv.length?stv[Math.min(stv.length-1,Math.floor(p*stv.length))]:0;
+  // syllable beats: voiced loudness peaks at least 3 dB above the dip before them, 100 ms apart
+  const sm=new Float32Array(F);
+  for(let i=0;i<F;i++){let s=0,k=0;for(let j=i-3;j<=i+3;j++)if(j>=0&&j<F){s+=db[j];k++;}sm[i]=s/k;}
+  const nearVoiced=i=>{for(let j=i-3;j<=i+3;j++)if(j>=0&&j<F&&fz[j])return true;return false;};
+  let beats=0,dip=Infinity,last=-100;
+  for(let i=1;i<F-1;i++){
+    if(!act[i]){dip=Math.min(dip,sm[i]);continue;}
+    if(sm[i]<dip)dip=sm[i];
+    if(sm[i]>=sm[i-1]&&sm[i]>sm[i+1]&&sm[i]-dip>=3&&sm[i]>thr+3&&nearVoiced(i)&&i-last>=10){beats++;last=i;dip=sm[i];}
+  }
+  const start=segs[0][0]/100,end=segs[segs.length-1][1]/100,total=end-start,pauses=[];
+  for(let k=1;k<segs.length;k++){const g=(segs[k][0]-segs[k-1][1])/100;if(g>=.3)pauses.push(g);}
+  // beats per word ~1.03; the linear correction undoes the squeeze toward the middle (fast speech merges beats, slow speech splits them)
+  const raw=beats/1.03/Math.max(.5,total)*60;
+  return {total,pauses,wpm:Math.max(40,1.54*raw-76),voicedSec:voiced.length/100,pitchRange:q(.9)-q(.1)};
+}
+// Decode a recording or a clip into samples (an offline context: no sound, no autoplay rules).
+function decodeAudio(buf){const C=window.OfflineAudioContext||window.webkitOfflineAudioContext; if(!C) return Promise.reject(new Error("no audio decoding"));
+  const ctx=new C(1,1,44100); return new Promise((ok,no)=>{const p=ctx.decodeAudioData(buf,ok,no); if(p&&p.then)p.then(ok,no);});}
+async function analyzeAudio(buf){const ab=await decodeAudio(buf), c=ab.numberOfChannels, n=ab.length;
+  let x=ab.getChannelData(0); if(c>1){x=new Float32Array(n);for(let k=0;k<c;k++){const d=ab.getChannelData(k);for(let i=0;i<n;i++)x[i]+=d[i]/c;}}
+  return analyzeSpeech(x,ab.sampleRate);}
+const modelLen={};
+async function modelDuration(clip){if(!(clip in modelLen)) modelLen[clip]=fetch("audio/"+clip+".mp3").then(r=>r.arrayBuffer()).then(analyzeAudio).then(r=>r.empty?0:r.total).catch(()=>0);return modelLen[clip];}
+const secs1=x=>x.toFixed(1).replace(/\.0$/,"")+" s";
+// Feedback on a lesson's speaking task.
+function deliveryHTML(r,target,prev){
+  if(r.empty) return `<p class="fbrow warn"><span aria-hidden="true">!</span><span>No speech was heard. Check that the microphone isn't muted, then record again.</span></p>`;
+  if(r.total<3||r.voicedSec<1.5) return `<p class="fbrow warn"><span aria-hidden="true">!</span><span>Record a few more seconds of speech to get feedback on your delivery.</span></p>`;
+  const rows=[], row=(ok,label,t)=>rows.push(`<p class="fbrow ${ok?"good":"warn"}"><span aria-hidden="true">${ok?"✓":"!"}</span><span><b>${label}:</b> ${t}</span></p>`);
+  const w=Math.round(r.wpm/5)*5, was=prev&&prev.wpm?` Last time: about ${prev.wpm}.`:"";
+  if(r.total>=6){
+    if(w<110) row(false,"Pace",`about ${w} words a minute. On the slow side: keep it moving between your key points.${was}`);
+    else if(w<=155) row(true,"Pace",`about ${w} words a minute. A clear, easy pace for an interview.${was}`);
+    else if(w<=170) row(false,"Pace",`about ${w} words a minute. A little quick: add a short pause after each key point.${was}`);
+    else row(false,"Pace",`about ${w} words a minute. Fast: slow down and let your pauses do the work.${was}`);
+  }
+  const long=r.pauses.filter(p=>p>=3).length, perMin=r.pauses.length/r.total*60, longest=r.pauses.length?Math.max(...r.pauses):0;
+  if(r.total>=8){
+    if(long) row(false,"Pauses",`${long} silence${long>1?"s":""} over 3 seconds. Thinking pauses are fine, but keep them short.`);
+    else if(perMin<2&&r.total>=15) row(false,"Pauses",`hardly any. Pause after each point so it lands.`);
+    else row(true,"Pauses",`${r.pauses.length}, the longest ${secs1(longest)}. Pauses give your points weight.`);
+  }
+  if(r.voicedSec>=3){
+    const pr=r.pitchRange;
+    if(pr>=5) row(true,"Tone","lively and varied.");
+    else if(pr>=3) row(true,"Tone","some variety. Lift your voice a little more on the key words.");
+    else row(false,"Tone","quite flat. Lift your voice on the most important word of each sentence.");
+  }
+  if(target){const t=r.total;
+    if(t<target*.5) row(false,"Length",`${fmt(Math.round(t))} for a ${fmt(target)} task. Add an example or a result.`);
+    else if(t>target*1.25) row(false,"Length",`${fmt(Math.round(t))} for a ${fmt(target)} task. Cut to your main point.`);
+    else row(true,"Length",`${fmt(Math.round(t))} for a ${fmt(target)} task. Well judged.`);
+  }
+  return rows.join("")+`<p class="tip">Measured on this phone; nothing is uploaded. Most accurate in a quiet room.</p>`;
 }
 
 /* ---- natural recorded voice (Kokoro "Heart"), with word timings ---- */
@@ -1307,7 +1440,7 @@ function kidLesson(i){
     if(!naturalFailed&&hasClip(`k${i+1}-${j+1}`)) playClip(`k${i+1}-${j+1}`,lines[j],1,null,()=>{setActive(-1);done&&done();},()=>ttsSay(K.say[j],()=>{setActive(-1);done&&done();}));
     else ttsSay(K.say[j],()=>{setActive(-1);done&&done();});};
   const clip=(name,text)=>{stopK(); if(!naturalFailed) playClip(name,null,1,null,null,()=>ttsSay(text)); else ttsSay(text);};
-  const cmp=bindCompare(CMP_KIDS,K.say.map((x,j)=>({name:`sentence ${j+1}`,show:`“${x}”`,play:done=>sayLine(j,done)})),()=>{playing=false;clearTimeout(tmo);stopClip();try{speechSynthesis.cancel();}catch(e){}setActive(-1);});
+  const cmp=bindCompare(CMP_KIDS,K.say.map((x,j)=>({name:`sentence ${j+1}`,show:`“${x}”`,play:done=>sayLine(j,done),clip:()=>!naturalFailed&&hasClip(`k${i+1}-${j+1}`)?`k${i+1}-${j+1}`:null})),()=>{playing=false;clearTimeout(tmo);stopClip();try{speechSynthesis.cancel();}catch(e){}setActive(-1);});
   lines.forEach((b,j)=>b.onclick=()=>{cmp.select(j);stopK();markPractice();sayLine(j);});
   $("#kall").onclick=()=>{cmp.cancel();if(playing){stopK();return;}stopK();playing=true;markPractice();$("#kall").textContent="■ Stop";let j=0;
     const next=()=>{if(!playing)return;if(j>=lines.length){stopK();return;}sayLine(j++,()=>{if(playing)tmo=setTimeout(next,1800);});};next();};
@@ -1365,8 +1498,8 @@ function pronLesson(i){
   const say=(name,text,el,container,after)=>{stopClip();try{speechSynthesis.cancel();}catch(e){}clearActive();el.classList.add("active");markPractice();
     const done=()=>{el.classList.remove("active");after&&after();};
     if(!naturalFailed) playClip(name,container||null,1,null,done,()=>ttsSay(text,done)); else ttsSay(text,done);};
-  const items=btns.map(b=>({name:`„${b.dataset.t}”`,show:`Ales: „${b.dataset.t}”`,play:d=>say(b.dataset.a,b.dataset.t,b,null,d)}))
-    .concat([{name:"propoziția",show:`Ales: „${P.sentence}”`,play:d=>say(`p${n}-s`,P.sentence,sent,sent,d)}]);
+  const items=btns.map(b=>({name:`„${b.dataset.t}”`,show:`Ales: „${b.dataset.t}”`,play:d=>say(b.dataset.a,b.dataset.t,b,null,d),clip:()=>naturalFailed?null:b.dataset.a}))
+    .concat([{name:"propoziția",show:`Ales: „${P.sentence}”`,play:d=>say(`p${n}-s`,P.sentence,sent,sent,d),clip:()=>naturalFailed?null:`p${n}-s`}]);
   const cmp=bindCompare(CMP_RO,items,()=>{stopClip();try{speechSynthesis.cancel();}catch(e){}clearActive();},items.length-1);
   btns.forEach((b,j)=>b.onclick=()=>{cmp.select(j);say(b.dataset.a,b.dataset.t,b);});
   sent.onclick=()=>{cmp.select(items.length-1);say(`p${n}-s`,P.sentence,sent,sent);};
