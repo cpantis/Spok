@@ -138,6 +138,12 @@ p{margin:0}
 .checks label{display:flex;gap:10px;align-items:flex-start;padding:8px 0;cursor:pointer}
 .checks input{width:20px;height:20px;accent-color:var(--good);margin-top:2px;flex:none}
 .complete{background:var(--good-soft);color:var(--good);border-radius:12px;padding:12px 14px;font-weight:600}
+.fb{display:flex;flex-direction:column;gap:8px;background:var(--bg);border-radius:12px;padding:12px 14px}
+.fb h3{margin:0}
+.fbrow{display:grid;grid-template-columns:20px 1fr;gap:8px;align-items:start;font-size:14px;line-height:1.45}
+.fbrow>span:first-child{display:grid;place-items:center;width:20px;height:20px;border-radius:50%;font:700 12px var(--body);margin-top:1px}
+.fbrow.good>span:first-child{background:var(--good-soft);color:var(--good)}
+.fbrow.warn>span:first-child{background:var(--accent-soft);color:var(--accent)}
 .cmp{display:flex;flex-direction:column;gap:10px;border-top:1px dashed var(--line);padding-top:14px}
 .cmphead{display:flex;flex-direction:column;gap:2px}.cmphead b{font:700 16px var(--display)}
 .cmpcur{font-weight:600;font-size:15px}
@@ -148,9 +154,19 @@ p{margin:0}
 /* tabbar */
 nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:6;background:var(--surface);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px)}
 nav.tabs .wrap{display:grid;grid-template-columns:repeat(4,1fr)}
-nav.tabs button{background:none;border:0;padding:10px 4px 12px;display:flex;flex-direction:column;align-items:center;gap:4px;font-size:12px;font-weight:600;color:var(--muted)}
-nav.tabs button svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-nav.tabs button[aria-current="page"]{color:var(--accent)}
+/* each tab has its own colour: the icon sits in a tinted pill, filled when the tab is open */
+nav.tabs button{--tc:var(--accent);background:none;border:0;padding:8px 4px 10px;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:12px;font-weight:600;color:var(--muted)}
+nav.tabs button[data-tab="home"]{--tc:var(--m-voice)}
+nav.tabs button[data-tab="warmup"]{--tc:var(--m-meetings)}
+nav.tabs button[data-tab="kids"]{--tc:color-mix(in srgb,var(--k-sun) 62%,#000)}
+nav.tabs button[data-tab="about"]{--tc:var(--m-hard)}
+nav.tabs .ico{display:grid;place-items:center;width:52px;height:30px;border-radius:999px;background:color-mix(in srgb,var(--tc) 15%,var(--surface));color:var(--tc);transition:background .15s,color .15s}
+nav.tabs button svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+nav.tabs button[aria-current="page"]{color:var(--tc);font-weight:700}
+nav.tabs button[aria-current="page"] .ico{background:var(--tc);color:var(--surface)}
+nav.tabs button[aria-current="page"] svg{stroke-width:2.4}
+:root[data-theme="dark"] nav.tabs button[data-tab="kids"]{--tc:var(--k-sun)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) nav.tabs button[data-tab="kids"]{--tc:var(--k-sun)}}
 textarea.mono{font:13px/1.4 var(--mono);min-height:90px;word-break:break-all}
 textarea{width:100%;min-height:120px;border:1.5px solid var(--line);border-radius:12px;padding:12px;background:var(--surface);color:var(--ink);font:16px/1.5 var(--body);resize:vertical}
 /* hero */
@@ -226,8 +242,8 @@ textarea{width:100%;min-height:120px;border:1.5px solid var(--line);border-radiu
 .kidtop{display:flex;flex-direction:column;gap:12px;background:color-mix(in srgb,var(--kc) 20%,var(--surface));border-radius:22px;padding:20px}
 .kcardx{border-radius:20px}
 .kcardx .eyebrow{color:color-mix(in srgb,var(--kc) 62%,#000)}
-:root[data-theme="dark"] .kcardx .eyebrow{color:var(--kc)}
-@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .kcardx .eyebrow{color:var(--kc)}}
+:root[data-theme="dark"] .kcardx .eyebrow{color:color-mix(in srgb,var(--kc) 70%,#fff)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .kcardx .eyebrow{color:color-mix(in srgb,var(--kc) 70%,#fff)}}
 .kgame{margin:0;padding-left:22px;display:flex;flex-direction:column;gap:10px;font-size:17px}
 .kgame li::marker{font:700 17px var(--kid);color:var(--kc)}
 .kline{font-family:var(--kid);font-size:20px}
@@ -277,10 +293,10 @@ a.btn.primary{color:var(--accent-ink)}
 <header class="top"><div class="wrap" id="topbar"></div></header>
 <main><div class="wrap" id="app"></div></main>
 <nav class="tabs" aria-label="Sections"><div class="wrap">
-  <button data-tab="home"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h10"/></svg>Lessons</button>
-  <button data-tab="warmup"><svg viewBox="0 0 24 24"><path d="M3 12h3l3-7 4 14 3-7h5"/></svg>Warm-up</button>
-  <button data-tab="kids"><svg viewBox="0 0 24 24"><path d="M12 2.6l2.9 6 6.5.8-4.8 4.5 1.2 6.5L12 17.3l-5.8 3.1 1.2-6.5L2.6 9.4l6.5-.8z"/></svg>Kids</button>
-  <button data-tab="about"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg>About</button>
+  <button data-tab="home"><span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h10"/></svg></span>Lessons</button>
+  <button data-tab="warmup"><span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 12h3l3-7 4 14 3-7h5"/></svg></span>Warm-up</button>
+  <button data-tab="kids"><span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 2.6l2.9 6 6.5.8-4.8 4.5 1.2 6.5L12 17.3l-5.8 3.1 1.2-6.5L2.6 9.4l6.5-.8z"/></svg></span>Kids</button>
+  <button data-tab="about"><span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg></span>About</button>
 </div></nav>
 
 <script>
@@ -298,15 +314,15 @@ const LESSONS = [
   drill:["[Breathe in.] (pause) Thank you for having me today.","[Breathe in.] (pause) Let me walk you through it.","[Breathe in.] (pause) That's a great question.","[Breathe in.] (pause) I'm really glad to be here.","[Breathe in.] (pause) I've spent five years helping teams deliver projects on time."],
   dtip:"Take a real breath at each pause. Notice how the first word comes out fuller.",
   prompt:"Say why you applied for your last job, one breath per sentence.",secs:30,
-  checks:["My shoulders stayed down","Each sentence started on fresh breath","My voice sounded steady, not tight"]},
- {mod:"voice",t:"Crisp Consonants",m:12,goal:"Finish your words. Clear consonants make you easier to follow, especially on calls and with accents.",
-  ideas:["Final consonants carry meaning: wanT, planneD, asK.","Use the tip of the tongue for T, D and N, just behind the top teeth.","Lazy endings sound unsure. Crisp endings sound prepared."],
+  checks:["My shoulders stayed down","Each sentence started on a fresh breath","My voice sounded steady, not tight"]},
+ {mod:"voice",t:"Crisp Consonants",m:12,goal:"Finish your words. Clear consonants make you easier to follow, especially on calls and in a second language.",
+  ideas:["Final consonants carry meaning: wanT, planneD, asK.","For T, D and N, touch the tip of your tongue to the ridge just behind your top teeth.","Lazy endings sound unsure. Crisp endings sound prepared."],
   drill:["Planned, checked, fixed and finished.","Big black bug bit a big black bear.","Red leather, yellow leather, red leather, yellow leather.","Good blood, bad blood, good blood, bad blood.","The project was planned, tested and delivered last week."],
   dtip:"Over-pronounce the last sound of every word. In real conversation, it settles to just the right amount.",
   prompt:"Describe a problem you solved, step by step.",secs:45,
   checks:["I could hear every word ending","T and D sounds were sharp","I didn't rush the last word"]},
  {mod:"voice",t:"Open Vowels Carry Further",m:10,goal:"Open your mouth wider so your voice reaches the whole room without strain.",
-  ideas:["Volume comes from open vowels, not from pushing the throat.","Drop the jaw a finger-width more than feels normal.","Aim your voice at the back wall, not at the nearest person."],
+  ideas:["Volume comes from open vowels, not from pushing from your throat.","Drop the jaw a finger-width more than feels normal.","Aim your voice at the back wall, not at the nearest person."],
   drill:["Ah, Eh, Ee, Oh, Oo. Ah, Eh, Ee, Oh, Oo.","Unique New York, unique New York, you know you need unique New York.","Our goal is to open the new office by October.","How now, brown cow? How now, brown cow?","Hello, everyone, and thank you all for coming."],
   dtip:"Say each line at three volumes: to one person, to a table, to the back of a room.",
   prompt:"Present the main goal of a project you worked on, as if to a room of twenty people.",secs:30,
@@ -333,7 +349,7 @@ const LESSONS = [
  /* ---------- Interview ready ---------- */
  {mod:"interview",t:"Tell Me About Yourself",m:15,goal:"Give a 60-second answer with a clear shape: present, past, and why this role.",
   ideas:["Present: who you are now and what you're good at.","Past: two highlights that prove it.","Future: why this role is the natural next step."],
-  drill:["I'm a project coordinator with eight years of experience in logistics.","Most recently, I led a team of eight through two major launches.","That's why this role is such a good fit for me.","I'm known for keeping complex projects calm and on track.","Now I'm ready for a bigger challenge, and this role offers exactly that."],
+  drill:["I'm a project coordinator with eight years of experience in logistics.","Most recently, I led a team of six through two major launches.","That's why this role is such a good fit for me.","I'm known for keeping complex projects calm and on track.","Now I'm ready for a bigger challenge, and this role offers exactly that."],
   dtip:"Smile slightly on the first line. Warmth is audible.",
   prompt:"Answer \"Tell me about yourself\" using present, past and future.",secs:60,
   checks:["My answer had three clear parts","I kept it to about 60 seconds","I ended on why this role"]},
@@ -388,13 +404,13 @@ const LESSONS = [
  {mod:"interview",t:"Questions That Impress",m:10,goal:"Ask two or three thoughtful questions that show you're already thinking about the job.",
   ideas:["Ask about success: what does great look like after six months?","Ask about the team and how they work.","Avoid questions the website already answers."],
   drill:["What would success look like in the first six months?","How does the team decide what to work on first?","What's the biggest challenge the team is facing right now?","What do you enjoy most about working here?","How would you describe the way the team works together?"],
-  dtip:"Lean slightly forward and lower your pace. Questions sound more genuine slowly.",
+  dtip:"Lean in slightly and slow down a little. Questions asked slowly sound more genuine.",
   prompt:"Ask the interviewer three questions about the role.",secs:45,
   checks:["My questions were specific","I asked about success or challenges","I sounded curious, not scripted"]},
  {mod:"interview",t:"A Strong Close",m:10,goal:"End the interview by restating your fit, showing interest, and asking about next steps.",
   ideas:["Sum up your fit in one sentence.","Say plainly that you want the job.","Ask what happens next and when."],
   drill:["Thank you. I've really enjoyed this conversation.","From what I've heard, my experience is a strong match for this role.","What are the next steps?","I'd really like to be part of this team.","Is there anything else I can tell you about my experience?"],
-  dtip:"Let the last line fall in pitch. It sounds confident rather than hopeful.",
+  dtip:"Let \"What are the next steps?\" fall in pitch. It sounds confident rather than hopeful.",
   prompt:"Close the interview in under 30 seconds.",secs:30,
   checks:["I restated my fit","I showed real interest","I asked about next steps"]},
 
@@ -449,7 +465,7 @@ const LESSONS = [
   checks:["I stated goal and time","I steered back politely","I closed with owners and dates"]},
  {mod:"meetings",t:"Clear on Calls",m:10,goal:"Be easy to hear and follow on remote calls, where audio lag and noise work against you.",
   ideas:["Say who you are when you start speaking on big calls.","Slow down 10 percent. Compression blurs fast speech.","Stop clearly so others know you're done: \"That's it from me.\""],
-  drill:["It's Ana here. One quick point.","Can everyone see my screen?","That's it from me. Any questions?","Sorry, go ahead. You first.","Let me repeat that, as the line dropped."],
+  drill:["It's Ana here. One quick point.","Can everyone see my screen?","That's it from me. Any questions?","Sorry, go ahead. You first.","Let me repeat that, in case it cut out."],
   dtip:"Over-articulate the consonants. Microphones lose them first.",
   prompt:"Give a short update on a call with ten people.",secs:30,
   checks:["I said my name first","I spoke slightly slower","I ended with a clear stop"]},
@@ -534,7 +550,7 @@ const KIDS = [
  {t:"Answering the Teacher",c:"berry",badge:"Answer Ace",
   why:"You don't need a perfect answer. You can share what you think, and that is brave!",
   game:["Listen to the question.","Start with: I think…","Add \"because\" and say why."],
-  say:["I think the answer is blue.","I think so because the sky is blue.","I'm not sure, but maybe it's ten.","My favourite animal is the lion.","I like it because it is strong."],
+  say:["I think the answer is blue.","I think so, because the sky is blue.","I'm not sure, but maybe it's ten.","My favourite animal is the lion.","I like it because it is strong."],
   turn:"Answer this: What is your favourite animal, and why?",secs:30},
  {t:"Asking for Help",c:"sun",badge:"Question Explorer",
   why:"Asking questions is what smart people do. Teachers love good questions.",
@@ -581,21 +597,21 @@ const PRON = [
  {t:"The Lazy R",sym:"r",ipa:"ɹ",c:"sun",badge:"Rabbit Runner",
   how:"Nu rula „r”-ul ca în română! Trage limba puțin înapoi, fără să atingă cerul gurii, și rotunjește ușor buzele. Sunetul e moale, ca un mârâit leneș.",
   oops:"Limba nu „bate” deloc. Dacă simți vibrații rapide ale limbii, e „r” românesc.",
-  game:"Spune „rrr” ca un cățel somnoros, foarte încet și moale. Apoi spune „red”.",
+  game:"Spune un „ăăă” lung, apoi trage încet vârful limbii înapoi, fără să atingă nimic. Sunetul devine un „r” moale. Acum spune „red”.",
   words:["red","rabbit","rain","carrot","run"],
   pairs:[],
   sentence:"A red rabbit runs in the rain."},
  {t:"Foggy Mirror: H",sym:"h",ipa:"h",c:"sky",badge:"Happy Breath",
   how:"„h” în engleză e doar aer cald, ca atunci când aburești o oglindă. E mai moale decât „h” din română și nu hârâie în gât.",
-  oops:"Nu-l sări! „hat” (pălărie) fără „h” devine „at”. Și nu-l spune aspru, ca în „hârtie”.",
+  oops:"Nu-l sări! „hat” (pălărie) fără „h” devine „at”. Și nu-l spune aspru, ca în „hrean” sau „duh”.",
   game:"Ține palma în fața gurii. Când spui „hello”, trebuie să simți aer cald.",
   words:["hello","happy","house","hand","hat"],
   pairs:[["at","hat"],["and","hand"],["air","hair"]],
   sentence:"Hello! How are you? I'm happy."},
- {t:"Don't Eat the Last Sound",sym:"-g",ipa:"g d b",c:"leaf",badge:"Strong Ending",
-  how:"În engleză, sunetul de la final contează. Spune-l clar și cu voce: „dog” se termină cu „g”, nu cu „c”.",
+ {t:"Don't Eat the Last Sound",sym:"-g",ipa:"g d v z",c:"leaf",badge:"Strong Ending",
+  how:"În engleză, sunetul de la final contează. Spune-l clar și cu voce: „dog” se termină cu „g”, nu cu „c”. Un secret: vocala dinaintea unui sunet „cu voce” e puțin mai lungă, așa că „dog” sună mai lung decât „dock”.",
   oops:"Mulți copii șoptesc sau „înghit” ultimul sunet, iar „dog” ajunge să sune ca „doc”. În engleză, „dog” (câine) și „dock” (doc) sunt cuvinte diferite!",
-  game:"Pune mâna pe gât și lungește puțin sunetul de la final: „doggg”, „bedd”. Simți vibrația?",
+  game:"Spune perechile „dock – dog”, „bet – bed”. La al doilea cuvânt, ține vocala puțin mai lung și pune mâna pe gât: simți vibrația la final?",
   words:["dog","bed","bag","five","his"],
   pairs:[["dock","dog"],["back","bag"],["bet","bed"]],
   sentence:"My big dog has a red bag."},
@@ -607,13 +623,13 @@ const PRON = [
   pairs:[],
   sentence:"I know how to write and listen."},
  {t:"Three Ways to Say -ed",sym:"-ed",ipa:"d t ɪd",c:"berry",badge:"Past Master",
-  how:"Terminația „-ed” se citește în trei feluri. De obicei se aude „d” (played). După sunete fără voce, ca p, k, s, ch, sh, se aude „t” (jumped). Doar după „t” sau „d” se aude „id” (wanted).",
+  how:"Terminația „-ed” se citește în trei feluri. De obicei se aude „d” (played). După sunete fără voce, ca p, k, f, s, ch, sh, se aude „t” (jumped). Doar după „t” sau „d” se aude „id” (wanted).",
   oops:"Nu spune „ed” peste tot („play-ed”). În „played” e o singură silabă!",
   game:"Bate din palme pentru fiecare silabă: „played” are o bătaie, „wanted” are două.",
   words:["played","cleaned","jumped","watched","wanted","painted"],
   pairs:[],
   sentence:"I played, jumped and painted all day."},
- {t:"The Strong Beat",sym:"Ta",ipa:"ˈ",c:"sun",badge:"Rhythm Star",
+ {t:"The Strong Beat",sym:"Ta",ipa:"",c:"sun",badge:"Rhythm Star",
   how:"În cuvintele lungi, o silabă e mai tare și mai lungă decât celelalte. Literele mari arată silaba tare.",
   oops:"Dacă pui accentul în alt loc, oamenii nu recunosc cuvântul. E „baNAna”, nu „BAnana”.",
   game:"Bate din palme tare pe silaba mare și încet pe celelalte: TEA-cher, ba-NA-na.",
@@ -626,7 +642,7 @@ const PRON = [
 const PREP=[
  {warm:true,t:"Wake up your voice",why:"Breath, lip trills and tongue twisters, so your first answer comes out steady.",min:2},
  {l:6,t:"Tell me about yourself",why:"Most interviews open with it. Make your 60 seconds smooth.",focus:"Read the lines along with the voice, then answer the question twice with the timer. Record the second try and listen back.",min:4},
- {l:8,t:"One strong STAR story",why:"Behaviour questions are where people ramble. Keep it tight and end on a result.",focus:"Pick the story you're most likely to need. Tell it once with the timer, then again in fewer words.",min:4},
+ {l:8,t:"One strong STAR story",why:"Behavioural questions are where people ramble. Keep it tight and end on a result.",focus:"Pick the story you're most likely to need. Tell it once with the timer, then again in fewer words.",min:4},
  {l:13,t:"When you don't know",why:"One hard question shouldn't shake the rest of the interview.",focus:"Say the three lines until they come out calmly. That's your safety net tomorrow.",min:3},
  {l:14,t:"Salary, said calmly",why:"A steady number, said once, then silence.",focus:"Write your range down first. Then say it out loud until your pitch stays level on the number.",min:3},
  {l:16,t:"A strong close",why:"Leave them with your fit, your interest and the next step.",focus:"Run your close twice. It should take under 30 seconds.",min:3}
@@ -648,8 +664,8 @@ const AUTHOR={
 /* ---- storage ---- */
 const KEY="spok-v2";
 // Fill in anything missing or malformed, so old or hand-edited data can't break the app.
-function normalizeState(s){const st={done:{},checks:{},fillers:{},days:[],kids:{},pron:{},prep:{}};
-  if(s&&typeof s==="object"){for(const k of ["done","checks","fillers","kids","pron","prep"]) if(s[k]&&typeof s[k]==="object") st[k]=s[k];
+function normalizeState(s){const st={done:{},checks:{},fillers:{},days:[],kids:{},pron:{},prep:{},delivery:{}};
+  if(s&&typeof s==="object"){for(const k of ["done","checks","fillers","kids","pron","prep","delivery"]) if(s[k]&&typeof s[k]==="object") st[k]=s[k];
     if(Array.isArray(s.days)) st.days=[...new Set(s.days.filter(d=>typeof d==="string"&&/^\d{4}-\d{2}-\d{2}$/.test(d)))].sort();
     if(typeof s.voice==="string") st.voice=s.voice;}
   return st;}
@@ -832,7 +848,7 @@ function lesson(i,pk){
       <div class="timer"><div class="clock" id="clock" role="timer">${fmt(L.secs)}</div>
         <div class="row"><button class="btn primary small" id="tgo">Start ${L.secs}s timer</button><button class="btn ghost small" id="treset">Reset</button></div></div>
       ${L.tally?`<div class="tally"><span class="tip">Filler words</span><button class="btn ghost small" id="fminus" aria-label="Remove one">−</button><span class="count" id="fcount">0</span><button class="btn primary small" id="fplus">+ um / uh / like</button><span class="tip" id="fbest"></span></div>`:""}
-      ${recorderHTML()}
+      ${recorderHTML(true)}
     </div>
     ${inPrep?prepFooter(pk):`<div class="card"><h2 class="eyebrow">4 · Check yourself</h2>
       <div class="checks">${L.checks.map((c,k)=>`<label><input type="checkbox" id="c${i}-${k}" data-k="${k}" ${ch[k]?"checked":""}><span>${esc(c)}</span></label>`).join("")}</div>
@@ -869,7 +885,7 @@ function lesson(i,pk){
     const text=L.drill[li], spans=[...lines[li].querySelectorAll(".w")], starts=[];
     text.replace(/\S+/g,(m,o)=>{starts.push(o);return m;});
     // same-length substitutions keep character positions aligned with the word highlights
-    const u=new SpeechSynthesisUtterance(text.replace(/\(pause\)/g,"  ...  ").replace(/____/g,"name").replace(/[\[\]]/g," "));
+    const u=new SpeechSynthesisUtterance(text.replace(/\[[^\]]*\]/g,m=>" ".repeat(m.length)).replace(/\(pause\)/g,"  ...  ").replace(/____/g,"name"));
     u.lang="en-US"; const v=pickVoice(); if(v) u.voice=v;
     u.rate=Math.min(1.4,Math.max(0.5,dw.value/150));
     u.onboundary=e=>{if(e.name&&e.name!=="word")return;let idx=0;starts.forEach((s,j)=>{if(s<=e.charIndex)idx=j;});spans.forEach((s,j)=>s.classList.toggle("on",j===idx));};
@@ -877,7 +893,8 @@ function lesson(i,pk){
     setActive(li); try{speechSynthesis.resume();}catch(e){} speechSynthesis.speak(u);
   }
   function stopDrill(){playing=false;clearTimeout(dTimer);dTimer=null;stopClip();if(TTS){try{speechSynthesis.cancel();}catch(e){}}clearHL();$("#dplay").textContent="▶ Listen & read along";}
-  const cmp=bindCompare(CMP_EN,L.drill.map((x,k)=>({name:`line ${k+1}`,show:`Line ${k+1}: ${x.replace(/\[|\]/g,"")}`,play:done=>speakLine(k,()=>{setActive(-1);done();})})),stopDrill);
+  const cmp=bindCompare(CMP_EN,L.drill.map((x,k)=>({name:`line ${k+1}`,show:`Line ${k+1}: ${x.replace(/\[|\]/g,"")}`,play:done=>speakLine(k,()=>{setActive(-1);done();}),
+    clip:()=>useNatural()&&hasClip(`l${i+1}-${k+1}`)?`l${i+1}-${k+1}`:null,rate:()=>clipRate()})),stopDrill);
   lines.forEach((b,li)=>b.onclick=()=>{cmp.select(li);stopDrill();setActive(li);markPractice();speakLine(li);});
   $("#dplay").onclick=()=>{
     cmp.cancel();
@@ -921,7 +938,7 @@ function lesson(i,pk){
     saveTally=()=>{if(f>0||ran){const best=state.fillers[i];state.fillers[i]=best==null?f:Math.min(best,f);save();}f=0;ran=false;if(document.body.contains(clock))show();};
     show();}
 
-  bindRecorder();
+  bindRecorder({target:L.secs,key:i});
 
   if(inPrep){bindPrepFooter(pk);return;}
   // checks & complete
@@ -930,10 +947,11 @@ function lesson(i,pk){
   $("#nextL").onclick=()=>go(i<LESSONS.length-1?"lesson-"+(i+2):"home");
 }
 
-function recorderHTML(){return `<div class="rec">
+function recorderHTML(fb){return `<div class="rec">
   <div class="row"><button class="btn ghost small" id="rec"><span class="dot"></span> Record yourself</button><span class="tip" id="rstat" aria-live="polite">Listen back to hear what others hear.</span></div>
   <div class="row" id="rplayrow" hidden><button class="btn primary small" id="rplay">▶ Play my recording</button></div>
   <audio id="play" controls playsinline hidden></audio>
+  ${fb?`<div class="fb" id="rfb" aria-live="polite" hidden></div>`:""}
   <p class="note" id="rnote" hidden></p></div>`;}
 let mediaRec=null, stream=null, recUrl=null;
 /* ---- microphone help, tailored to the phone ---- */
@@ -979,7 +997,8 @@ const openMic=()=>navigator.mediaDevices.getUserMedia({audio:{echoCancellation:t
 function makeRecorder(st){const mt=recMime();try{return mt?new MediaRecorder(st,{mimeType:mt}):new MediaRecorder(st);}catch(e){return new MediaRecorder(st);}}
 function recMime(){if(!window.MediaRecorder||!MediaRecorder.isTypeSupported)return "";
   for(const t of ["audio/mp4","audio/webm;codecs=opus","audio/webm","audio/ogg;codecs=opus"]) if(MediaRecorder.isTypeSupported(t)) return t; return "";}
-function bindRecorder(){
+// fb: {target seconds, key} turns on delivery feedback after each recording (lessons)
+function bindRecorder(fb){
   const btn=$("#rec"); if(!btn) return;
   const stat=$("#rstat"), audio=$("#play"), note=$("#rnote"), prow=$("#rplayrow");
   let tick=null, secs=0, stopTO=null, starting=false;
@@ -1016,8 +1035,17 @@ function bindRecorder(){
       recUrl=URL.createObjectURL(new Blob(chunks,{type:myRec.mimeType||mt||"audio/webm"}));
       audio.src=recUrl; audio.hidden=false; prow.hidden=false;
       btn.innerHTML='<span class="dot"></span> Record again';
-      stat.textContent=`Recorded ${fmt(secs)}. Play it back: are the word endings crisp?`;};
-    myRec.start(); markPractice(); secs=0; awake.set("rec",true);
+      stat.textContent=`Recorded ${fmt(secs)}. Play it back: are the word endings crisp?`;
+      const box=$("#rfb");
+      if(fb&&box){const blob=new Blob(chunks,{type:myRec.mimeType||mt||"audio/webm"}), prev=state.delivery[fb.key];
+        box.hidden=false; box.innerHTML=`<h2 class="eyebrow">Your delivery</h2><p class="tip">Listening back…</p>`;
+        blob.arrayBuffer().then(analyzeAudio).then(r=>{
+          if(!document.body.contains(box)) return;
+          box.innerHTML=`<h2 class="eyebrow">Your delivery</h2>`+deliveryHTML(r,fb.target,prev);
+          if(!r.empty&&r.total>=6){state.delivery[fb.key]={wpm:Math.round(r.wpm/5)*5,range:+r.pitchRange.toFixed(1),day:today()};save();}
+        }).catch(()=>{if(document.body.contains(box)) box.hidden=true;});
+      }};
+    myRec.start(); markPractice(); secs=0; awake.set("rec",true); if($("#rfb")) $("#rfb").hidden=true;
     btn.innerHTML='<span class="dot live"></span> Stop recording'; stat.textContent="Recording… 0:00";
     tick=setInterval(()=>{secs++;stat.textContent="Recording… "+fmt(secs);},1000);
     stopTO=setTimeout(()=>{if(myRec.state==="recording")myRec.stop();},MAX*1000);
@@ -1038,29 +1066,42 @@ const CMP_EN={title:"Compare with the model",hint:"Tap a line, record yourself s
   rec:n=>`Record ${n}`,again:n=>`Record ${n} again`,stop:"Stop",play:"▶ Model, then me",stopPlay:"■ Stop",
   recording:"Recording… say it now",model:"Model…",you:"Now you…",
   done:"Same pace? Same word endings? Record again, or tap the next line.",tap:"Tap \"Model, then me\" to listen.",
-  nothing:"Nothing was recorded. Check that the microphone isn't muted and try again.",busy:"Stop the other recording first."};
+  nothing:"Nothing was recorded. Check that the microphone isn't muted and try again.",busy:"Stop the other recording first.",
+  fast:(u,m)=>`Pace: you took ${u}, the model ${m}. A little quick: slow down and finish every word.`,
+  slow:(u,m)=>`Pace: you took ${u}, the model ${m}. Slower than the model: fine if you paused on purpose, otherwise keep it flowing.`,
+  same:(u,m)=>`Pace: you took ${u}, the model ${m}. Very close to the model.`};
 const CMP_KIDS={...CMP_EN,title:"Copy the voice",hint:"Tap a sentence, record yourself, then listen: first the voice, then you!",
-  play:"▶ The voice, then me",done:"Do you sound the same? Try again, or pick the next sentence."};
+  play:"▶ The voice, then me",done:"Do you sound the same? Try again, or pick the next sentence.",
+  fast:()=>"You were super quick! Try it a little slower, like the voice.",
+  slow:()=>"You took your time. Try to say it in one go, like the voice.",
+  same:()=>"Same speed as the voice. Great job!"};
 const CMP_RO={title:"Compară cu modelul",hint:"Apasă pe un cuvânt sau pe propoziție, înregistrează-te, apoi ascultă: întâi vocea, apoi pe tine.",
   rec:n=>`Înregistrează ${n}`,again:n=>`Din nou ${n}`,stop:"Stop",play:"▶ Vocea, apoi eu",stopPlay:"■ Stop",
   recording:"Se înregistrează… spune acum",model:"Vocea…",you:"Acum tu…",
   done:"Sună la fel? Încearcă din nou sau alege alt cuvânt.",tap:"Apasă „Vocea, apoi eu” ca să asculți.",
-  nothing:"Nu s-a înregistrat nimic. Verifică dacă microfonul e pornit și încearcă din nou.",busy:"Oprește mai întâi cealaltă înregistrare."};
+  nothing:"Nu s-a înregistrat nimic. Verifică dacă microfonul e pornit și încearcă din nou.",busy:"Oprește mai întâi cealaltă înregistrare.",
+  fast:(u,m)=>`Ritm: tu ${u}, vocea ${m}. Ai vorbit mai repede: spune clar fiecare sunet.`,
+  slow:(u,m)=>`Ritm: tu ${u}, vocea ${m}. Ai vorbit mai rar: încearcă să spui totul dintr-o suflare.`,
+  same:(u,m)=>`Ritm: tu ${u}, vocea ${m}. Foarte aproape de voce. Bravo!`};
 function compareHTML(T){return `<div class="cmp" id="cmp">
   <div class="cmphead"><b>${T.title}</b><span class="tip">${T.hint}</span></div>
   <p class="cmpcur" id="cmpcur"></p>
   <div class="row"><button class="btn ghost small" id="cmprec"></button><button class="btn primary small" id="cmpplay" hidden></button></div>
   <p class="tip" id="cmpstat" aria-live="polite"></p>
+  <p class="fbrow good" id="cmpfb" hidden><span aria-hidden="true">✓</span><span></span></p>
   <p class="note" id="cmpnote" hidden></p></div>`;}
-// items: [{name, show, play(onDone)}]; stopModel stops the page's own playback. Returns {select(i), cancel()}.
+// items: [{name, show, play(onDone), clip(), rate()}]: clip() names the model's audio file (or null), rate() its playback speed.
+// stopModel stops the page's own playback. Returns {select(i), cancel()}.
 function bindCompare(T,items,stopModel,first=0){
   const box=$("#cmp"), recB=$("#cmprec"), playB=$("#cmpplay"), stat=$("#cmpstat"), note=$("#cmpnote"), cur=$("#cmpcur");
+  const fbEl=$("#cmpfb"), pace=new Map(); // per item: the pace sentence for the latest recording
   const urls=new Map(); let sel=first, rec=null, starting=false, playing=false, tok=0, tmo=null, tick=null, stopTO=null;
   const live=()=>document.body.contains(box);
   const ui=()=>{const has=urls.has(sel), it=items[sel];
     cur.textContent=it.show;
     recB.innerHTML=rec?`<span class="dot live"></span> ${T.stop}`:`<span class="dot"></span> ${esc(has?T.again(it.name):T.rec(it.name))}`;
-    playB.hidden=!has||!!rec; playB.textContent=playing?T.stopPlay:T.play;};
+    playB.hidden=!has||!!rec; playB.textContent=playing?T.stopPlay:T.play;
+    const pc=!rec&&pace.get(sel); fbEl.hidden=!pc; if(pc){fbEl.className="fbrow "+(pc.ok?"good":"warn");fbEl.firstElementChild.textContent=pc.ok?"✓":"!";fbEl.lastElementChild.textContent=pc.text;}};
   const cancel=()=>{tok++;clearTimeout(tmo);meEl.onended=meEl.onerror=null;try{meEl.pause();}catch(e){}
     if(playing){playing=false;stat.textContent="";}ui();};
   const run=()=>{const url=urls.get(sel); if(!url) return;
@@ -1088,7 +1129,16 @@ function bindCompare(T,items,stopModel,first=0){
       if(!live())return;
       if(!chunks.length){stat.textContent="";note.hidden=false;note.textContent=T.nothing;ui();return;}
       if(urls.has(idx)) URL.revokeObjectURL(urls.get(idx));
-      urls.set(idx,URL.createObjectURL(new Blob(chunks,{type:r.mimeType||"audio/webm"})));
+      const blob=new Blob(chunks,{type:r.mimeType||"audio/webm"});
+      urls.set(idx,URL.createObjectURL(blob)); pace.delete(idx);
+      // compare the length of your speech with the model's (at the speed it was played)
+      const it=items[idx], clip=it.clip&&it.clip(), rate=it.rate?it.rate():1;
+      if(clip) Promise.all([blob.arrayBuffer().then(analyzeAudio),modelDuration(clip)]).then(([u,m])=>{
+        if(!live()||u.empty||!m) return;
+        const md=m/rate, ratio=u.total/md, tol=md<1.2?.3:.15, us=secs1(u.total), ms=secs1(md);
+        pace.set(idx,ratio<1-tol?{ok:false,text:T.fast(us,ms)}:ratio>1+tol?{ok:false,text:T.slow(us,ms)}:{ok:true,text:T.same(us,ms)});
+        if(idx===sel) ui();
+      }).catch(()=>{});
       if(idx===sel) run(); else {stat.textContent="";ui();}};
     r.start(); markPractice(); awake.set("cmp",true);
     let n=0; stat.textContent=T.recording+" 0:00";
@@ -1100,9 +1150,102 @@ function bindCompare(T,items,stopModel,first=0){
   return {select(i){if(rec||i===sel&&!playing)return;cancel();sel=i;ui();},cancel};
 }
 
+/* ---- delivery feedback: measured on the phone from the recording, nothing is uploaded ----
+   Calibrated on recorded speech at five speeds, with and without background noise: pace within about 7% on
+   average (13% at worst, cross-validated), pauses to a tenth of a second, pitch within a fraction of a semitone. */
+function analyzeSpeech(x,sr){
+  const R=8000,f=sr/R,n=Math.floor(x.length/f),y=new Float32Array(n),half=Math.max(1,Math.round(f/2));
+  for(let i=0;i<n;i++){const c=Math.round(i*f);let s=0,k=0;for(let j=c-half;j<c+half;j++)if(j>=0&&j<x.length){s+=x[j];k++;}y[i]=k?s/k:0;}
+  // loudness every 10 ms over 30 ms
+  const HOP=80,WIN=240,F=Math.max(0,Math.floor((n-WIN)/HOP)+1),db=new Float32Array(F);
+  for(let i=0;i<F;i++){let s=0;for(let j=0;j<WIN;j++){const v=y[i*HOP+j];s+=v*v;}db[i]=10*Math.log10(s/WIN+1e-10);}
+  const sorted=Array.from(db).sort((a,b)=>a-b),pct=p=>F?sorted[Math.min(F-1,Math.floor(p*F))]:-100;
+  const floor=pct(.15),peak=pct(.98),thr=Math.min(Math.max(floor+10,peak-30),peak-15);
+  // where the voice is: close gaps under 200 ms, drop blips under 100 ms
+  const act=Array.from(db,v=>v>thr);
+  const runs=()=>{const r=[];let s=-1;for(let i=0;i<=F;i++){const a=i<F&&act[i];if(a&&s<0)s=i;if(!a&&s>=0){r.push([s,i]);s=-1;}}return r;};
+  let segs=runs();
+  for(let k=1;k<segs.length;k++)if(segs[k][0]-segs[k-1][1]<20)for(let i=segs[k-1][1];i<segs[k][0];i++)act[i]=true;
+  segs=runs(); for(const [a,b] of segs)if(b-a<10)for(let i=a;i<b;i++)act[i]=false;
+  segs=runs();
+  if(!segs.length||peak<-60) return {empty:true};
+  // pitch: normalised autocorrelation, 75-400 Hz
+  const PW=320,LMIN=20,LMAX=107,f0=new Float32Array(F),r=new Float32Array(LMAX+2);
+  for(let i=0;i<F;i++){
+    if(!act[i])continue; const o=i*HOP+WIN/2-PW/2; if(o<0||o+PW+LMAX>=n)continue;
+    let e0=0;for(let j=0;j<PW;j++)e0+=y[o+j]*y[o+j]; if(e0<=0)continue;
+    let best=0;
+    for(let L=LMIN;L<=LMAX+1;L++){let c=0,e1=0;for(let j=0;j<PW;j++){c+=y[o+j]*y[o+j+L];e1+=y[o+j+L]*y[o+j+L];}r[L]=c/Math.sqrt(e0*e1+1e-12);if(L<=LMAX&&r[L]>best)best=r[L];}
+    if(best<.55)continue;
+    let lag=0; for(let L=LMIN+1;L<=LMAX;L++)if(r[L]>=.9*best&&r[L]>=r[L-1]&&r[L]>=r[L+1]){lag=L;break;} // first strong peak: no octave errors
+    if(!lag)continue;
+    const a=r[lag-1],b=r[lag],c=r[lag+1],d=a-2*b+c; f0[i]=R/(lag+(d?.5*(a-c)/d:0));
+  }
+  const fz=Float32Array.from(f0);
+  for(let i=0;i<F;i++){if(!f0[i])continue;const w=[];for(let j=i-2;j<=i+2;j++)if(j>=0&&j<F&&f0[j])w.push(f0[j]);w.sort((p,q)=>p-q);if(Math.abs(12*Math.log2(f0[i]/w[w.length>>1]))>7)fz[i]=0;}
+  const voiced=[];for(let i=0;i<F;i++)if(fz[i])voiced.push(fz[i]); voiced.sort((p,q)=>p-q);
+  const f0med=voiced.length?voiced[voiced.length>>1]:0;
+  const stv=voiced.map(v=>12*Math.log2(v/f0med)).sort((p,q)=>p-q), q=p=>stv.length?stv[Math.min(stv.length-1,Math.floor(p*stv.length))]:0;
+  // syllable beats: voiced loudness peaks at least 3 dB above the dip before them, 100 ms apart
+  const sm=new Float32Array(F);
+  for(let i=0;i<F;i++){let s=0,k=0;for(let j=i-3;j<=i+3;j++)if(j>=0&&j<F){s+=db[j];k++;}sm[i]=s/k;}
+  const nearVoiced=i=>{for(let j=i-3;j<=i+3;j++)if(j>=0&&j<F&&fz[j])return true;return false;};
+  let beats=0,dip=Infinity,last=-100;
+  for(let i=1;i<F-1;i++){
+    if(!act[i]){dip=Math.min(dip,sm[i]);continue;}
+    if(sm[i]<dip)dip=sm[i];
+    if(sm[i]>=sm[i-1]&&sm[i]>sm[i+1]&&sm[i]-dip>=3&&sm[i]>thr+3&&nearVoiced(i)&&i-last>=10){beats++;last=i;dip=sm[i];}
+  }
+  const start=segs[0][0]/100,end=segs[segs.length-1][1]/100,total=end-start,pauses=[];
+  for(let k=1;k<segs.length;k++){const g=(segs[k][0]-segs[k-1][1])/100;if(g>=.3)pauses.push(g);}
+  // beats per word ~1.03; the linear correction undoes the squeeze toward the middle (fast speech merges beats, slow speech splits them)
+  const raw=beats/1.03/Math.max(.5,total)*60;
+  return {total,pauses,wpm:Math.max(40,1.54*raw-76),voicedSec:voiced.length/100,pitchRange:q(.9)-q(.1)};
+}
+// Decode a recording or a clip into samples (an offline context: no sound, no autoplay rules).
+function decodeAudio(buf){const C=window.OfflineAudioContext||window.webkitOfflineAudioContext; if(!C) return Promise.reject(new Error("no audio decoding"));
+  const ctx=new C(1,1,44100); return new Promise((ok,no)=>{const p=ctx.decodeAudioData(buf,ok,no); if(p&&p.then)p.then(ok,no);});}
+async function analyzeAudio(buf){const ab=await decodeAudio(buf), c=ab.numberOfChannels, n=ab.length;
+  let x=ab.getChannelData(0); if(c>1){x=new Float32Array(n);for(let k=0;k<c;k++){const d=ab.getChannelData(k);for(let i=0;i<n;i++)x[i]+=d[i]/c;}}
+  return analyzeSpeech(x,ab.sampleRate);}
+const modelLen={};
+async function modelDuration(clip){if(!(clip in modelLen)) modelLen[clip]=fetch("audio/"+clip+".mp3").then(r=>r.arrayBuffer()).then(analyzeAudio).then(r=>r.empty?0:r.total).catch(()=>0);return modelLen[clip];}
+const secs1=x=>x.toFixed(1).replace(/\.0$/,"")+" s";
+// Feedback on a lesson's speaking task.
+function deliveryHTML(r,target,prev){
+  if(r.empty) return `<p class="fbrow warn"><span aria-hidden="true">!</span><span>No speech was heard. Check that the microphone isn't muted, then record again.</span></p>`;
+  if(r.total<3||r.voicedSec<1.5) return `<p class="fbrow warn"><span aria-hidden="true">!</span><span>Record a few more seconds of speech to get feedback on your delivery.</span></p>`;
+  const rows=[], row=(ok,label,t)=>rows.push(`<p class="fbrow ${ok?"good":"warn"}"><span aria-hidden="true">${ok?"✓":"!"}</span><span><b>${label}:</b> ${t}</span></p>`);
+  const w=Math.round(r.wpm/5)*5, was=prev&&prev.wpm?` Last time: about ${prev.wpm}.`:"";
+  if(r.total>=6){
+    if(w<110) row(false,"Pace",`about ${w} words a minute. On the slow side: keep it moving between your key points.${was}`);
+    else if(w<=155) row(true,"Pace",`about ${w} words a minute. A clear, easy pace for an interview.${was}`);
+    else if(w<=170) row(false,"Pace",`about ${w} words a minute. A little quick: add a short pause after each key point.${was}`);
+    else row(false,"Pace",`about ${w} words a minute. Fast: slow down and let your pauses do the work.${was}`);
+  }
+  const long=r.pauses.filter(p=>p>=3).length, perMin=r.pauses.length/r.total*60, longest=r.pauses.length?Math.max(...r.pauses):0;
+  if(r.total>=8){
+    if(long) row(false,"Pauses",`${long} silence${long>1?"s":""} over 3 seconds. Thinking pauses are fine, but keep them short.`);
+    else if(perMin<2&&r.total>=15) row(false,"Pauses",`hardly any. Pause after each point so it lands.`);
+    else row(true,"Pauses",`${r.pauses.length}, the longest ${secs1(longest)}. Pauses give your points weight.`);
+  }
+  if(r.voicedSec>=3){
+    const pr=r.pitchRange;
+    if(pr>=5) row(true,"Tone","lively and varied.");
+    else if(pr>=3) row(true,"Tone","some variety. Lift your voice a little more on the key words.");
+    else row(false,"Tone","quite flat. Lift your voice on the most important word of each sentence.");
+  }
+  if(target){const t=r.total;
+    if(t<target*.5) row(false,"Length",`${fmt(Math.round(t))} for a ${fmt(target)} task. Add an example or a result.`);
+    else if(t>target*1.25) row(false,"Length",`${fmt(Math.round(t))} for a ${fmt(target)} task. Cut to your main point.`);
+    else row(true,"Length",`${fmt(Math.round(t))} for a ${fmt(target)} task. Well judged.`);
+  }
+  return rows.join("")+`<p class="tip">Measured on this phone; nothing is uploaded. Most accurate in a quiet room.</p>`;
+}
+
 /* ---- natural recorded voice (Kokoro "Heart"), with word timings ---- */
 const NATURAL="__heart";
-const TIMING={"k1-1":[0.0,0.18,0.72],"k1-2":[0.0,0.18,0.71],"k1-3":[0.0,0.16,0.38,0.71,0.99],"k1-4":[0.0,0.33,0.73,0.83,0.91,1.16],"k1-5":[0.0,0.43,0.55,0.68,0.9,1.03],"k2-1":[0.0,0.57],"k2-2":[0.0,0.27,0.67,0.94],"k2-3":[0.0,0.17,0.4,0.73,1.13],"k2-4":[0.0,0.14,0.43,0.92,1.16],"k2-5":[0.0,0.5,0.6,0.82],"k3-1":[0.0,0.21,0.69],"k3-2":[0.0,0.18,0.53],"k3-3":[0.0,0.18,0.47,0.71],"k3-4":[0.0,0.31,0.66,0.86,1.16,1.29],"k3-5":[0.0,0.31,0.46],"k4-1":[0.0,0.36,0.97],"k4-2":[0.0,0.38,0.54,0.86,1.18,1.56,1.77],"k4-3":[0.0,0.19,0.39,0.62,0.78,0.94,1.13],"k4-4":[0.0,0.35,0.65,0.8,1.1],"k4-5":[0.0,0.24,0.54,0.66,0.96,1.09],"k5-1":[0.0,0.31,0.51,0.71,1.28],"k5-2":[0.0,0.19,0.44,0.58,0.92,1.31,1.51],"k5-3":[0.0,0.15,0.45,0.7,1.0,1.2],"k5-4":[0.0,0.18,0.65,0.85,1.38,1.5,1.83],"k5-5":[0.0,0.23,0.46,0.86,1.01,1.16,1.28],"k6-1":[0.0,0.28,0.67,1.12,1.46],"k6-2":[0.0,0.28,0.61,1.1],"k6-3":[0.0,0.39,0.78,1.17,1.57,1.96],"k6-4":[0.0,0.37,0.89,1.22],"k6-5":[0.0,0.44,0.74,1.01],"k7-1":[0.0,0.29,0.52,0.81],"k7-2":[0.0,0.33,0.56,0.84],"k7-3":[0.0,0.23,0.41,0.64,0.87,1.15,1.33],"k7-4":[0.0,0.58,0.7,1.08],"k7-5":[0.0,0.27,1.1,1.52,1.8],"k8-1":[0.0,0.32,0.53,0.74,1.11],"k8-2":[0.0,0.32,0.71,0.97],"k8-3":[0.0,0.16,0.48,0.75,1.23,1.45,1.66,1.98],"k8-4":[0.0,0.29,0.46,0.66,0.76,0.94],"k8-5":[0.0,0.2,0.32,0.47,0.57,0.8],"k9-1":[0.0,0.41,0.57,0.88,1.09,1.35],"k9-2":[0.0,0.39,0.56,0.83,1.0,1.28,1.67],"k9-3":[0.0,0.56,0.78,1.23,1.56],"k9-4":[0.0,0.2,0.32,0.47,0.85,1.1],"k9-5":[0.0,0.31],"k10-1":[0.0,0.15,0.49,0.74,1.14,1.34],"k10-2":[0.0,0.15,0.49,0.68,1.13,1.37,1.61,1.81],"k10-3":[0.0,0.24,0.49,0.83,1.07,1.41,1.71],"k10-4":[0.0,0.31,0.64,1.21,1.36,1.49],"k10-5":[0.0,0.29,0.57,0.69,0.97,1.04,1.17],"k11-1":[0.0,0.4,0.65,0.9,1.15,1.45,1.7],"k11-2":[0.0,0.24,0.48,0.72,1.01,1.4],"k11-3":[0.0,0.28,0.56,0.83,1.11],"k11-4":[0.0,0.24,0.39,0.59,0.66,0.76,1.21],"k11-5":[0.0,0.47,0.62,0.74,0.94],"k12-1":[0.0,0.41,0.66,0.91,1.11,1.32],"k12-2":[0.0,0.34,0.58,0.82],"k12-3":[0.0,0.19,0.42,0.7,0.93],"k12-4":[0.0,0.28,0.5,0.63,0.93,1.1],"k12-5":[0.0,0.48,0.88,1.0],"l1-1":[0.0,0.51,0.79,1.59,1.91,2.14,2.36,2.73,2.91],"l1-2":[0.0,0.51,0.79,1.59,1.79,1.95,2.18,2.37,2.72],"l1-3":[0.0,0.51,0.79,1.59,1.95,2.08,2.39],"l1-4":[0.0,0.49,0.7,1.54,1.79,2.11,2.44,2.51,2.66],"l1-5":[0.0,0.49,0.7,1.53,1.73,2.11,2.46,3.03,3.43,3.86,4.21,4.68,4.86],"l2-1":[0.0,0.44,0.88,1.18,1.4],"l2-2":[0.0,0.24,0.57,0.81,1.04,1.18,1.42,1.75],"l2-3":[0.0,0.22,0.67,1.03,1.47,1.7,2.14,2.5],"l2-4":[0.0,0.31,0.73,0.98,1.51,1.73,2.08,2.38],"l2-5":[0.0,0.19,0.64,0.82,1.64,2.12,2.22,2.64,3.02],"l3-1":[0.0,0.28,0.55,0.83,1.11,1.38,1.66,1.94,2.21,2.49],"l3-2":[0.0,0.39,0.63,0.97,1.36,1.6,1.94,2.19,2.48,2.72,3.01,3.4,3.64],"l3-3":[0.0,0.24,0.53,0.72,0.91,1.2,1.44,1.68,2.07,2.26],"l3-4":[0.0,0.3,0.5,0.77,1.4,1.57,1.75,2.02],"l3-5":[0.0,0.58,1.38,1.53,1.7,1.83,2.03,2.15],"l4-1":[0.0,0.28,0.73,1.02,1.82,1.96,2.29,2.71,3.0,3.19],"l4-2":[0.0,0.3,0.45,0.9,1.7,1.93,2.12,2.36,2.59,2.88],"l4-3":[0.0,0.27,0.65,1.03,1.35,1.84],"l4-4":[0.0,0.27,0.67,1.01,1.92,2.07,2.2],"l4-5":[0.0,0.36,0.82,1.69,1.89,2.17],"l5-1":[0.0,0.57,1.37,1.99,2.79,3.46,4.26],"l5-2":[0.0,0.35,1.0,1.8,2.16,2.39,2.62,3.07],"l5-3":[0.0,0.26,0.64,0.9,1.27,1.53],"l5-4":[0.0,0.27,0.67,0.82,1.21,2.07,2.19,2.42,2.64],"l5-5":[0.0,0.39,0.54,0.69,1.01,1.92,2.22],"l6-1":[0.0,0.54,1.09,1.45,1.69,2.06,2.24],"l6-2":[0.0,0.39,0.64,0.99,1.38,1.63,1.82],"l6-3":[0.0,0.42,0.78,1.36,1.78,2.14],"l6-4":[0.0,0.77,0.99,1.12,1.22,1.47],"l6-5":[0.0,0.28,0.65,0.78,1.45,1.6,1.93,2.08],"l7-1":[0.0,0.26,0.41,0.88,1.55,1.86,2.22,2.59,2.79,3.41,3.62],"l7-2":[0.0,0.3,0.86,1.01,1.27,1.42,1.72,1.93,2.28,2.74,2.99,3.35],"l7-3":[0.0,0.33,0.53,0.78,1.03,1.19,1.44,1.56,1.8,2.01,2.21],"l7-4":[0.0,0.26,0.54,0.66,1.04,1.56,2.11,2.64,2.74,2.94],"l7-5":[0.0,0.39,0.57,0.87,0.97,1.04,1.34,2.24,2.34,2.57,2.87,3.24,3.84],"l8-1":[0.0,0.27,0.54,0.92,1.36,1.63,2.06,2.33],"l8-2":[0.0,0.21,0.42,0.67,0.84],"l8-3":[0.0,0.31,0.49,0.76,0.99],"l8-4":[0.0,0.56,0.69,0.89,1.49,1.64,1.74,2.06,2.16],"l8-5":[0.0,0.23,0.4,0.65,0.83,1.15,1.25,1.33],"l9-1":[0.0,0.23,0.56,0.79,1.02,1.34,1.67,1.9,2.17,2.41,2.91,3.28],"l9-2":[0.0,0.15,0.54,0.84,1.33,1.57,1.97,2.21,2.56,3.0,3.49],"l9-3":[0.0,0.19,0.57,0.76,1.09,1.33,1.57,1.95,2.33,2.52],"l9-4":[0.0,0.31,0.76,0.94,1.04,1.26,1.71,2.04,2.59,2.76,3.04,3.21],"l9-5":[0.0,0.21,0.36,1.06,1.21,1.31,1.81,1.91,2.33,2.88],"l10-1":[0.0,0.24,0.44,0.63,1.17,1.37,1.81,2.29],"l10-2":[0.0,0.25,0.74,0.89,1.33,1.48,1.92,2.27,2.66,2.91,3.41,3.65],"l10-3":[0.0,0.21,0.7,1.02,1.23,1.61,1.82,2.15,2.31,2.63,3.22],"l10-4":[0.0,0.67,1.05,1.3,1.37,1.9,2.07,2.42,2.65,2.77,3.15],"l10-5":[0.0,0.31,0.53,0.71,1.01,1.58,1.71,2.21,2.28,2.48],"l11-1":[0.0,0.46,0.67,0.87,1.34,1.49,1.8,2.06,2.26,2.52,2.83],"l11-2":[0.0,0.27,0.44,0.82,1.04,1.7,2.03,2.25,2.75,3.13],"l11-3":[0.0,0.27,0.53,0.71,0.97,1.24,1.51],"l11-4":[0.0,0.23,0.48,0.78,0.96,1.28,1.41,1.53,1.78,2.13,2.23,2.56],"l11-5":[0.0,0.28,0.51,0.63,0.73,1.21,1.68,1.78,1.88,2.16,2.33,2.76],"l12-1":[0.0,0.13,0.39,0.65,0.86,1.03,1.29,1.51,1.64,1.98],"l12-2":[0.0,0.41,0.72,1.08,1.24,1.8,1.96,2.37,2.58,3.04],"l12-3":[0.0,0.25,0.51,0.86,1.22,1.47,1.93,2.13,2.38,2.69,2.89],"l12-4":[0.0,0.31,1.19,1.41,1.54,1.64,1.96,2.54,2.74],"l12-5":[0.0,0.32,0.62,0.72,0.92,1.09,1.49,1.57,1.67,1.97,2.19],"l13-1":[0.0,0.2,0.59,1.14,1.34,1.64,2.08,2.53,2.97],"l13-2":[0.0,0.33,0.52,0.71,0.99,1.13,1.42,1.7,2.08,2.36,2.69,2.93],"l13-3":[0.0,0.18,0.4,0.79,1.1,1.27,1.54,1.89,2.2],"l13-4":[0.0,0.79,1.09,1.39,1.84,1.99,2.09,2.41],"l13-5":[0.0,0.3,0.72,1.27,1.47,1.92,2.82,2.92,3.05,3.35,3.55,3.85],"l14-1":[0.0,0.2,0.35,0.63,0.9,1.14,1.33,1.45],"l14-2":[0.0,0.14,0.55,0.82,1.1,1.37,1.87,2.1,2.37,2.65,3.15],"l14-3":[0.0,0.39,0.64,0.88,1.18],"l14-4":[0.0,0.4,0.47,0.67,1.57,1.67,1.8,1.95,2.02,2.2,2.35,2.42,2.6],"l14-5":[0.0,0.23,0.38,0.63,0.93,1.03,1.28,1.53,1.73,1.96,2.08],"l15-1":[0.0,0.34,0.54,0.73,1.27,1.51,1.95,2.19,2.53,2.73,3.16,3.65,3.8],"l15-2":[0.0,0.28,0.48,0.71,0.87,1.11,1.39,1.59,1.82],"l15-3":[0.0,0.24,0.77,0.96,1.3,1.49,1.78],"l15-4":[0.0,0.33,1.03,1.15,1.3,1.75,2.1,2.2,2.3,2.55],"l15-5":[0.0,0.27,0.49,0.77,1.47,1.54,1.74],"l16-1":[0.0,0.24,0.51,0.87,1.11,1.34,1.5,1.7,1.98,2.17],"l16-2":[0.0,0.22,0.48,0.7,0.96,1.31,1.58,1.75,2.01,2.19],"l16-3":[0.0,0.35,0.56,0.95,1.43,1.65,1.9,2.08,2.42,2.73],"l16-4":[0.0,0.19,0.29,0.37,0.92,1.24,1.52,1.87],"l16-5":[0.0,0.32,0.47,0.62,1.12,1.22,1.42,1.54,1.84,2.12],"l17-1":[0.0,0.32,0.6,0.87,1.24,1.66,1.93],"l17-2":[0.0,0.28,0.56,0.84,1.22,1.4,1.97,2.15,2.29,2.67,3.0,3.23,3.51],"l17-3":[0.0,0.25,0.46,0.68,0.93],"l17-4":[0.0,0.33,0.65,0.93,1.0,1.15,1.38,1.45,1.63],"l17-5":[0.0,0.24,0.44,0.89,1.39,1.54,1.69,1.94,2.11,2.39,2.56],"l18-1":[0.0,0.35,0.65,0.95,1.3,1.49],"l18-2":[0.0,0.21,0.67,0.93,1.19,1.5],"l18-3":[0.0,0.14,0.37,0.51,0.93,1.26],"l18-4":[0.0,0.23,0.38,0.63,1.08,1.48,1.55,1.65],"l18-5":[0.0,0.4,0.73,1.35,1.48,1.6,1.7],"l19-1":[0.0,0.34,0.9],"l19-2":[0.0,0.14,0.46,0.74,1.16,1.48,1.81,2.04],"l19-3":[0.0,0.22,0.35,0.56,0.78,1.08],"l19-4":[0.0,0.26,0.41,0.48,0.73,1.13,1.38,1.48],"l19-5":[0.0,0.55,0.65,0.82,1.15,1.8,1.95,2.1,2.25,2.42,2.67,2.82],"l20-1":[0.0,0.35,0.6,0.85,1.2,1.51,1.71,2.06,2.31,2.56,2.91],"l20-2":[0.0,0.38,0.59,0.91,1.13,1.34,1.93,2.14],"l20-3":[0.0,0.51,0.66,0.96,1.47,1.77],"l20-4":[0.0,0.78,0.88,1.03,1.36,1.46,1.56],"l20-5":[0.0,0.21,0.36,0.49,0.96,1.14,2.01,2.19,2.46,2.64,2.74],"l21-1":[0.0,0.38,0.76,0.98,1.31,1.58,1.91,2.4,2.67],"l21-2":[0.0,0.38,0.56,0.85,1.08,1.51,1.74,2.07],"l21-3":[0.0,0.44,0.73,0.93],"l21-4":[0.0,0.73,0.86,1.03,1.26,1.51,1.81,1.96],"l21-5":[0.0,0.75,0.88,1.03,1.2,1.35,1.58,1.68,1.73],"l22-1":[0.0,0.19,0.48,0.86,1.25,1.44,1.73,1.97,2.45,2.64,2.88,3.17],"l22-2":[0.0,0.23,0.36,0.59,0.86],"l22-3":[0.0,0.33,0.61,1.04,1.27],"l22-4":[0.0,0.28,0.48,0.91,1.01,1.11,1.58,1.73],"l22-5":[0.0,0.22,0.32,0.62,1.2,1.35,1.87,2.12,2.97,3.17,3.4],"l23-1":[0.0,0.14,0.36,0.59,0.86,1.31,1.49],"l23-2":[0.0,0.2,0.64,0.83,1.13,1.32,1.67,1.91,2.25],"l23-3":[0.0,0.31,0.49,0.71,0.89,1.16,1.38,1.65],"l23-4":[0.0,0.28,0.46,0.56,1.26,1.38,1.68],"l23-5":[0.0,0.26,0.36,0.53,0.86,1.16,1.98,2.11,2.46,2.53],"l24-1":[0.0,0.57,0.86,1.15,1.48,1.67],"l24-2":[0.0,0.34,0.52,0.86,1.25,1.51,1.68,1.89],"l24-3":[0.0,0.2,0.54,0.99,1.53,1.77,2.17],"l24-4":[0.0,0.23,0.63,0.98,1.31,1.38],"l24-5":[0.0,0.4,0.65,0.9,1.3,1.75,1.85,1.98,2.2,2.85,3.18],"l25-1":[0.0,0.17,0.52,0.95,1.26,1.6,1.78,1.99,2.34],"l25-2":[0.0,0.3,0.56,0.82,1.04,1.3,1.56,1.74],"l25-3":[0.0,0.27,0.53,0.85,1.12,1.6,1.86],"l25-4":[0.0,0.21,0.44,0.66,0.99,1.61,1.79,2.06,2.41,2.51,2.61],"l25-5":[0.0,0.45,1.3,1.48,1.93,2.05,2.2,2.28,2.38,2.68],"l26-1":[0.0,0.31,0.57,0.94,1.2,1.56],"l26-2":[0.0,0.24,0.71,0.95,1.13],"l26-3":[0.0,0.4,0.6,0.9,1.15,1.41],"l26-4":[0.0,0.5,0.65,1.05,1.23],"l26-5":[0.0,0.23,0.36,0.73,1.28,1.41,1.53,1.86],"l27-1":[0.0,0.2,0.72,1.23,1.48,2.15,2.45,2.81],"l27-2":[0.0,0.25,0.64,0.89,1.19,1.43,1.93,2.17,2.52],"l27-3":[0.0,0.2,0.39,0.55,0.79,1.02,1.26],"l27-4":[0.0,0.29,0.71,0.81,1.24,1.36,1.86,2.19,2.41,2.71,2.79,2.86],"l27-5":[0.0,0.28,0.41,0.66,0.78,0.93,1.06,1.16,1.36],"l28-1":[0.0,0.38,0.62,1.1,1.3,1.54,1.68,2.01,2.3,2.59,2.78,3.12],"l28-2":[0.0,0.25,0.45,0.74,1.24,1.59,1.83,2.08,2.28,2.53],"l28-3":[0.0,0.31,0.46,0.71,0.92,1.12,1.53,1.73,1.94],"l28-4":[0.0,0.34,0.56,0.69,1.29,1.41,1.59,1.86,2.19,2.26,2.46,2.66],"l28-5":[0.0,0.26,0.36,0.53,0.81,1.11,1.41,1.98,2.16,2.43,2.53,2.78],"l29-1":[0.0,0.15,0.73,0.97,1.36],"l29-2":[0.0,0.36,0.64,0.86,1.14],"l29-3":[0.0,0.35,0.61,0.74,0.96,1.13,1.3],"l29-4":[0.0,0.3,0.52,0.62,0.72,1.12,1.47],"l29-5":[0.0,0.39,0.76,0.86,0.96,1.21,1.51],"p1-s":[0.08,0.44,0.69,0.95,1.3],"p2-s":[0.08,0.4,0.61,0.82,1.24,1.5,1.82,2.03,2.24],"p3-s":[0.08,0.34,0.72,1.11],"p4-s":[0.08,0.32,0.65,0.84,1.03,1.27],"p5-s":[0.08,0.23,0.49,0.9,1.2,1.41,1.66],"p6-s":[0.08,0.56,0.87,1.17,1.53,1.83],"p7-s":[0.08,0.32,0.62,0.92,1.22,1.4,1.7],"p8-s":[0.08,0.22,0.51,0.75,0.94,1.28,1.51],"p9-s":[0.08,0.24,0.72,1.15,1.42,1.9,2.17],"p10-s":[0.08,0.31,0.84,1.14,1.31,1.78,2.08,2.25]};
+const TIMING={"k1-1":[0.0,0.18,0.72],"k1-2":[0.0,0.18,0.71],"k1-3":[0.0,0.16,0.38,0.71,0.99],"k1-4":[0.0,0.33,0.73,0.83,0.91,1.16],"k1-5":[0.0,0.43,0.55,0.68,0.9,1.03],"k2-1":[0.0,0.57],"k2-2":[0.0,0.27,0.67,0.94],"k2-3":[0.0,0.17,0.4,0.73,1.13],"k2-4":[0.0,0.14,0.43,0.92,1.16],"k2-5":[0.0,0.5,0.6,0.82],"k3-1":[0.0,0.21,0.69],"k3-2":[0.0,0.18,0.53],"k3-3":[0.0,0.18,0.47,0.71],"k3-4":[0.0,0.31,0.66,0.86,1.16,1.29],"k3-5":[0.0,0.31,0.46],"k4-1":[0.0,0.36,0.97],"k4-2":[0.0,0.38,0.54,0.86,1.18,1.56,1.77],"k4-3":[0.0,0.19,0.39,0.62,0.78,0.94,1.13],"k4-4":[0.0,0.35,0.65,0.8,1.1],"k4-5":[0.0,0.24,0.54,0.66,0.96,1.09],"k5-1":[0.0,0.31,0.51,0.71,1.28],"k5-2":[0.0,0.19,0.44,0.58,0.92,1.31,1.51],"k5-3":[0.0,0.15,0.45,0.7,1.0,1.2],"k5-4":[0.0,0.18,0.65,0.85,1.38,1.5,1.83],"k5-5":[0.0,0.23,0.46,0.86,1.01,1.16,1.28],"k6-1":[0.0,0.28,0.67,1.12,1.46],"k6-2":[0.0,0.28,0.61,1.1],"k6-3":[0.0,0.39,0.78,1.17,1.57,1.96],"k6-4":[0.0,0.37,0.89,1.22],"k6-5":[0.0,0.44,0.74,1.01],"k7-1":[0.0,0.29,0.52,0.81],"k7-2":[0.0,0.33,0.56,0.84],"k7-3":[0.0,0.23,0.41,0.64,0.87,1.15,1.33],"k7-4":[0.0,0.58,0.7,1.08],"k7-5":[0.0,0.27,1.1,1.52,1.8],"k8-1":[0.0,0.32,0.53,0.74,1.11],"k8-2":[0.0,0.32,0.71,0.97],"k8-3":[0.0,0.16,0.48,0.75,1.23,1.45,1.66,1.98],"k8-4":[0.0,0.29,0.46,0.66,0.76,0.94],"k8-5":[0.0,0.2,0.32,0.47,0.57,0.8],"k9-1":[0.0,0.41,0.57,0.88,1.09,1.35],"k9-2":[0.0,0.39,0.56,0.83,1.0,1.28,1.67],"k9-3":[0.0,0.56,0.78,1.23,1.56],"k9-4":[0.0,0.2,0.32,0.47,0.85,1.1],"k9-5":[0.0,0.31],"k10-1":[0.0,0.15,0.49,0.74,1.14,1.34],"k10-2":[0.0,0.15,0.49,0.68,1.13,1.37,1.61,1.81],"k10-3":[0.0,0.24,0.49,0.83,1.07,1.41,1.71],"k10-4":[0.0,0.31,0.64,1.21,1.36,1.49],"k10-5":[0.0,0.29,0.57,0.69,0.97,1.04,1.17],"k11-1":[0.0,0.4,0.65,0.9,1.15,1.45,1.7],"k11-2":[0.0,0.24,0.48,0.72,1.01,1.4],"k11-3":[0.0,0.28,0.56,0.83,1.11],"k11-4":[0.0,0.24,0.39,0.59,0.66,0.76,1.21],"k11-5":[0.0,0.47,0.62,0.74,0.94],"k12-1":[0.0,0.41,0.66,0.91,1.11,1.32],"k12-2":[0.0,0.34,0.58,0.82],"k12-3":[0.0,0.19,0.42,0.7,0.93],"k12-4":[0.0,0.28,0.5,0.63,0.93,1.1],"k12-5":[0.0,0.48,0.88,1.0],"l1-1":[0.0,0.52,1.2,2.0,2.31,2.46,2.58,2.91,3.06],"l1-2":[0.0,0.52,1.2,2.0,2.2,2.35,2.62,2.8,3.07],"l1-3":[0.0,0.52,1.2,2.0,2.36,2.43,2.71],"l1-4":[0.0,0.52,1.2,2.0,2.29,2.61,2.94,3.01,3.16],"l1-5":[0.0,0.52,1.2,2.0,2.23,2.6,2.96,3.53,3.93,4.36,4.7,5.18,5.36],"l2-1":[0.0,0.44,0.88,1.18,1.4],"l2-2":[0.0,0.24,0.57,0.81,1.04,1.18,1.42,1.75],"l2-3":[0.0,0.22,0.67,1.03,1.47,1.7,2.14,2.5],"l2-4":[0.0,0.31,0.73,0.98,1.51,1.73,2.08,2.38],"l2-5":[0.0,0.19,0.64,0.82,1.64,2.12,2.22,2.64,3.02],"l3-1":[0.0,0.28,0.55,0.83,1.11,1.38,1.66,1.94,2.21,2.49],"l3-2":[0.0,0.39,0.63,0.97,1.36,1.6,1.94,2.19,2.48,2.72,3.01,3.4,3.64],"l3-3":[0.0,0.24,0.53,0.72,0.91,1.2,1.44,1.68,2.07,2.26],"l3-4":[0.0,0.3,0.5,0.77,1.4,1.57,1.75,2.02],"l3-5":[0.0,0.58,1.38,1.53,1.7,1.83,2.03,2.15],"l4-1":[0.0,0.28,0.73,1.02,1.82,1.96,2.29,2.71,3.0,3.19],"l4-2":[0.0,0.3,0.45,0.9,1.7,1.93,2.12,2.36,2.59,2.88],"l4-3":[0.0,0.27,0.65,1.03,1.35,1.84],"l4-4":[0.0,0.27,0.67,1.01,1.81,2.07,2.2],"l4-5":[0.0,0.36,0.82,1.62,1.89,2.17],"l5-1":[0.0,0.57,1.37,1.99,2.79,3.46,4.26],"l5-2":[0.0,0.35,1.0,1.8,2.16,2.39,2.62,3.07],"l5-3":[0.0,0.26,0.64,0.9,1.27,1.53],"l5-4":[0.0,0.27,0.67,0.82,1.21,2.01,2.19,2.42,2.64],"l5-5":[0.0,0.39,0.54,0.69,1.01,1.81,2.22],"l6-1":[0.0,0.54,1.09,1.45,1.69,2.06,2.24],"l6-2":[0.0,0.39,0.64,0.99,1.38,1.63,1.82],"l6-3":[0.0,0.42,0.78,1.36,1.78,2.14],"l6-4":[0.0,0.77,0.99,1.12,1.22,1.47],"l6-5":[0.0,0.28,0.65,0.78,1.45,1.6,1.93,2.08],"l7-1":[0.0,0.26,0.41,0.88,1.55,1.86,2.22,2.59,2.79,3.41,3.62],"l7-2":[0.0,0.38,1.31,1.46,1.58,1.68,1.96,2.11,2.41,2.66,2.86,3.13],"l7-3":[0.0,0.33,0.53,0.78,1.03,1.19,1.44,1.56,1.8,2.01,2.21],"l7-4":[0.0,0.26,0.54,0.66,1.04,1.56,2.11,2.64,2.74,2.94],"l7-5":[0.0,0.39,0.57,0.87,0.97,1.04,1.34,2.24,2.34,2.57,2.87,3.24,3.84],"l8-1":[0.0,0.27,0.54,0.92,1.36,1.63,2.06,2.33],"l8-2":[0.0,0.21,0.42,0.67,0.84],"l8-3":[0.0,0.31,0.49,0.76,0.99],"l8-4":[0.0,0.56,0.69,0.89,1.49,1.64,1.74,2.06,2.16],"l8-5":[0.0,0.23,0.4,0.65,0.83,1.15,1.25,1.33],"l9-1":[0.0,0.23,0.56,0.79,1.02,1.34,1.67,1.9,2.17,2.41,2.91,3.28],"l9-2":[0.0,0.15,0.54,0.84,1.33,1.57,1.97,2.21,2.56,3.0,3.49],"l9-3":[0.0,0.19,0.57,0.76,1.09,1.33,1.57,1.95,2.33,2.52],"l9-4":[0.0,0.31,0.76,0.94,1.04,1.26,1.71,2.04,2.59,2.76,3.04,3.21],"l9-5":[0.0,0.21,0.36,1.06,1.21,1.31,1.81,1.91,2.33,2.88],"l10-1":[0.0,0.24,0.44,0.63,1.17,1.37,1.81,2.29],"l10-2":[0.0,0.25,0.74,0.89,1.33,1.48,1.92,2.27,2.66,2.91,3.41,3.65],"l10-3":[0.0,0.21,0.7,1.02,1.23,1.61,1.82,2.15,2.31,2.63,3.22],"l10-4":[0.0,0.67,1.05,1.3,1.37,1.9,2.07,2.42,2.65,2.77,3.15],"l10-5":[0.0,0.31,0.53,0.71,1.01,1.58,1.71,2.21,2.28,2.48],"l11-1":[0.0,0.46,0.67,0.87,1.34,1.49,1.8,2.06,2.26,2.52,2.83],"l11-2":[0.0,0.27,0.44,0.82,1.04,1.7,2.03,2.25,2.75,3.13],"l11-3":[0.0,0.27,0.53,0.71,0.97,1.24,1.51],"l11-4":[0.0,0.23,0.48,0.78,0.96,1.28,1.41,1.53,1.78,2.13,2.23,2.56],"l11-5":[0.0,0.28,0.51,0.63,0.73,1.21,1.68,1.78,1.88,2.16,2.33,2.76],"l12-1":[0.0,0.13,0.39,0.65,0.86,1.03,1.29,1.51,1.64,1.98],"l12-2":[0.0,0.41,0.72,1.08,1.24,1.8,1.96,2.37,2.58,3.04],"l12-3":[0.0,0.25,0.51,0.86,1.22,1.47,1.93,2.13,2.38,2.69,2.89],"l12-4":[0.0,0.31,1.19,1.41,1.54,1.64,1.96,2.54,2.74],"l12-5":[0.0,0.32,0.62,0.72,0.92,1.09,1.49,1.57,1.67,1.97,2.19],"l13-1":[0.0,0.2,0.59,1.14,1.34,1.64,2.08,2.53,2.97],"l13-2":[0.0,0.33,0.52,0.71,0.99,1.13,1.42,1.7,2.08,2.36,2.69,2.93],"l13-3":[0.0,0.18,0.4,0.79,1.1,1.27,1.54,1.89,2.2],"l13-4":[0.0,0.79,1.09,1.39,1.84,1.99,2.09,2.41],"l13-5":[0.0,0.3,0.72,1.27,1.47,1.92,2.82,2.92,3.05,3.35,3.55,3.85],"l14-1":[0.0,0.2,0.35,0.63,0.9,1.14,1.33,1.45],"l14-2":[0.0,0.14,0.55,0.82,1.1,1.37,1.87,2.1,2.37,2.65,3.15],"l14-3":[0.0,0.39,0.64,0.88,1.18],"l14-4":[0.0,0.4,0.47,0.67,1.57,1.67,1.8,1.95,2.02,2.2,2.35,2.42,2.6],"l14-5":[0.0,0.23,0.38,0.63,0.93,1.03,1.28,1.53,1.73,1.96,2.08],"l15-1":[0.0,0.34,0.54,0.73,1.27,1.51,1.95,2.19,2.53,2.73,3.16,3.65,3.8],"l15-2":[0.0,0.28,0.48,0.71,0.87,1.11,1.39,1.59,1.82],"l15-3":[0.0,0.24,0.77,0.96,1.3,1.49,1.78],"l15-4":[0.0,0.33,1.03,1.15,1.3,1.75,2.1,2.2,2.3,2.55],"l15-5":[0.0,0.27,0.49,0.77,1.47,1.54,1.74],"l16-1":[0.0,0.24,0.51,0.87,1.11,1.34,1.5,1.7,1.98,2.17],"l16-2":[0.0,0.22,0.48,0.7,0.96,1.31,1.58,1.75,2.01,2.19],"l16-3":[0.0,0.35,0.56,0.95,1.43,1.65,1.9,2.08,2.42,2.73],"l16-4":[0.0,0.19,0.29,0.37,0.92,1.24,1.52,1.87],"l16-5":[0.0,0.32,0.47,0.62,1.12,1.22,1.42,1.54,1.84,2.12],"l17-1":[0.0,0.32,0.6,0.87,1.24,1.66,1.93],"l17-2":[0.0,0.28,0.56,0.84,1.22,1.4,1.97,2.15,2.29,2.67,3.0,3.23,3.51],"l17-3":[0.0,0.25,0.46,0.68,0.93],"l17-4":[0.0,0.33,0.65,0.93,1.0,1.15,1.38,1.45,1.63],"l17-5":[0.0,0.24,0.44,0.89,1.39,1.54,1.69,1.94,2.11,2.39,2.56],"l18-1":[0.0,0.35,0.65,0.95,1.3,1.49],"l18-2":[0.0,0.21,0.67,0.93,1.19,1.5],"l18-3":[0.0,0.14,0.37,0.51,0.93,1.26],"l18-4":[0.0,0.23,0.38,0.63,1.08,1.48,1.55,1.65],"l18-5":[0.0,0.4,0.73,1.35,1.48,1.6,1.7],"l19-1":[0.0,0.34,0.9],"l19-2":[0.0,0.14,0.46,0.74,1.16,1.48,1.81,2.04],"l19-3":[0.0,0.22,0.35,0.56,0.78,1.08],"l19-4":[0.0,0.26,0.41,0.48,0.73,1.13,1.38,1.48],"l19-5":[0.0,0.55,0.65,0.82,1.15,1.8,1.95,2.1,2.25,2.42,2.67,2.82],"l20-1":[0.0,0.35,0.6,0.85,1.2,1.51,1.71,2.06,2.31,2.56,2.91],"l20-2":[0.0,0.38,0.59,0.91,1.13,1.34,1.93,2.14],"l20-3":[0.0,0.51,0.66,0.96,1.47,1.77],"l20-4":[0.0,0.78,0.88,1.03,1.36,1.46,1.56],"l20-5":[0.0,0.21,0.36,0.49,0.96,1.14,2.01,2.19,2.46,2.64,2.74],"l21-1":[0.0,0.38,0.76,0.98,1.31,1.58,1.91,2.4,2.67],"l21-2":[0.0,0.38,0.56,0.85,1.08,1.51,1.74,2.07],"l21-3":[0.0,0.44,0.73,0.93],"l21-4":[0.0,0.73,0.86,1.03,1.26,1.51,1.81,1.96],"l21-5":[0.0,0.75,0.88,1.03,1.2,1.35,1.58,1.68,1.73],"l22-1":[0.0,0.19,0.48,0.86,1.25,1.44,1.73,1.97,2.45,2.64,2.88,3.17],"l22-2":[0.0,0.23,0.36,0.59,0.86],"l22-3":[0.0,0.33,0.61,1.04,1.27],"l22-4":[0.0,0.28,0.48,0.91,1.01,1.11,1.58,1.73],"l22-5":[0.0,0.22,0.32,0.62,1.2,1.35,1.87,2.12,2.97,3.17,3.4],"l23-1":[0.0,0.14,0.36,0.59,0.86,1.31,1.49],"l23-2":[0.0,0.2,0.64,0.83,1.13,1.32,1.67,1.91,2.25],"l23-3":[0.0,0.31,0.49,0.71,0.89,1.16,1.38,1.65],"l23-4":[0.0,0.28,0.46,0.56,1.26,1.38,1.68],"l23-5":[0.0,0.26,0.36,0.53,0.86,1.16,1.98,2.11,2.46,2.53],"l24-1":[0.0,0.57,0.86,1.15,1.48,1.67],"l24-2":[0.0,0.34,0.52,0.86,1.25,1.51,1.68,1.89],"l24-3":[0.0,0.2,0.54,0.99,1.53,1.77,2.17],"l24-4":[0.0,0.23,0.63,0.98,1.31,1.38],"l24-5":[0.0,0.4,0.65,0.9,1.3,1.75,1.85,1.98,2.2,2.85,3.18],"l25-1":[0.0,0.17,0.52,0.95,1.26,1.6,1.78,1.99,2.34],"l25-2":[0.0,0.3,0.56,0.82,1.04,1.3,1.56,1.74],"l25-3":[0.0,0.27,0.53,0.85,1.12,1.6,1.86],"l25-4":[0.0,0.21,0.44,0.66,0.99,1.61,1.79,2.06,2.41,2.51,2.61],"l25-5":[0.0,0.45,1.3,1.48,1.93,2.05,2.2,2.28,2.38,2.68],"l26-1":[0.0,0.31,0.57,0.94,1.2,1.56],"l26-2":[0.0,0.24,0.71,0.95,1.13],"l26-3":[0.0,0.4,0.6,0.9,1.15,1.41],"l26-4":[0.0,0.5,0.65,1.05,1.23],"l26-5":[0.0,0.24,0.36,0.71,1.24,1.39,1.69,1.79,1.99],"l27-1":[0.0,0.2,0.72,1.23,1.48,2.15,2.45,2.81],"l27-2":[0.0,0.25,0.64,0.89,1.19,1.43,1.93,2.17,2.52],"l27-3":[0.0,0.2,0.39,0.55,0.79,1.02,1.26],"l27-4":[0.0,0.29,0.71,0.81,1.24,1.36,1.86,2.19,2.41,2.71,2.79,2.86],"l27-5":[0.0,0.28,0.41,0.66,0.78,0.93,1.06,1.16,1.36],"l28-1":[0.0,0.38,0.62,1.1,1.3,1.54,1.68,2.01,2.3,2.59,2.78,3.12],"l28-2":[0.0,0.25,0.45,0.74,1.24,1.59,1.83,2.08,2.28,2.53],"l28-3":[0.0,0.31,0.46,0.71,0.92,1.12,1.53,1.73,1.94],"l28-4":[0.0,0.34,0.56,0.69,1.29,1.41,1.59,1.86,2.19,2.26,2.46,2.66],"l28-5":[0.0,0.26,0.36,0.53,0.81,1.11,1.41,1.98,2.16,2.43,2.53,2.78],"l29-1":[0.0,0.15,0.73,0.97,1.36],"l29-2":[0.0,0.36,0.64,0.86,1.14],"l29-3":[0.0,0.35,0.61,0.74,0.96,1.13,1.3],"l29-4":[0.0,0.3,0.52,0.62,0.72,1.12,1.47],"l29-5":[0.0,0.39,0.76,0.86,0.96,1.21,1.51],"p1-s":[0.08,0.44,0.69,0.95,1.3],"p2-s":[0.08,0.4,0.61,0.82,1.24,1.5,1.82,2.03,2.24],"p3-s":[0.08,0.34,0.72,1.11],"p4-s":[0.08,0.32,0.65,0.84,1.03,1.27],"p5-s":[0.08,0.23,0.49,0.9,1.2,1.41,1.66],"p6-s":[0.08,0.56,0.87,1.17,1.53,1.83],"p7-s":[0.08,0.32,0.62,0.92,1.22,1.4,1.7],"p8-s":[0.08,0.22,0.51,0.75,0.94,1.28,1.51],"p9-s":[0.08,0.24,0.72,1.15,1.42,1.9,2.17],"p10-s":[0.08,0.31,0.84,1.14,1.31,1.78,2.08,2.25]};
 let naturalFailed=false, curClip=null, clipRaf=0;
 // A drill line has a recorded clip only once its word timings exist (tools/generate_voice.py adds both); otherwise the device voice reads it.
 const hasClip=name=>Object.prototype.hasOwnProperty.call(TIMING,name);
@@ -1307,7 +1450,7 @@ function kidLesson(i){
     if(!naturalFailed&&hasClip(`k${i+1}-${j+1}`)) playClip(`k${i+1}-${j+1}`,lines[j],1,null,()=>{setActive(-1);done&&done();},()=>ttsSay(K.say[j],()=>{setActive(-1);done&&done();}));
     else ttsSay(K.say[j],()=>{setActive(-1);done&&done();});};
   const clip=(name,text)=>{stopK(); if(!naturalFailed) playClip(name,null,1,null,null,()=>ttsSay(text)); else ttsSay(text);};
-  const cmp=bindCompare(CMP_KIDS,K.say.map((x,j)=>({name:`sentence ${j+1}`,show:`“${x}”`,play:done=>sayLine(j,done)})),()=>{playing=false;clearTimeout(tmo);stopClip();try{speechSynthesis.cancel();}catch(e){}setActive(-1);});
+  const cmp=bindCompare(CMP_KIDS,K.say.map((x,j)=>({name:`sentence ${j+1}`,show:`“${x}”`,play:done=>sayLine(j,done),clip:()=>!naturalFailed&&hasClip(`k${i+1}-${j+1}`)?`k${i+1}-${j+1}`:null})),()=>{playing=false;clearTimeout(tmo);stopClip();try{speechSynthesis.cancel();}catch(e){}setActive(-1);});
   lines.forEach((b,j)=>b.onclick=()=>{cmp.select(j);stopK();markPractice();sayLine(j);});
   $("#kall").onclick=()=>{cmp.cancel();if(playing){stopK();return;}stopK();playing=true;markPractice();$("#kall").textContent="■ Stop";let j=0;
     const next=()=>{if(!playing)return;if(j>=lines.length){stopK();return;}sayLine(j++,()=>{if(playing)tmo=setTimeout(next,1800);});};next();};
@@ -1365,8 +1508,8 @@ function pronLesson(i){
   const say=(name,text,el,container,after)=>{stopClip();try{speechSynthesis.cancel();}catch(e){}clearActive();el.classList.add("active");markPractice();
     const done=()=>{el.classList.remove("active");after&&after();};
     if(!naturalFailed) playClip(name,container||null,1,null,done,()=>ttsSay(text,done)); else ttsSay(text,done);};
-  const items=btns.map(b=>({name:`„${b.dataset.t}”`,show:`Ales: „${b.dataset.t}”`,play:d=>say(b.dataset.a,b.dataset.t,b,null,d)}))
-    .concat([{name:"propoziția",show:`Ales: „${P.sentence}”`,play:d=>say(`p${n}-s`,P.sentence,sent,sent,d)}]);
+  const items=btns.map(b=>({name:`„${b.dataset.t}”`,show:`Ales: „${b.dataset.t}”`,play:d=>say(b.dataset.a,b.dataset.t,b,null,d),clip:()=>naturalFailed?null:b.dataset.a}))
+    .concat([{name:"propoziția",show:`Ales: „${P.sentence}”`,play:d=>say(`p${n}-s`,P.sentence,sent,sent,d),clip:()=>naturalFailed?null:`p${n}-s`}]);
   const cmp=bindCompare(CMP_RO,items,()=>{stopClip();try{speechSynthesis.cancel();}catch(e){}clearActive();},items.length-1);
   btns.forEach((b,j)=>b.onclick=()=>{cmp.select(j);say(b.dataset.a,b.dataset.t,b);});
   sent.onclick=()=>{cmp.select(items.length-1);say(`p${n}-s`,P.sentence,sent,sent);};

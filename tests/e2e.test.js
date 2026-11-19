@@ -206,6 +206,8 @@ test("compare: record a lesson line, then hear the model and yourself back to ba
   assert.match(await text(page, "#cmprec"), /Record line 3 again/);
   assert.ok(!(await page.isHidden("#cmpplay")), "replay button shown");
   assert.ok(reqs.filter(r => r === "l7-3.mp3").length >= 2, "model played for the comparison");
+  await page.waitForSelector("#cmpfb:not([hidden])", { timeout: 10000 });
+  assert.match(await text(page, "#cmpfb"), /^.Pace: you took [\d.]+ s, the model [\d.]+ s\./);
   // replay, then stop halfway
   await page.click("#cmpplay");
   assert.strictEqual(await text(page, "#cmpplay"), "■ Stop");
@@ -226,6 +228,67 @@ test("compare: kids sentences and Romanian pronunciation games", async () => {
   await compareRound(pron, '.pword[data-a="p1-w2"]', "Sună la fel?");
   assert.match(await text(pron, "#cmpcur"), /„three”/);
   assert.deepStrictEqual([...kids.errors, ...pron.errors], []);
+});
+
+/* ---------- delivery feedback ---------- */
+test("delivery feedback: real speech recorded through the app gets the right pace, pauses and tone", async () => {
+  // its own browser, whose microphone plays a recording of speech at a known pace (144 words a minute)
+  const fixture = path.join(__dirname, "fixtures", "speech-144wpm.wav");
+  const b = await chromium.launch({ args: ["--use-fake-device-for-media-stream", "--use-fake-ui-for-media-stream", `--use-file-for-fake-audio-capture=${fixture}%noloop`] });
+  try {
+    const context = await b.newContext({ viewport: { width: 390, height: 800 }, serviceWorkers: "block", permissions: ["microphone"] });
+    const page = await context.newPage();
+    const errors = []; page.on("pageerror", e => errors.push(e.message));
+    await page.goto(`${base}/index.html#lesson-9`);
+    await page.evaluate(() => { const o = window.analyzeSpeech; window.analyzeSpeech = (...a) => (window.__r = o(...a)); });
+    await page.click("#rec");
+    await page.waitForTimeout(25500);
+    await page.click("#rec");
+    await page.waitForFunction(() => window.__r && !/Listening back/.test(document.querySelector("#rfb").textContent), null, { timeout: 20000 });
+    const r = await page.evaluate(() => window.__r);
+    assert.ok(r.wpm > 130 && r.wpm < 160, `pace ${r.wpm.toFixed(0)} for 144`);
+    assert.ok(r.pauses.length >= 4, `pauses ${r.pauses}`);
+    assert.ok(r.pitchRange > 5, `pitch range ${r.pitchRange}`);
+    const fb = await page.innerText("#rfb");
+    assert.match(fb, /Pace: about 1[3-6]\d words a minute\. A clear, easy pace/);
+    assert.match(fb, /Tone: lively/);
+    assert.match(fb, /Length: 0:2\d for a 1:30 task\. Add an example/);
+    assert.ok((await stored(page)).delivery[8].wpm > 0, "pace saved for next time");
+    assert.deepStrictEqual(errors, []);
+  } finally { await b.close(); }
+});
+
+test("delivery feedback: the analysis measures known speech and tones correctly", async () => {
+  const page = await open("lesson-9");
+  const res = await page.evaluate(async () => {
+    // the five Heart lines of lesson 9 with 0.8 s between them; words known from the text
+    const bufs = await Promise.all([1, 2, 3, 4, 5].map(k => fetch(`audio/l9-${k}.mp3`).then(r => r.arrayBuffer()).then(decodeAudio)));
+    const sr = bufs[0].sampleRate, gap = new Float32Array(Math.round(sr * 0.8));
+    const parts = [gap]; bufs.forEach(b => parts.push(b.getChannelData(0), gap));
+    const x = new Float32Array(parts.reduce((a, p) => a + p.length, 0)); let o = 0; for (const p of parts) { x.set(p, o); o += p.length; }
+    const words = LESSONS[8].drill.join(" ").split(/\s+/).length;
+    const speech = analyzeSpeech(x, sr);
+    // synthetic voices: steady 150 Hz, and a glide over one octave (12 semitones, 9.6 between the 10th and 90th percentile)
+    const voice = (f0, sec = 6) => { const s = 48000, y = new Float32Array(sec * s); let ph = 0; for (let i = 0; i < y.length; i++) { const t = i / s; ph += 2 * Math.PI * f0(t) / s; let v = 0; for (let h = 1; h <= 8; h++) v += Math.sin(h * ph) / h; y[i] = 0.2 * v * (0.25 + 0.75 * Math.sin(Math.PI * 4 * t) ** 2); } return analyzeSpeech(y, s); };
+    return { trueWpm: words / speech.total * 60, wpm: speech.wpm, pauses: speech.pauses.length, flat: voice(() => 150).pitchRange, glide: voice(t => 120 * 2 ** (t / 6)).pitchRange, silent: analyzeSpeech(new Float32Array(48000), 48000) };
+  });
+  assert.ok(Math.abs(res.wpm - res.trueWpm) / res.trueWpm < 0.2, `pace ${res.wpm.toFixed(0)} vs ${res.trueWpm.toFixed(0)}`);
+  assert.ok(res.pauses >= 4, `found ${res.pauses} pauses between 5 lines`);
+  assert.ok(res.flat < 1, `steady tone measured as ${res.flat} semitones`);
+  assert.ok(Math.abs(res.glide - 9.6) < 1, `octave glide measured as ${res.glide} semitones`);
+  assert.deepStrictEqual(res.silent, { empty: true });
+});
+
+test("delivery feedback: short or silent recordings get a helpful message, not numbers", async () => {
+  const page = await open("lesson-1");
+  const out = await page.evaluate(() => [deliveryHTML({ empty: true }, 30), deliveryHTML({ total: 2, voicedSec: 1, pauses: [], wpm: 140, pitchRange: 6 }, 30),
+    deliveryHTML({ total: 40, voicedSec: 20, pauses: [0.5, 4.2], wpm: 200, pitchRange: 2 }, 30)]);
+  assert.match(out[0], /No speech was heard/);
+  assert.match(out[1], /Record a few more seconds/);
+  assert.match(out[2], /Fast: slow down/);
+  assert.match(out[2], /1 silence over 3 seconds/);
+  assert.match(out[2], /Tone:<\/b> quite flat/);
+  assert.match(out[2], /0:40 for a 0:30 task\. Cut to your main point/);
 });
 
 /* ---------- interview plan ---------- */
@@ -386,7 +449,7 @@ test("no accessibility violations (axe-core) in light and dark mode", async () =
   for (const scheme of ["light", "dark"]) {
     const page = await open();
     await page.emulateMedia({ colorScheme: scheme });
-    for (const r of ["home", "lesson-1", "lesson-12", "lesson-20", "lesson-27", "warmup", "kids", "kids-2", "sound-1", "about", "prep", "prep-1", "prep-3"]) {
+    for (const r of ["home", "lesson-1", "lesson-12", "lesson-20", "lesson-27", "warmup", "kids", "kids-1", "kids-2", "kids-3", "kids-4", "kids-6", "sound-1", "sound-2", "sound-5", "about", "prep", "prep-1", "prep-3"]) {
       await go(page, r);
       if (r === "home") await page.$$eval(".mtop[aria-expanded='false']", bs => bs.forEach(b => b.click()));
       await page.addScriptTag({ content: axe });
